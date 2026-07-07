@@ -20,51 +20,6 @@ The project is designed to demonstrate a complete engineering path:
 
 ---
 
-## Sprint 0 Repository Skeleton
-
-This repository starts with a deliberately small and explicit skeleton. The goal is to make project boundaries visible before runtime implementation begins.
-
-```text
-homeedge-ai-platform/
-├── apps/
-│   └── mobile/
-├── docs/
-│   ├── adr/
-│   └── architecture/
-├── firmware/
-│   └── room-env-node/
-├── infrastructure/
-├── schemas/
-├── scripts/
-├── services/
-│   ├── ingestion/
-│   ├── device-registry/
-│   ├── read-model/
-│   └── ai-insight/
-└── tools/
-```
-
-### MVP boundary
-
-The only firmware node in the MVP skeleton is:
-
-- `firmware/room-env-node/`
-
-Future nodes such as door/window sensors, presence radar nodes, raw audio processing, 220V automation, and Kafka edge-side producers are intentionally outside the Sprint 0 MVP skeleton unless a later ADR explicitly changes this boundary.
-
-### Backend target topology
-
-The backend target is represented as four service boundaries:
-
-- `services/ingestion/`
-- `services/device-registry/`
-- `services/read-model/`
-- `services/ai-insight/`
-
-These directories are **target service boundaries**, not proof that production-ready services already exist.
-
----
-
 ## Architecture
 
 ```text
