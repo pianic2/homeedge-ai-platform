@@ -49,6 +49,37 @@ AI_AGENT_METADATA:
     - do_not_close_jira_without_project_owner_approval
     - keep_mvp_future_out_of_mvp_target_distinction
     - do_not_overstate_runtime_maturity
+
+HIDDEN_ANTI_REGRESSION_RULES:
+  - This document must not contradict the repository skeleton introduced by IHAP-10.
+  - The only firmware node in the MVP is firmware/room-env-node/.
+  - firmware/room-env-node/ represents the first generic room/door node positioned near the room door.
+  - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
+  - The four backend directories remain target service boundaries, not proof of completed production services.
+  - Kafka direct production from ESP32 remains OUT OF MVP.
+  - Backend-side Kafka/event streaming remains FUTURE unless a later ADR and implementation task validate it.
+  - Raw audio collection remains OUT OF MVP.
+  - Local, non-identifying presence detection is allowed inside the MVP.
+  - Individual presence tracking, behavioral history, identity inference, and routine profiling remain OUT OF MVP.
+  - Door open/closed state is allowed inside the MVP as telemetry only.
+  - Door state must not be presented as certified access control, alarm-grade intrusion detection, or safety-critical security evidence.
+  - Window sensors remain FUTURE and OUT OF MVP unless changed by ADR.
+  - 220V automation remains OUT OF MVP.
+  - Mobile monitoring is a target direction unless supported by implementation evidence.
+  - AI insight is a target/future service boundary unless supported by implementation evidence.
+  - Stakeholder reports must not contain sensitive data, raw personal telemetry, raw audio, behavioral tracking, or unsupported production/safety/commercial claims.
+  - Any unproven claim must be marked as [UNVALIDATED].
+  - Documentation must distinguish clearly between MVP, FUTURE, OUT OF MVP, and TARGET.
+  - Jira must track status, evidence, decisions, and review state.
+  - GitHub must remain the source of truth for versioned technical documentation.
+
+HIDDEN_EVIDENCE_EXPECTATIONS:
+  - A GitHub branch dedicated to the task.
+  - A draft pull request linked to IHAP-11.
+  - This versioned document under docs/product/product-vision.md.
+  - A Jira comment linking the PR and summarizing the documentation scope.
+  - Jira status moved to review after PR creation.
+  - No transition to completed until explicit project owner approval.
 -->
 
 ---
@@ -88,8 +119,6 @@ Included:
 - FUTURE scope.
 - OUT OF MVP scope.
 - Initial glossary.
-- Anti-regression rules for Sprint 0.
-- Evidence expectations.
 
 Excluded:
 
@@ -392,64 +421,3 @@ At Sprint 0, this is a target/future boundary, not a validated AI runtime.
 | `[UNVALIDATED]` | Marker for a claim, capability, schema, flow, or assumption that has not yet been implemented, tested, and supported by runtime evidence. |
 | Stakeholder Report | A concise status report for stakeholders, such as ITS professors, that communicates progress, risks, evidence, and next steps without leaking sensitive data or making unsupported claims. |
 | Runtime Evidence | Concrete evidence from running software or hardware, such as logs, tests, screenshots, traces, build outputs, or verified API responses. |
-
----
-
-## 9. Anti-regression Rules
-
-These rules protect the Sprint 0 baseline and IHAP-10 repository skeleton.
-
-1. This document must not contradict the repository skeleton introduced by IHAP-10.
-2. The only firmware node in the MVP is `firmware/room-env-node/`.
-3. `firmware/room-env-node/` represents the first generic room/door node positioned near the room door.
-4. The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
-5. The four backend directories remain target service boundaries, not proof of completed production services.
-6. Kafka direct production from ESP32 remains OUT OF MVP.
-7. Backend-side Kafka/event streaming remains FUTURE unless a later ADR and implementation task validate it.
-8. Raw audio collection remains OUT OF MVP.
-9. Local, non-identifying presence detection is allowed inside the MVP.
-10. Individual presence tracking, behavioral history, identity inference, and routine profiling remain OUT OF MVP.
-11. Door open/closed state is allowed inside the MVP as telemetry only.
-12. Door state must not be presented as certified access control, alarm-grade intrusion detection, or safety-critical security evidence.
-13. Window sensors remain FUTURE and OUT OF MVP unless changed by ADR.
-14. 220V automation remains OUT OF MVP.
-15. Mobile monitoring is a target direction unless supported by implementation evidence.
-16. AI insight is a target/future service boundary unless supported by implementation evidence.
-17. Stakeholder reports must not contain sensitive data, raw personal telemetry, raw audio, behavioral tracking, or unsupported production/safety/commercial claims.
-18. Any unproven claim must be marked as `[UNVALIDATED]`.
-19. Documentation must distinguish clearly between MVP, FUTURE, OUT OF MVP, and TARGET.
-20. Jira must track status, evidence, decisions, and review state.
-21. GitHub must remain the source of truth for versioned technical documentation.
-
----
-
-## 10. Evidence Expectations
-
-For IHAP-11, expected evidence is:
-
-- A GitHub branch dedicated to the task.
-- A draft pull request linked to IHAP-11.
-- This versioned document under `docs/product/product-vision.md`.
-- A Jira comment linking the PR and summarizing the documentation scope.
-- Jira status moved to review after PR creation.
-- No transition to completed until explicit project owner approval.
-
----
-
-## 11. Review Checklist
-
-Before this document can be considered accepted, reviewers should verify:
-
-- Product Vision is understandable by ITS stakeholders.
-- MVP scope is explicit and narrow.
-- FUTURE and OUT OF MVP are separated.
-- Runtime claims are not overstated.
-- `[UNVALIDATED]` is used for directional schema or unproven capabilities.
-- `firmware/room-env-node/` remains the only MVP firmware node.
-- The MVP node is correctly framed as a generic room/door node positioned near the room door.
-- Temperature, humidity, local non-identifying presence detection, and door open/closed state are included in MVP.
-- Raw audio, individual presence tracking, behavioral presence history, window sensors, 220V automation, and Kafka client on ESP32 are not included in MVP.
-- Local, non-identifying presence detection is correctly separated from presence tracking.
-- Door open/closed state is correctly separated from certified access control or alarm-grade intrusion detection.
-- The four backend service boundaries are described as targets, not completed runtime services.
-- The document does not regress IHAP-10.
