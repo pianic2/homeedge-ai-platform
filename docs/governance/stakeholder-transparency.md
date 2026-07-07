@@ -5,6 +5,7 @@
 **Document type:** Stakeholder transparency / governance documentation  
 **Status:** Sprint 0 draft for review  
 **Reading target:** less than 3 minutes for humans; hidden metadata supports AI agents and anti-regression checks.  
+**Stakeholder Hub:** https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview  
 **Source of truth:** This repository document defines the official stakeholder transparency rules until superseded by a reviewed change.
 
 <!--
