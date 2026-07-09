@@ -14,6 +14,7 @@ AI_AGENT_METADATA:
   document_role: "root_semantic_index"
   source_of_truth_policy: "docs/governance/source-of-truth.md"
   shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
+  ai_review_agents_policy: "docs/governance/ai-review-agents-policy.md"
   product_vision: "docs/product/product-vision.md"
   stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   current_glossary_location: "docs/product/product-vision.md"
@@ -53,6 +54,7 @@ AI_AGENT_ROUTING:
   - Start here for repository semantic navigation.
   - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, Confluence summaries, canonical paths, or commit convention.
   - Read docs/governance/shift-left-governance-baseline.md before planning issue-level impact blocks, review readiness, or Jira evidence.
+  - Read docs/governance/ai-review-agents-policy.md before running advisory review-agent checks, classifying findings, or producing review summaries.
   - Read docs/product/product-vision.md before changing MVP scope, product language, glossary terms, firmware boundaries, service boundary wording, or stakeholder claims.
   - Read docs/governance/stakeholder-transparency.md before changing stakeholder visibility, Atlassian governance, Jira evidence comments, or Confluence hub/report behavior.
   - Do not infer runtime maturity from folder names.
@@ -68,6 +70,7 @@ AI_AGENT_ROUTING:
 |---|---|---|
 | Source-of-truth rules | `docs/governance/source-of-truth.md` | Defines GitHub/Jira/Confluence roles, DOC-REGRESSION, anti-divergence, canonical paths, commit convention, and `[UNVALIDATED]` policy. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Defines the mandatory issue-level impact block for security, privacy, cost, compliance, testing, documentation, and stakeholder visibility. |
+| AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Defines Sprint 0 advisory review agents, severity model, review output template, and non-decision-making limits. |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` | Canonical source for Product Vision, MVP inclusions/exclusions, and current glossary. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Defines stakeholder visibility, Jira evidence behavior, and Confluence hub usage. |
 | Stakeholder hub and reports | Confluence | Confluence is authoritative for stakeholder-facing hub, reports, forms, and navigation. |
@@ -192,13 +195,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Shift Left governance, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
+| Docs | Source-of-truth governance, Shift Left governance, AI review agents policy, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, AI review-agent policy, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 
