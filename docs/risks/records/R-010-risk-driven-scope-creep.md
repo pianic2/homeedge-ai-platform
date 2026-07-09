@@ -53,7 +53,7 @@ The project uses risk governance early. That is correct, but risk documents can 
 | Likelihood | Medium | Mitigation language naturally points to future work unless carefully bounded. |
 | Impact | High | Silent scope expansion can undermine MVP discipline and source-of-truth consistency. |
 | Residual risk | High | Risk persists for every future risk record and governance task. |
-| Treatment proposal | Reject silent expansion | Mitigation may propose future work, but scope changes require Project Owner decision and reviewed source-of-truth update. |
+| Treatment proposal | Reject | Reject silent expansion; mitigation may propose future work, but scope changes require Project Owner decision and reviewed source-of-truth update. |
 | Decision state | Pending Project Owner | No residual risk decision has been made. |
 
 ---
