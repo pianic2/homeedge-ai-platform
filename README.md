@@ -51,8 +51,8 @@ AI_AGENT_METADATA:
 
 AI_AGENT_ROUTING:
   - Start here for repository semantic navigation.
-  - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, or Confluence summaries.
-  - Read docs/governance/shift-left-governance-baseline.md before planning issue-level impact blocks, review readiness, Jira evidence, or Jira-linked commits.
+  - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, Confluence summaries, canonical paths, or commit convention.
+  - Read docs/governance/shift-left-governance-baseline.md before planning issue-level impact blocks, review readiness, or Jira evidence.
   - Read docs/product/product-vision.md before changing MVP scope, product language, glossary terms, firmware boundaries, service boundary wording, or stakeholder claims.
   - Read docs/governance/stakeholder-transparency.md before changing stakeholder visibility, Atlassian governance, Jira evidence comments, or Confluence hub/report behavior.
   - Do not infer runtime maturity from folder names.
@@ -66,8 +66,8 @@ AI_AGENT_ROUTING:
 
 | Need | Canonical path / surface | Rule |
 |---|---|---|
-| Source-of-truth rules | `docs/governance/source-of-truth.md` | Defines GitHub/Jira/Confluence roles, DOC-REGRESSION, anti-divergence, and `[UNVALIDATED]` policy. |
-| Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Defines the mandatory issue-level impact block for security, privacy, cost, compliance, testing, documentation, stakeholder visibility, and Jira-linked commit convention. |
+| Source-of-truth rules | `docs/governance/source-of-truth.md` | Defines GitHub/Jira/Confluence roles, DOC-REGRESSION, anti-divergence, canonical paths, commit convention, and `[UNVALIDATED]` policy. |
+| Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Defines the mandatory issue-level impact block for security, privacy, cost, compliance, testing, documentation, and stakeholder visibility. |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` | Canonical source for Product Vision, MVP inclusions/exclusions, and current glossary. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Defines stakeholder visibility, Jira evidence behavior, and Confluence hub usage. |
 | Stakeholder hub and reports | Confluence | Confluence is authoritative for stakeholder-facing hub, reports, forms, and navigation. |
