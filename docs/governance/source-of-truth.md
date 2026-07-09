@@ -25,6 +25,7 @@ AI_AGENT_METADATA:
   canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
   canonical_scrum_governance_dor_dod: "docs/governance/scrum-governance-dor-dod.md"
   canonical_governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
+  canonical_team_working_rules: "docs/governance/team-working-rules.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   commit_convention: "IHAP-XX: Commit message"
@@ -41,6 +42,7 @@ AI_AGENT_METADATA:
     - governance_rules
     - scrum_governance_dor_dod
     - governance_lane_review_gate
+    - team_working_rules
     - pr_evidence
     - runtime_evidence_when_committed_or_linked
   jira_authoritative_for:
@@ -118,7 +120,8 @@ Included:
 - protected MVP boundaries inherited from Product Vision;
 - Jira-linked commit convention;
 - Scrum Governance, DoR and DoD registration;
-- Governance Lane Review Gate registration.
+- Governance Lane Review Gate registration;
+- Team Working Rules registration.
 
 Excluded:
 
@@ -150,6 +153,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
 | Scrum governance, DoR and DoD | `docs/governance/scrum-governance-dor-dod.md` | Jira/PR evidence links | Defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, minimum evidence expectations, and Project Owner authority. |
 | Governance Lane Review Gate | `docs/governance/governance-lane-review-gate.md` | Jira/PR evidence links | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done. |
+| Team Working Rules | `docs/governance/team-working-rules.md` | Jira/PR evidence links | Defines lightweight daily collaboration rules, evidence discipline, blocker handling, and advisory AI assistant usage boundaries. |
 | AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Jira/PR evidence links | Defines advisory review agents, severity model, outputs, and decision limits. |
 | AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Jira/PR evidence links | Defines reusable review-agent prompts and operating flow. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Confluence summary/link | Defines stakeholder visibility and Atlassian governance behavior. |
@@ -361,6 +365,7 @@ Update GitHub when changing:
 - canonical paths;
 - Scrum governance, DoR and DoD;
 - governance lane review gate;
+- team working rules;
 - commit convention;
 - source code;
 - runtime evidence committed as project evidence.
@@ -477,6 +482,10 @@ docs/governance/ai-review-agent-playbook.md
 docs/governance/governance-lane-review-gate.md
 ```
 
+```text
+docs/governance/team-working-rules.md
+```
+
 Current MVP firmware path:
 
 ```text
@@ -517,10 +526,11 @@ AI agents should use this routing order:
 5. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
 6. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
 7. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
-8. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-9. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-10. Use Jira for task state, workflow, review state, blockers, and evidence links.
-11. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+8. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
+9. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+10. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+11. Use Jira for task state, workflow, review state, blockers, and evidence links.
+12. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -552,14 +562,14 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 ## 11. Acceptance Criteria
 
-This policy satisfies IHAP-13 and remains aligned with IHAP-23 and IHAP-35 when:
+This policy satisfies IHAP-13 and remains aligned with IHAP-23, IHAP-24, and IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Scrum Governance DoR/DoD, Governance Lane Review Gate, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- canonical repository paths are listed, including `docs/governance/scrum-governance-dor-dod.md` and `docs/governance/governance-lane-review-gate.md`;
+- canonical repository paths are listed, including `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, and `docs/governance/team-working-rules.md`;
 - stakeholder reports are explicitly assigned to Confluence;
 - no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
 - Project Owner approval remains required before task completion.
