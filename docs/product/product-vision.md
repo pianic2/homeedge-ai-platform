@@ -9,6 +9,8 @@
 <!--
 AI_AGENT_METADATA:
   issue: IHAP-11
+  related_issues:
+    - IHAP-15
   document_type: product_foundation
   source_of_truth: github_versioned_documentation
   task_scope: documentation_governance_only
@@ -45,6 +47,35 @@ AI_AGENT_METADATA:
     - services/device-registry/
     - services/read-model/
     - services/ai-insight/
+  data_classification_boundary:
+    canonical_section: "4.4 Data Classification and Privacy Boundaries"
+    mvp_data:
+      - temperature
+      - humidity
+      - local_non_identifying_presence_state
+      - door_open_closed_telemetry
+    technical_metadata:
+      - timestamp
+      - device_node_id
+      - room_id
+      - firmware_version
+      - ip_network_metadata
+    future_or_out_of_mvp:
+      - window_sensor_scope
+      - advanced_presence_analytics
+    blocked_data:
+      - raw_audio
+      - person_identification
+      - individual_presence_tracking
+      - behavioral_history
+      - routine_profiling
+    stakeholder_exposure:
+      raw_audio: blocked
+      identity_data: blocked
+      behavioral_history: blocked
+      private_network_metadata: redact_or_omit
+      door_state: telemetry_only
+      presence_state: local_non_identifying_only
   review_policy:
     - do_not_close_jira_without_project_owner_approval
     - keep_mvp_future_out_of_mvp_target_distinction
@@ -74,11 +105,11 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub must remain the source of truth for versioned technical documentation.
 
 HIDDEN_EVIDENCE_EXPECTATIONS:
-  - A GitHub branch dedicated to the task.
-  - A draft pull request linked to IHAP-11.
+  - A GitHub branch dedicated to the active task.
+  - A pull request linked to the active Jira issue.
   - This versioned document under docs/product/product-vision.md.
   - A Jira comment linking the PR and summarizing the documentation scope.
-  - Jira status moved to review after PR creation.
+  - Jira status moved to review after PR creation or Project Owner instruction.
   - No transition to completed until explicit project owner approval.
 -->
 
@@ -295,7 +326,30 @@ The `presence_detected` field represents a local, non-identifying room-level sta
 
 The `door_open` field represents the local open/closed state of the room door. It must not be interpreted as certified access control, intrusion detection, or safety-critical security evidence.
 
-### 4.4 MVP acceptance boundary
+### 4.4 Data Classification and Privacy Boundaries
+
+The MVP uses minimal room-level telemetry. Data must stay classified by purpose, privacy boundary, and stakeholder exposure.
+
+| Data / signal | Classification | MVP status | Privacy boundary | Stakeholder exposure |
+|---|---|---|---|---|
+| Temperature | Room telemetry | MVP | Non-identifying room-level signal. | Show allowed. |
+| Humidity | Room telemetry | MVP | Non-identifying room-level signal. | Show allowed. |
+| Presence detected | Local state telemetry | MVP | Local, non-identifying state only; no identity, individual tracking, behavioral history, or routine profiling. | Show only as generic room state. |
+| Door open/closed | Local state telemetry | MVP | Telemetry only; not access control, antifurto, alarm-grade, safety-critical, or security-certified evidence. | Show only as telemetry. |
+| Timestamp | Technical metadata | MVP / TARGET depending on schema evidence | Can support inference if retained, correlated, or shown with other signals. | Show only when needed; redact or aggregate where appropriate. |
+| Device/node id | Technical metadata | MVP / TARGET depending on schema evidence | Must not expose sensitive domestic topology or private installation details. | Redact or omit unless required for review. |
+| Room id | Technical metadata | MVP / TARGET depending on schema evidence | Must remain generic; no private address or precise domestic location. | Generic labels only. |
+| Firmware version | Technical metadata | MVP / TARGET depending on schema evidence | Useful for evidence, but not a privacy or security guarantee. | Show allowed when useful. |
+| IP/network metadata | Technical metadata | OUT of stakeholder view | Sensitive domestic/infrastructure detail. | Redact or omit. |
+| Raw audio | Sensitive raw signal | OUT OF MVP | Not collected in MVP. | Blocked. |
+| Person identification | Identity data | OUT OF MVP | Not allowed. | Blocked. |
+| Individual presence tracking | Behavioral or identity-linked data | OUT OF MVP | Not allowed. | Blocked. |
+| Behavioral history / routine profiling | Behavioral data | OUT OF MVP | Not allowed. | Blocked. |
+| Window sensors | Opening telemetry | FUTURE / OUT OF current MVP | Not part of the current room/door node scope. | Do not imply MVP delivery. |
+
+The table does not validate runtime behavior. Event fields, service boundaries, mobile views, AI insight, and storage behavior remain `[UNVALIDATED]` until implementation and test evidence exist.
+
+### 4.5 MVP acceptance boundary
 
 The MVP must remain understandable without requiring any of the following:
 
