@@ -51,7 +51,7 @@ The project targets edge-to-backend telemetry, future cloud/deployment direction
 | Likelihood | Medium | Cloud, logs, and AI are future targets; cost can grow silently if not bounded. |
 | Impact | Medium | Cost overruns can block continuation or force scope reduction. |
 | Residual risk | Pending evidence | No runtime cost measurement or event volume evidence exists yet. |
-| Treatment proposal | Defer / Mitigate | Defer detailed estimates to cost governance and add limits during implementation. |
+| Treatment proposal | Defer | Defer detailed estimates to cost governance; future implementation should add concrete limits. |
 | Decision state | Pending Project Owner | No residual risk decision has been made. |
 
 ---
