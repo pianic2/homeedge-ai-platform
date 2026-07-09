@@ -14,6 +14,7 @@ AI_AGENT_METADATA:
   canonical_path: docs/governance/documentation-strategy.md
   source_of_truth: github_versioned_repository_documentation
   source_of_truth_policy: docs/governance/source-of-truth.md
+  docs_landing_page: docs/README.md
   shift_left_governance_baseline: docs/governance/shift-left-governance-baseline.md
   scrum_governance_dor_dod: docs/governance/scrum-governance-dor-dod.md
   governance_lane_review_gate: docs/governance/governance-lane-review-gate.md
@@ -44,10 +45,12 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Jira remains authoritative for backlog, task state, workflow state, blockers, review state, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
   - Confluence must summarize and link; it must not duplicate long-form GitHub technical documentation.
+  - docs/README.md is a documentation landing page only; it must link canonical documents and must not redefine their rules.
   - Do not create documents only to increase the file count.
   - Do not duplicate rules already defined by canonical documents; link them instead.
   - Templates must link existing canonical templates instead of duplicating ADR, Shift Left, Jira evidence, AI review, governance gate, or stakeholder report templates.
   - README.md and docs/governance/source-of-truth.md must be updated when canonical documentation paths are added, moved, renamed, or deprecated.
+  - docs/README.md must be updated when the navigable structure under docs/ changes.
   - Preserve [UNVALIDATED] on every unproven claim.
   - Do not expand MVP scope silently.
   - Do not introduce firmware, backend, mobile, cloud, runtime, production-ready, safety-critical, commercial-ready, certification, or security-grade claims.
@@ -73,6 +76,7 @@ This strategy defines how HomeEdge documentation should grow without creating pa
 | Family | Canonical surface | Use for |
 |---|---|---|
 | Root index | `README.md` | Repository overview, semantic navigation, canonical links, maturity warnings. |
+| Docs landing page | `docs/README.md` | Navigable index for `docs/`; links documentation families without replacing canonical documents. |
 | Governance | `docs/governance/` | Source-of-truth rules, workflow rules, review gates, assistant rules, documentation strategy. |
 | Product | `docs/product/` | Product Vision, MVP boundaries, glossary, scope language. |
 | ADRs | `docs/adr/` | Architecture decisions that need durable traceability. |
@@ -111,6 +115,7 @@ Update the existing canonical document when changing:
 |---|---|
 | Project source-of-truth roles, DOC-REGRESSION, canonical paths, commit convention, `[UNVALIDATED]` policy | `docs/governance/source-of-truth.md` |
 | Repository semantic navigation or visible canonical links | `README.md` |
+| Documentation navigation under `docs/` | `docs/README.md` |
 | Product Vision, MVP boundary, glossary, target/runtime language | `docs/product/product-vision.md` |
 | Jira workflow, Definition of Ready, Definition of Done, evidence expectations | `docs/governance/scrum-governance-dor-dod.md` |
 | Governance-lane movement checks | `docs/governance/governance-lane-review-gate.md` |
@@ -152,6 +157,7 @@ Minimum maintenance rules:
 ```text
 [ ] Add or move a canonical document -> update README.md.
 [ ] Add or move a canonical source-of-truth path -> update docs/governance/source-of-truth.md.
+[ ] Add or move documentation navigation under docs/ -> update docs/README.md.
 [ ] Add, move, or change reusable template paths -> update docs/templates/README.md.
 [ ] Change technical truth -> update GitHub through review.
 [ ] Change task state or blocker/evidence links -> update Jira.
@@ -196,6 +202,7 @@ Before moving this documentation strategy toward review, check:
 [ ] Jira remains the backlog, state, blocker, review, and evidence-link surface.
 [ ] Confluence remains stakeholder hub, report, form, and navigation surface.
 [ ] README.md links this document when it becomes canonical.
+[ ] docs/README.md links documentation families without replacing canonical documents.
 [ ] docs/governance/source-of-truth.md registers this canonical path.
 [ ] No existing canonical rule is duplicated as a competing policy.
 [ ] No new document family is created without a concrete task need.
@@ -212,6 +219,7 @@ Before moving this documentation strategy toward review, check:
 This strategy must stay aligned with:
 
 - `README.md`;
+- `docs/README.md`;
 - `docs/governance/source-of-truth.md`;
 - `docs/governance/shift-left-governance-baseline.md`;
 - `docs/governance/scrum-governance-dor-dod.md`;
