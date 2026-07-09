@@ -22,6 +22,7 @@ AI_AGENT_METADATA:
   unvalidated_claim_marker: "[UNVALIDATED]"
   human_readability_requirement: "max_3_minutes"
   confluence_landing_page: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
+  stakeholder_report_data_rules: "docs/governance/stakeholder-report-data-rules.md"
   confluence_authoritative_for:
     - stakeholder_hub
     - stakeholder_reports
@@ -77,6 +78,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Confluence is the stakeholder landing page, stakeholder report surface, stakeholder form surface, and navigation layer; it must not replace or duplicate repository technical source of truth.
   - Stakeholder reports live on Confluence because that surface is better suited for human reports and forms.
   - Stakeholder reports must summarize and link; they must not redefine technical truth.
+  - Use docs/governance/stakeholder-report-data-rules.md for what stakeholder reports may show, link, redact, or block.
   - The only firmware node in the MVP remains firmware/room-env-node/.
   - firmware/room-env-node/ remains a generic room/door node.
   - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
@@ -262,6 +264,8 @@ Reason:
 Constraint:
 
 Stakeholder reports must not redefine Product Vision, MVP scope, ADRs, risk posture, technical baselines, or implementation maturity. They must summarize and link back to GitHub/Jira evidence.
+
+For report data categories, claim handling, redaction, and blocked content, use `docs/governance/stakeholder-report-data-rules.md`.
 
 ---
 
