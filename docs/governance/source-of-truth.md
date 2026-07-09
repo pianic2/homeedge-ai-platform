@@ -27,6 +27,8 @@ AI_AGENT_METADATA:
   canonical_governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
   canonical_team_working_rules: "docs/governance/team-working-rules.md"
   canonical_engineering_assistant_rules: "docs/governance/engineering-assistant-rules.md"
+  canonical_adr_index: "docs/adr/README.md"
+  canonical_adr_template: "docs/adr/template.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   commit_convention: "IHAP-XX: Commit message"
@@ -124,7 +126,8 @@ Included:
 - Scrum Governance, DoR and DoD registration;
 - Governance Lane Review Gate registration;
 - Team Working Rules registration;
-- Engineering Assistant Rules registration.
+- Engineering Assistant Rules registration;
+- ADR index and template registration.
 
 Excluded:
 
@@ -160,6 +163,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Engineering Assistant Rules | `docs/governance/engineering-assistant-rules.md` | Jira/PR evidence links | Defines engineering assistant allowed actions, forbidden actions, operating flow, evidence expectations, and Project Owner authority boundaries. |
 | AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Jira/PR evidence links | Defines advisory review agents, severity model, outputs, and decision limits. |
 | AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Jira/PR evidence links | Defines reusable review-agent prompts and operating flow. |
+| ADR index and template | `docs/adr/README.md`, `docs/adr/template.md` | Jira evidence link | Defines ADR index, naming convention, status model, template, and link policy. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Confluence summary/link | Defines stakeholder visibility and Atlassian governance behavior. |
 | Product Vision | `docs/product/product-vision.md` | Jira/Confluence links | Product Vision, MVP boundaries, and current glossary live in GitHub until superseded by reviewed change. |
 | Glossary | Current embedded glossary in `docs/product/product-vision.md` | Future `docs/glossary/project-glossary.md` candidate | Do not create a duplicate glossary until a later task explicitly extracts and links it. |
@@ -495,6 +499,11 @@ docs/governance/team-working-rules.md
 docs/governance/engineering-assistant-rules.md
 ```
 
+```text
+docs/adr/README.md
+docs/adr/template.md
+```
+
 Current MVP firmware path:
 
 ```text
@@ -513,7 +522,6 @@ services/ai-insight/
 Future candidate paths:
 
 ```text
-docs/adr/
 docs/risks/
 docs/reviews/
 docs/evidence/
@@ -537,10 +545,12 @@ AI agents should use this routing order:
 7. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
 8. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
 9. Read `docs/governance/engineering-assistant-rules.md` before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
-10. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-11. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-12. Use Jira for task state, workflow, review state, blockers, and evidence links.
-13. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+10. Read `docs/adr/README.md` before adding or changing ADRs, ADR naming, ADR status, or ADR link policy.
+11. Read `docs/adr/template.md` before drafting a new ADR.
+12. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+13. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+14. Use Jira for task state, workflow, review state, blockers, and evidence links.
+15. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -572,14 +582,14 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 ## 11. Acceptance Criteria
 
-This policy satisfies IHAP-13 and remains aligned with IHAP-23, IHAP-24, IHAP-25, and IHAP-35 when:
+This policy satisfies IHAP-13 and remains aligned with IHAP-22, IHAP-23, IHAP-24, IHAP-25, and IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- canonical repository paths are listed, including `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, and `docs/governance/engineering-assistant-rules.md`;
+- canonical repository paths are listed, including `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
 - stakeholder reports are explicitly assigned to Confluence;
 - no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
 - Project Owner approval remains required before task completion.
