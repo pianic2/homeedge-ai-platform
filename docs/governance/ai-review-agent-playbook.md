@@ -15,6 +15,7 @@ AI_AGENT_METADATA:
   canonical_policy: "docs/governance/ai-review-agents-policy.md"
   source_of_truth_policy: "docs/governance/source-of-truth.md"
   shift_left_baseline: "docs/governance/shift-left-governance-baseline.md"
+  governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
   stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   runtime_changes_allowed: false
   autonomous_decision_authority: false
@@ -26,6 +27,7 @@ AI_AGENT_METADATA:
 HIDDEN_ANTI_REGRESSION_RULES:
   - These prompts create advisory review sessions, not autonomous agents with decision authority.
   - The Project Owner remains the only authority for Ready and Done decisions.
+  - Governance-lane movement toward Review, Stakeholder Review, or Done must use docs/governance/governance-lane-review-gate.md.
   - Do not remove [UNVALIDATED] unless traceable evidence exists.
   - Do not duplicate this playbook into Confluence as long-form technical documentation.
   - Confluence may summarize this playbook for stakeholders and link back to GitHub.
@@ -37,7 +39,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 This playbook turns the Sprint 0 review-agent policy into concrete, reusable review prompts.
 
-Use it when a Jira issue, GitHub PR, Confluence stakeholder report, governance document, architecture note, event contract, or evidence package needs a structured review before moving forward.
+Use it when a Jira issue, GitHub PR, Confluence stakeholder report, governance document, architecture note, event contract, evidence package, or governance-lane movement needs a structured review before moving forward.
 
 The agents are not tools with independent authority. They are controlled review roles used inside a human-driven workflow.
 
@@ -59,6 +61,12 @@ Use this flow for each review:
 9. Do not transition to Done unless the Project Owner approves.
 ```
 
+For governance-lane task movement toward Review, Stakeholder Review, or Done, also read:
+
+```text
+docs/governance/governance-lane-review-gate.md
+```
+
 Minimum input package:
 
 ```text
@@ -78,7 +86,8 @@ What decision is requested:
 | Situation | Required agents |
 |---|---|
 | Governance document or policy change | Source of Truth Guardian, Testing & Evidence Reviewer, Stakeholder Clarity Reviewer |
-| README, source-of-truth, Shift Left, or stakeholder transparency change | Source of Truth Guardian, Stakeholder Clarity Reviewer |
+| Governance-lane task moving toward Review, Stakeholder Review, or Done | Source of Truth Guardian, Testing & Evidence Reviewer, Stakeholder Clarity Reviewer, using `docs/governance/governance-lane-review-gate.md` |
+| README, source-of-truth, Shift Left, Governance Lane Review Gate, or stakeholder transparency change | Source of Truth Guardian, Stakeholder Clarity Reviewer |
 | Architecture or MVP boundary change | Architecture Regression Reviewer, Source of Truth Guardian, Security & Privacy Reviewer |
 | Event schema, payload, ingestion, Kafka, or event-streaming claim | Event Contract Reviewer, Testing & Evidence Reviewer, Security & Privacy Reviewer |
 | Security, privacy, logging, data classification, or stakeholder-sensitive content | Security & Privacy Reviewer, Stakeholder Clarity Reviewer |
@@ -103,6 +112,9 @@ Mandatory canonical sources to read first:
 3. docs/governance/ai-review-agents-policy.md
 4. docs/governance/ai-review-agent-playbook.md
 5. README.md
+
+Add when reviewing governance-lane movement:
+6. docs/governance/governance-lane-review-gate.md
 
 Review target:
 - Jira issue: <ISSUE_KEY>
@@ -154,6 +166,7 @@ Read first:
 - docs/governance/shift-left-governance-baseline.md
 - docs/governance/ai-review-agents-policy.md
 - README.md
+- docs/governance/governance-lane-review-gate.md when reviewing governance-lane movement
 
 Review target:
 - Jira issue: <ISSUE_KEY>
@@ -167,8 +180,9 @@ Check:
 3. Confluence only summarizes, reports, hosts forms, and helps navigation.
 4. Technical documents are not duplicated into Confluence as competing truth.
 5. README semantic links are updated when canonical docs are added or moved.
-6. [UNVALIDATED] is preserved on unproven claims.
-7. No task is presented as Done without Project Owner approval and evidence.
+6. source-of-truth.md canonical paths are updated when canonical docs are added or moved.
+7. [UNVALIDATED] is preserved on unproven claims.
+8. No task is presented as Done without Project Owner approval and evidence.
 
 Return findings as:
 - Severity: BLOCKER / MAJOR / MINOR / NOTE
@@ -291,6 +305,7 @@ Read first:
 - docs/governance/source-of-truth.md
 - docs/governance/shift-left-governance-baseline.md
 - docs/governance/ai-review-agents-policy.md
+- docs/governance/governance-lane-review-gate.md when reviewing governance-lane movement
 
 Review target:
 - Jira issue: <ISSUE_KEY>
@@ -306,6 +321,7 @@ Check:
 5. Jira has evidence links before movement toward Done.
 6. The Shift Left Impact block is present, ordered, and justified.
 7. No unresolved BLOCKER or MAJOR finding remains before closure.
+8. Governance-lane movement respects docs/governance/governance-lane-review-gate.md.
 
 Return BLOCKER for missing evidence when a task is being moved toward Done.
 ```
@@ -325,6 +341,7 @@ Read first:
 - docs/governance/source-of-truth.md
 - docs/governance/ai-review-agents-policy.md
 - README.md
+- docs/governance/governance-lane-review-gate.md when reviewing governance-lane movement
 
 Review target:
 - Confluence stakeholder page/report: <CONFLUENCE_LINK>
@@ -338,6 +355,7 @@ Check:
 4. Evidence links point to Jira and GitHub.
 5. No sensitive data appears in stakeholder-facing content.
 6. The page remains readable and navigable.
+7. Governance-lane stakeholder movement respects docs/governance/governance-lane-review-gate.md.
 
 Return BLOCKER if stakeholder-facing content contradicts GitHub source-of-truth, hides a serious risk, or exposes sensitive data.
 ```
@@ -390,14 +408,16 @@ Project Owner action required:
 Prompt package:
 
 ```text
-Jira issue: IHAP-34
-GitHub PR: https://github.com/pianic2/homeedge-ai-platform/pull/7
+Jira issue: IHAP-35
+GitHub PR: https://github.com/pianic2/homeedge-ai-platform/pull/8
 Files changed:
+- docs/governance/governance-lane-review-gate.md
+- README.md
+- docs/governance/source-of-truth.md
 - docs/governance/ai-review-agents-policy.md
 - docs/governance/ai-review-agent-playbook.md
-- README.md
 Confluence page:
-- AI Review Agents Policy — Sprint 0 Regression Control
+- none, unless stakeholder summary is updated
 Expected agents:
 - Source of Truth Guardian
 - Testing & Evidence Reviewer
