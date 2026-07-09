@@ -39,11 +39,8 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub remains the technical source of truth for technical documents, decisions, risks, policies, baselines, governance rules, source code, and PR evidence.
   - Jira remains authoritative for backlog, task state, workflow state, review state, blockers, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
-  - Confluence must not duplicate this document as long-form technical documentation.
   - Project Owner decides Ready, Done, and final workflow movements.
-  - AI review agents are advisory only.
-  - AI review agents may detect, classify, recommend, and report findings.
-  - AI review agents must not approve ADRs, close issues, declare Done, declare Ready, or transition Jira issues without explicit Project Owner instruction.
+  - AI review agents are advisory only and must follow docs/governance/ai-review-agents-policy.md.
   - Any unproven claim must keep [UNVALIDATED].
   - The protected MVP boundary must not be silently expanded.
   - Target service boundaries must not be described as implemented runtime without traceable evidence.
@@ -61,10 +58,8 @@ It defines:
 - Definition of Done;
 - Jira workflow movement rules;
 - minimum evidence expectations;
-- source-of-truth responsibilities across GitHub, Jira, and Confluence;
 - Project Owner decision authority;
-- AI review-agent limits;
-- alignment with Shift Left governance, Source of Truth policy, AI Review Agents Policy, AI Review Agent Playbook, Governance Lane Review Gate, Stakeholder Transparency, and Product Vision.
+- alignment with the existing governance documents.
 
 Core rule:
 
@@ -94,7 +89,6 @@ Included:
 - governance-lane task evidence;
 - stakeholder visibility expectations;
 - Project Owner authority;
-- AI review-agent decision limits;
 - `[UNVALIDATED]` claim preservation;
 - DOC-REGRESSION awareness.
 
@@ -103,14 +97,8 @@ Excluded:
 - enterprise-heavy Scrum governance;
 - automated approval of Ready or Done;
 - CI/runtime enforcement of gates;
-- firmware implementation;
-- backend implementation;
-- mobile implementation;
-- cloud deployment;
-- production-readiness claims;
-- safety-critical claims;
-- commercial-readiness claims;
-- security-grade or certification claims;
+- firmware, backend, mobile, or cloud implementation;
+- production-readiness, safety-critical, commercial-readiness, certification, or security-grade claims;
 - duplicating technical source-of-truth documents into Jira or Confluence.
 
 ---
@@ -118,6 +106,8 @@ Excluded:
 ## 3. Relationship With Other Governance Documents
 
 This document coordinates existing governance rules. It does not replace them.
+
+GitHub/Jira/Confluence authority is defined by `docs/governance/source-of-truth.md`; this document only applies those boundaries to Scrum readiness, workflow movement, evidence, and completion.
 
 | Area | Canonical document | Scrum governance usage |
 |---|---|---|
@@ -133,23 +123,7 @@ If this document conflicts with `docs/governance/source-of-truth.md`, the source
 
 ---
 
-## 4. Source-of-Truth Boundaries
-
-| Surface | Authority | Scrum governance rule |
-|---|---|---|
-| GitHub | Technical truth, code, versioned technical documents, decisions, risks, policies, governance baselines, PR evidence | Use for canonical project truth and reviewable technical changes. |
-| Jira | Backlog, task state, workflow state, review state, blockers, evidence links | Use for planning, state tracking, owner decisions, blockers, and evidence links. |
-| Confluence | Stakeholder hub, stakeholder reports, stakeholder forms, stakeholder navigation | Use for short stakeholder summaries and navigation only. |
-
-Jira issue descriptions may summarize rules, but they must not become the canonical long-form technical documentation.
-
-Confluence pages and reports may summarize progress and link to evidence, but they must not redefine Product Vision, MVP scope, architecture, risk posture, governance rules, or implementation maturity.
-
-If GitHub and Jira or Confluence disagree on technical content, GitHub wins until a reviewed GitHub source-of-truth change updates the project truth.
-
----
-
-## 5. Scrum Operating Model
+## 4. Scrum Operating Model
 
 HomeEdge uses a lightweight issue-driven Scrum model.
 
@@ -164,11 +138,11 @@ The goal is to keep work:
 
 This project does not use Scrum ceremony overhead as a substitute for evidence.
 
-A task is not complete because text says it is complete. A task is complete only when its acceptance criteria, evidence, review state, and Project Owner decision support completion.
+A task is complete only when its acceptance criteria, evidence, review state, and Project Owner decision support completion.
 
 ---
 
-## 6. Jira Workflow States
+## 5. Jira Workflow States
 
 The expected Jira workflow states are:
 
@@ -185,11 +159,9 @@ The exact Jira status names may remain localized, but the governance meaning mus
 
 ---
 
-## 7. State Rules
+## 6. State Rules
 
-### 7.1 Backlog
-
-Meaning:
+### 6.1 Backlog
 
 The task exists but is not ready for execution.
 
@@ -208,11 +180,7 @@ A task may stay in Backlog when:
 [ ] The task contains unproven claims without [UNVALIDATED].
 ```
 
-Backlog is valid for immature or intentionally deferred work.
-
-### 7.2 Pronto
-
-Meaning:
+### 6.2 Pronto
 
 The task is ready for execution, but not yet being worked.
 
@@ -235,11 +203,9 @@ Minimum entry criteria:
 [ ] Project Owner remains the final authority for readiness.
 ```
 
-AI review agents may report that readiness issues were or were not detected, but they must not declare the issue Ready.
+AI review agents may report readiness findings, but they must not declare the issue Ready.
 
-### 7.3 In Progress
-
-Meaning:
+### 6.3 In Progress
 
 The task is actively being worked.
 
@@ -263,9 +229,7 @@ During In Progress:
 [ ] Use Confluence only when stakeholder-facing summary/report/navigation is explicitly required.
 ```
 
-### 7.4 In Review
-
-Meaning:
+### 6.4 In Review
 
 The work has a reviewable evidence package.
 
@@ -283,13 +247,9 @@ A task may move toward In Review when:
 
 For governance-lane tasks, `docs/governance/governance-lane-review-gate.md` must also be used before movement toward review.
 
-Review does not mean approval.
+Review means the work is inspectable. It does not mean approval.
 
-Review means the work is inspectable.
-
-### 7.5 Stakeholder Review
-
-Meaning:
+### 6.5 Stakeholder Review
 
 The work is stable enough to be visible to stakeholders, but it is not necessarily Done.
 
@@ -305,17 +265,9 @@ A task may move toward Stakeholder Review when:
 [ ] Project Owner action is explicitly requested or recorded.
 ```
 
-Stakeholder Review means:
+Stakeholder Review means ready for stakeholder visibility, not final approval and not Done.
 
-```text
-Ready for stakeholder visibility.
-Not automatically Done.
-Not final approval.
-```
-
-### 7.6 Done
-
-Meaning:
+### 6.6 Done
 
 The task is completed with evidence and Project Owner approval.
 
@@ -337,11 +289,11 @@ Minimum entry criteria:
 [ ] No production-ready, safety-critical, commercial-ready, certification, or security-grade claim is introduced without traceable evidence.
 ```
 
-AI review agents must not declare Done. They may only state that no blocking findings were detected by their review pass.
+AI review agents must not declare Done.
 
 ---
 
-## 8. Definition of Ready
+## 7. Definition of Ready
 
 A task is Ready only when it has enough structure to start without guessing.
 
@@ -378,11 +330,9 @@ Documentation
 Stakeholder Visibility
 ```
 
-A task is not Ready if the team must infer scope, evidence, source-of-truth location, or acceptance conditions.
-
 ---
 
-## 9. Definition of Done
+## 8. Definition of Done
 
 A task is Done only when the project can prove what changed, where the source of truth lives, and who approved completion.
 
@@ -408,13 +358,11 @@ Done must not be used for work that is only drafted, only reviewed by an advisor
 
 ---
 
-## 10. Minimum Evidence Rules
+## 9. Minimum Evidence Rules
 
 Evidence must be proportional to the task.
 
-### 10.1 Documentation-only task
-
-Minimum evidence:
+### 9.1 Documentation-only task
 
 ```text
 [ ] GitHub file path.
@@ -424,18 +372,7 @@ Minimum evidence:
 [ ] Explicit statement that no runtime behavior changed.
 ```
 
-Acceptable validation:
-
-```text
-Review diff.
-Check source-of-truth alignment.
-Check [UNVALIDATED] preservation.
-Check no forbidden claim was introduced.
-```
-
-### 10.2 Governance task
-
-Minimum evidence:
+### 9.2 Governance task
 
 ```text
 [ ] Canonical GitHub governance document created or updated.
@@ -445,9 +382,9 @@ Minimum evidence:
 [ ] Governance Lane Review Gate used when moving toward Review, Stakeholder Review, or Done.
 ```
 
-### 10.3 Implementation task
+### 9.3 Implementation task
 
-Minimum evidence depends on the changed surface.
+Implementation claims require implementation evidence.
 
 Possible evidence:
 
@@ -463,26 +400,21 @@ Possible evidence:
 [ ] Explicit [UNVALIDATED] marker where runtime proof is missing.
 ```
 
-Implementation claims require implementation evidence.
-
 Target architecture claims without implementation evidence must remain `[UNVALIDATED]`.
 
-### 10.4 Stakeholder-facing task
-
-Minimum evidence:
+### 9.4 Stakeholder-facing task
 
 ```text
 [ ] Confluence page or report link when stakeholder content changed.
 [ ] Jira evidence link.
 [ ] GitHub source-of-truth link for technical claims.
 [ ] Confirmation that Confluence summarizes and links instead of redefining technical truth.
-[ ] Confirmation that sensitive data is not exposed.
 [ ] [UNVALIDATED] markers preserved where needed.
 ```
 
 ---
 
-## 11. Jira Evidence Comment Template
+## 10. Jira Evidence Comment Template
 
 Use this template when a task produces reviewable evidence:
 
@@ -510,7 +442,7 @@ Jira evidence comments should link to evidence. They should not copy long-form G
 
 ---
 
-## 12. Acceptance Criteria Handling
+## 11. Acceptance Criteria Handling
 
 Acceptance criteria must be treated explicitly.
 
@@ -536,7 +468,7 @@ If an acceptance criterion is deferred or rejected, Jira must record the decisio
 
 ---
 
-## 13. Blockers
+## 12. Blockers
 
 A task must not move toward Done while a blocker is unresolved.
 
@@ -554,11 +486,9 @@ Blocking examples:
 [ ] AI review agent declared approval or Done.
 ```
 
-Blockers should be tracked in Jira through status, comments, labels, linked issues, or explicit evidence notes.
-
 ---
 
-## 14. DOC-REGRESSION Handling
+## 13. DOC-REGRESSION Handling
 
 A DOC-REGRESSION is blocking when it contradicts protected project truth, weakens claim control, creates parallel source-of-truth surfaces, or enables premature Done.
 
@@ -578,54 +508,22 @@ If a DOC-REGRESSION exists, use the severity and handling rules in `docs/governa
 
 ---
 
-## 15. AI Review Agent Limits
+## 14. AI Review Agent Limits
 
-AI review agents may:
+AI review-agent authority, severity levels, allowed output, and forbidden approval language are defined in `docs/governance/ai-review-agents-policy.md`.
 
-```text
-[ ] Read Jira, GitHub, and Confluence content.
-[ ] Compare issue descriptions, PR diffs, repository documents, stakeholder summaries, and evidence links.
-[ ] Identify regressions, missing evidence, unsupported claims, and source-of-truth divergence.
-[ ] Classify findings by severity.
-[ ] Recommend corrections.
-[ ] Produce review summaries.
-```
+For operational prompts and reusable review flows, use `docs/governance/ai-review-agent-playbook.md`.
 
-AI review agents must not:
+In this Scrum baseline the only local rule is:
 
 ```text
-[ ] Approve ADRs.
-[ ] Approve architecture changes.
-[ ] Declare issues Ready.
-[ ] Declare issues Done.
-[ ] Close issues.
-[ ] Transition Jira issues without explicit Project Owner instruction.
-[ ] Remove [UNVALIDATED] without traceable evidence.
-[ ] Introduce production-ready, safety-critical, commercial-ready, certification, or security-grade claims.
-[ ] Treat placeholder directories as runtime proof.
-[ ] Duplicate long-form GitHub technical documentation into Confluence.
-```
-
-Allowed final phrasing:
-
-```text
-No blocking findings detected by this review pass. Project Owner review is still required.
-```
-
-Forbidden final phrasing:
-
-```text
-Approved.
-Done.
-Ready authorized.
-ADR accepted.
-Production-ready.
-Security-grade.
+AI review agents report findings.
+Project Owner decides Ready, Done, and final Jira transitions.
 ```
 
 ---
 
-## 16. Project Owner Authority
+## 15. Project Owner Authority
 
 The Project Owner is the final authority for:
 
@@ -645,46 +543,7 @@ Advisory review output can support a Project Owner decision, but it cannot repla
 
 ---
 
-## 17. Confluence Rule
-
-Confluence may contain:
-
-```text
-[ ] Stakeholder hub.
-[ ] Stakeholder reports.
-[ ] Stakeholder forms.
-[ ] Short summaries.
-[ ] Navigation links.
-```
-
-Confluence must not contain:
-
-```text
-[ ] Full duplicated technical governance documents.
-[ ] Alternative Product Vision.
-[ ] Alternative MVP boundary.
-[ ] Alternative DoR or DoD source of truth.
-[ ] Alternative ADR or risk source of truth.
-[ ] Technical claims that weaken GitHub source-of-truth documents.
-```
-
-Correct usage:
-
-```text
-Short stakeholder summary -> Jira issue -> GitHub PR/document evidence
-```
-
-Incorrect usage:
-
-```text
-Full copied Scrum governance policy treated as official technical documentation
-```
-
-If Confluence and GitHub diverge on technical content, GitHub wins until a reviewed GitHub source-of-truth change updates the project truth.
-
----
-
-## 18. Forbidden Claims
+## 16. Forbidden Claims
 
 Do not introduce these claims unless a later reviewed implementation and validation task proves them with traceable evidence:
 
@@ -705,9 +564,9 @@ If a claim is directional, planned, target-only, or not yet proven, mark it `[UN
 
 ---
 
-## 19. Practical Checklists
+## 17. Practical Checklists
 
-### 19.1 Before marking a task Ready
+### 17.1 Before marking a task Ready
 
 ```text
 [ ] Goal clear.
@@ -724,7 +583,7 @@ If a claim is directional, planned, target-only, or not yet proven, mark it `[UN
 [ ] Project Owner readiness decision recorded or explicitly requested.
 ```
 
-### 19.2 Before requesting review
+### 17.2 Before requesting review
 
 ```text
 [ ] Branch, PR, diff, document, or evidence package exists.
@@ -737,7 +596,7 @@ If a claim is directional, planned, target-only, or not yet proven, mark it `[UN
 [ ] [UNVALIDATED] markers are preserved.
 ```
 
-### 19.3 Before moving to Stakeholder Review
+### 17.3 Before moving to Stakeholder Review
 
 ```text
 [ ] Reviewable evidence is stable.
@@ -749,7 +608,7 @@ If a claim is directional, planned, target-only, or not yet proven, mark it `[UN
 [ ] Project Owner action is recorded or requested.
 ```
 
-### 19.4 Before moving to Done
+### 17.4 Before moving to Done
 
 ```text
 [ ] Project Owner explicitly approves completion.
@@ -767,7 +626,7 @@ If a claim is directional, planned, target-only, or not yet proven, mark it `[UN
 
 ---
 
-## 20. Acceptance Criteria
+## 18. Acceptance Criteria
 
 This document satisfies IHAP-23 when:
 
@@ -777,9 +636,9 @@ This document satisfies IHAP-23 when:
 [ ] Jira workflow states are mapped to entry and exit criteria.
 [ ] Project Owner authority for Ready and Done is explicit.
 [ ] Mandatory Shift Left Impact block is required for every Jira task.
-[ ] Source-of-truth boundaries for GitHub, Jira, and Confluence are preserved.
+[ ] Source-of-truth boundaries for GitHub, Jira, and Confluence are preserved by reference to docs/governance/source-of-truth.md.
 [ ] DOC-REGRESSION blocking rule is included for governance reviews.
-[ ] AI review agents are explicitly advisory and non-decision-making.
+[ ] AI review agents are explicitly advisory and non-decision-making by reference to docs/governance/ai-review-agents-policy.md.
 [ ] Evidence expectations are defined for documentation-only, governance, implementation, and stakeholder-facing tasks.
 [ ] Stakeholder Review is clearly separated from Done.
 [ ] No firmware, backend, mobile, cloud, runtime, CI enforcement, production-ready, safety-critical, commercial-ready, or security-grade claim is introduced.
@@ -787,7 +646,7 @@ This document satisfies IHAP-23 when:
 
 ---
 
-## 21. Related Documents
+## 19. Related Documents
 
 This baseline must stay aligned with:
 
@@ -806,7 +665,7 @@ If this document conflicts with `docs/governance/source-of-truth.md`, the source
 
 ---
 
-## 22. Practical Rule
+## 20. Practical Rule
 
 ```text
 Ready means the task can start without guessing.
