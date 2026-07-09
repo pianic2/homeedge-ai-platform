@@ -16,7 +16,6 @@ AI_AGENT_METADATA:
   impact_scale: N/A, Low, Medium, High
   invariant: every_task_uses_same_block_same_order
   na_rule: explicit_rationale_required
-  commit_convention: "IHAP-XX: Commit message"
   protected_scope: MVP boundary and [UNVALIDATED] policy must not be changed here
 -->
 
@@ -242,29 +241,7 @@ Reject, defer, or mark as future target [UNVALIDATED] through a reviewed source-
 
 ---
 
-## 10. Commit Convention
-
-All commits related to Jira issues must start with the Jira issue key.
-
-Format:
-
-```text
-IHAP-XX: Commit message
-```
-
-Examples:
-
-```text
-IHAP-14: Add Shift Left governance baseline
-IHAP-14: Link Shift Left baseline from README
-IHAP-15: Add risk register baseline
-```
-
-Do not place the Jira issue key at the end of the commit message.
-
----
-
-## 11. Review Checklist
+## 10. Review Checklist
 
 Before requesting review, check:
 
@@ -279,12 +256,11 @@ Before requesting review, check:
 [ ] Jira is used for tracking and evidence links.
 [ ] Confluence is used for stakeholder navigation/reports only.
 [ ] README links are updated when canonical docs are added or moved.
-[ ] Commit messages start with the Jira issue key.
 ```
 
 ---
 
-## 12. Related Documents
+## 11. Related Documents
 
 This baseline must stay aligned with:
 
