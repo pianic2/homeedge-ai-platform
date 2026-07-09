@@ -14,6 +14,7 @@ AI_AGENT_METADATA:
   document_role: "root_semantic_index"
   source_of_truth_policy: "docs/governance/source-of-truth.md"
   shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
+  scrum_governance_dor_dod: "docs/governance/scrum-governance-dor-dod.md"
   ai_review_agents_policy: "docs/governance/ai-review-agents-policy.md"
   ai_review_agent_playbook: "docs/governance/ai-review-agent-playbook.md"
   governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
@@ -56,6 +57,7 @@ AI_AGENT_ROUTING:
   - Start here for repository semantic navigation.
   - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, Confluence summaries, canonical paths, or commit convention.
   - Read docs/governance/shift-left-governance-baseline.md before planning issue-level impact blocks, review readiness, or Jira evidence.
+  - Read docs/governance/scrum-governance-dor-dod.md before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
   - Read docs/governance/ai-review-agents-policy.md before understanding review-agent roles, severity model, and decision limits.
   - Read docs/governance/ai-review-agent-playbook.md before running concrete review-agent prompts or producing review summaries.
   - Read docs/governance/governance-lane-review-gate.md before moving governance-lane tasks toward review, stakeholder review, or Done.
@@ -74,6 +76,7 @@ AI_AGENT_ROUTING:
 |---|---|---|
 | Source-of-truth rules | `docs/governance/source-of-truth.md` | Defines GitHub/Jira/Confluence roles, DOC-REGRESSION, anti-divergence, canonical paths, commit convention, and `[UNVALIDATED]` policy. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Defines the mandatory issue-level impact block for security, privacy, cost, compliance, testing, documentation, and stakeholder visibility. |
+| Scrum governance, DoR and DoD | `docs/governance/scrum-governance-dor-dod.md` | Defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, minimum evidence expectations, and Project Owner authority. |
 | AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Defines Sprint 0 advisory review agents, severity model, review output template, and non-decision-making limits. |
 | AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Provides concrete copy-paste prompts and the operating flow for using review agents in Jira, GitHub, PR, and stakeholder reviews. |
 | Governance lane review gate | `docs/governance/governance-lane-review-gate.md` | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done without source-of-truth divergence, missing evidence, unsupported claims, or premature AI/Project Owner authority violations. |
@@ -201,13 +204,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Shift Left governance, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
+| Docs | Source-of-truth governance, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, AI review-agent policy/playbook, Governance Lane Review Gate, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 
