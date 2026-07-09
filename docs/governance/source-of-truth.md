@@ -92,7 +92,7 @@ AI_AGENT_METADATA:
 HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub remains the source of truth for technical documents, decisions, risks, policies, technical baselines, governance rules, templates, source code, and PR evidence.
   - docs/README.md is a documentation landing page only; it must not replace this source-of-truth policy or duplicate long-form canonical documents.
-  - Jira remains authoritative for backlog, task state, workflow state, blockers, review state, and evidence links.
+  - Jira remains authoritative for backlog, task state, workflow state, blockers, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
   - Confluence stakeholder reports may summarize project state but must not override GitHub source-of-truth technical documents.
   - Confluence must not duplicate long-form technical source-of-truth documents from GitHub.
@@ -582,7 +582,7 @@ AI agents should use this routing order:
 2. Read `docs/README.md` for documentation navigation under `docs/`.
 3. Read `docs/governance/source-of-truth.md` for source-of-truth, anti-regression, canonical-path, and commit-convention rules.
 4. Read `docs/governance/documentation-strategy.md` before creating, moving, splitting, merging, deprecating, or reorganizing repository documentation.
-5. Read `docs/templates/README.md` before creating, using, or changing reusable project templates.
+5. Read `docs/templates/README.md` before creating, using, moving, or changing reusable project templates.
 6. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
 7. Read `docs/governance/scrum-governance-dor-dod.md` before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
 8. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
