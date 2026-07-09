@@ -277,7 +277,7 @@ The MVP includes window sensors.
 Correction:
 
 ```text
-Window sensors are outside MVP unless a later reviewed source-of-truth change updates this boundary.
+Window sensors are outside MVP unless changed by ADR.
 ```
 
 Regression:
