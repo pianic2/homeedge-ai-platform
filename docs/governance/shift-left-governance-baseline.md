@@ -4,174 +4,60 @@
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Document type:** Governance / Shift Left  
 **Status:** Sprint 0 draft for review  
-**Source of truth:** This versioned GitHub document is the canonical Shift Left baseline for issue-level impact checks until superseded by a later reviewed change.
-
-<!--
-AI_AGENT_METADATA:
-  issue: IHAP-14
-  document_type: shift_left_governance_baseline
-  source_of_truth: github_versioned_repository_documentation
-  canonical_path: "docs/governance/shift-left-governance-baseline.md"
-  related_source_of_truth_policy: "docs/governance/source-of-truth.md"
-  canonical_product_vision: "docs/product/product-vision.md"
-  canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
-  task_scope: documentation_governance_only
-  runtime_changes_allowed: false
-  firmware_changes_allowed: false
-  backend_changes_allowed: false
-  mobile_changes_allowed: false
-  jira_commit_convention: "IHAP-XX: Commit message"
-  unvalidated_claim_marker: "[UNVALIDATED]"
-  required_shift_left_dimensions:
-    - Security
-    - Privacy
-    - Cost
-    - Compliance
-    - Testing
-    - Documentation
-    - Stakeholder Visibility
-  impact_scale:
-    - N/A
-    - Low
-    - Medium
-    - High
-  mandatory_block_rule: "Every task MUST include the same minimum Shift Left impact block, with all dimensions present in the same order."
-
-HIDDEN_ANTI_REGRESSION_RULES:
-  - GitHub remains the source of truth for technical documents, decisions, risks, policies, technical baselines, governance rules, source code, and PR evidence.
-  - Jira remains authoritative for backlog, task state, workflow state, review state, blockers, and evidence links.
-  - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
-  - Stakeholder reports live only in Confluence.
-  - Confluence must not duplicate long-form technical source-of-truth documents from GitHub.
-  - If GitHub and Jira or Confluence diverge on technical content, GitHub wins until a reviewed GitHub change updates the source of truth.
-  - The only firmware node in the MVP remains firmware/room-env-node/.
-  - firmware/room-env-node/ remains a generic room/door node.
-  - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
-  - Raw audio, person tracking, behavioral history, identity inference, window scope, 220V automation, direct ESP32 Kafka publishing, commercial claims, safety-critical claims, and production/security-grade certification claims remain out of MVP.
-  - The four services directories are target service boundaries [UNVALIDATED] unless validated by later implementation evidence.
-  - Any unproven claim must be marked as [UNVALIDATED].
--->
+**Source of truth:** GitHub repository documentation.
 
 ---
 
-## 1. Purpose
+## 1. Why This Document Exists
 
-This baseline defines a lightweight Shift Left control for HomeEdge AI Platform issues.
+Every task must consider risk early, before implementation expands.
 
-Its goal is to make security, privacy, cost, compliance, testing, documentation, and stakeholder visibility impacts explicit before implementation, while remaining sustainable for a single operator.
+This baseline defines a lightweight Shift Left check for:
 
-This document is governance-only. It does not introduce firmware, backend, mobile, infrastructure, cloud, Kafka runtime, AI runtime, production-readiness, safety-critical guarantees, or security-grade certification.
+- security;
+- privacy;
+- cost;
+- compliance;
+- testing;
+- documentation;
+- stakeholder visibility.
 
----
+The goal is simple: make the impact of each task explicit without creating an enterprise-style approval process.
 
-## 2. Scope
-
-Included:
-
-- a fixed issue-level Shift Left impact block;
-- mandatory impact dimensions;
-- an explicit impact scale;
-- motivated `N/A` handling;
-- lightweight review and blocker rules;
-- operational examples;
-- a reusable issue template section;
-- commit convention for Jira-linked work.
-
-Excluded:
-
-- enterprise-grade governance gates;
-- blocking every issue by default;
-- heavyweight compliance workflows;
-- runtime validation;
-- security certification;
-- privacy/legal certification;
-- stakeholder report creation;
-- duplication of GitHub technical source of truth into Confluence.
+This must remain sustainable for a single operator.
 
 ---
 
-## 3. Non-Regression Boundaries
+## 2. What This Document Does Not Change
 
-This document does not redefine the MVP scope, source-of-truth policy, stakeholder reporting policy, or service boundary validation status.
+This document does **not** redefine the project scope.
 
-Protected baselines:
+The following rules stay unchanged:
 
-- GitHub remains the technical source of truth.
-- Jira remains the tracking, workflow, blocker, review-state, and evidence-link system.
-- Confluence remains the stakeholder hub, stakeholder report, stakeholder form, and navigation layer.
+- GitHub is the technical source of truth.
+- Jira tracks backlog, workflow state, blockers, review state, and evidence links.
+- Confluence is the stakeholder hub, stakeholder report surface, form surface, and navigation layer.
 - Stakeholder reports live only in Confluence.
 - Confluence must not duplicate GitHub as the technical source of truth.
-- If GitHub and Jira or Confluence diverge on technical content, GitHub wins until a reviewed GitHub source-of-truth change updates the project truth.
+- If GitHub and Jira/Confluence diverge on technical content, GitHub wins until a reviewed GitHub change updates the project truth.
 - Every unproven claim must be marked `[UNVALIDATED]`.
-- `docs/governance/source-of-truth.md` remains the canonical policy for source-of-truth, DOC-REGRESSION, and `[UNVALIDATED]` governance.
-- `firmware/room-env-node/` remains the only MVP firmware node.
-- The MVP node remains a generic room/door node.
-- The four service boundaries remain target directories `[UNVALIDATED]`:
-  - `services/ingestion/`;
-  - `services/device-registry/`;
-  - `services/read-model/`;
-  - `services/ai-insight/`.
+- `docs/governance/source-of-truth.md` remains the canonical source-of-truth and DOC-REGRESSION policy.
 
-Inside MVP:
+Protected MVP boundary:
 
-- temperature;
-- humidity;
-- local non-identifying presence detection;
-- door open/closed state.
-
-Outside MVP:
-
-- person tracking;
-- behavioral history;
-- person identification;
-- raw audio;
-- window sensors;
-- 220V automation;
-- direct ESP32 Kafka publishing;
-- commercial claims;
-- safety-critical claims;
-- production/security-grade certification claims.
+- the only MVP firmware node is `firmware/room-env-node/`;
+- the MVP node is a generic room/door node;
+- the MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state;
+- the MVP excludes person tracking, behavioral history, person identification, raw audio, window sensors, 220V automation, direct ESP32 Kafka publishing, commercial claims, safety-critical claims, and production/security-grade certification claims;
+- `services/ingestion/`, `services/device-registry/`, `services/read-model/`, and `services/ai-insight/` remain target service boundaries `[UNVALIDATED]`.
 
 ---
 
-## 4. Shift Left Dimensions
+## 3. Mandatory Shift Left Block
 
-Every task must evaluate the same seven dimensions.
+Every Jira task must include the same minimum Shift Left block.
 
-| Dimension | Required evaluation |
-|---|---|
-| Security | Access control, abuse path, trust boundary, integrity, device/backend exposure, unsafe technical expansion. |
-| Privacy | Data collection, identifiability, inference risk, retention, minimization, behavioral profiling risk. |
-| Cost | Cloud usage, hardware cost, maintenance load, operational overhead, tooling or deployment cost. |
-| Compliance | Legal/regulatory sensitivity, safety-sensitive behavior, certification language, claim discipline, stakeholder-facing risk. |
-| Testing | Minimum validation evidence, manual check, automated test, reproducible log, or justified `N/A`. |
-| Documentation | Canonical docs, README semantic links, ADR/risk docs, product boundaries, stakeholder summaries, or justified `N/A`. |
-| Stakeholder Visibility | Jira evidence, Confluence navigation/report need, review visibility, stakeholder-facing explanation, or justified `N/A`. |
-
-Impact scale:
-
-```text
-N/A | Low | Medium | High
-```
-
-Rules:
-
-- `N/A` is valid only when explicitly justified.
-- `Low`, `Medium`, and `High` must include a rationale.
-- `High` impact must identify either mitigation, deferral, rejection, or required review evidence.
-- Missing impact information is a governance defect.
-
----
-
-## 5. Minimum Required Impact Block
-
-Every task MUST include the same minimum Shift Left impact block.
-
-The block is mandatory for all Jira issues, regardless of issue type. Each dimension must be present in the same order, even when the impact is `N/A`.
-
-`N/A` is allowed only when explicitly justified.
-
-### 5.1 Required Block
+The block is mandatory for every issue type. All rows must stay in the same order, even when the impact is `N/A`.
 
 | Dimension | Impact | Rationale | Evidence / Action |
 |---|---:|---|---|
@@ -183,28 +69,50 @@ The block is mandatory for all Jira issues, regardless of issue type. Each dimen
 | Documentation | N/A / Low / Medium / High | ... | ... |
 | Stakeholder Visibility | N/A / Low / Medium / High | ... | ... |
 
-### 5.2 Review Rule
+A task is not ready for review if this block is missing, incomplete, reordered, or contains unjustified `N/A` values.
 
-A task is not ready for review if the Shift Left impact block is missing, incomplete, reordered, or contains unjustified `N/A` values.
+---
 
-This is a lightweight consistency rule, not an enterprise gate. The goal is to make impact explicit, not to stop development by default.
+## 4. Impact Levels
+
+Use only these values:
+
+| Impact | Meaning |
+|---|---|
+| `N/A` | The dimension has no meaningful impact. A reason is still required. |
+| `Low` | Minor impact. No special action beyond normal review. |
+| `Medium` | Relevant impact. The rationale and evidence/action must be clear. |
+| `High` | Critical impact. The task needs mitigation, deferral, rejection, or explicit review evidence. |
+
+---
+
+## 5. Dimensions
+
+| Dimension | What to check |
+|---|---|
+| Security | Attack surface, trust boundary, access, abuse, integrity, unsafe expansion. |
+| Privacy | Data collection, identifiability, retention, inference, minimization, profiling risk. |
+| Cost | Cloud cost, hardware cost, tooling cost, maintenance load, operational overhead. |
+| Compliance | Legal sensitivity, safety claims, certification claims, misleading claims, regulatory risk. |
+| Testing | Required validation, manual check, automated test, logs, or justified `N/A`. |
+| Documentation | README, governance docs, product docs, ADRs, risk docs, or justified `N/A`. |
+| Stakeholder Visibility | Jira evidence, stakeholder-facing summary need, Confluence navigation/report impact. |
 
 ---
 
 ## 6. `N/A` Rule
 
-`N/A` is allowed only when the issue has no meaningful impact on that dimension and the reason is explicitly stated.
+`N/A` is allowed only when the reason is explicit.
 
-Valid examples:
+Good examples:
 
 ```text
 Testing: N/A — documentation-only change, no executable behavior modified.
 Cost: N/A — no infrastructure, cloud, hardware, tooling, or runtime component introduced.
 Privacy: N/A — no data collection, storage, inference, retention, or identification behavior changed.
-Stakeholder Visibility: N/A — internal cleanup with no stakeholder-facing state, report, or navigation impact.
 ```
 
-Invalid examples:
+Bad examples:
 
 ```text
 Testing: N/A — not needed.
@@ -217,34 +125,26 @@ Reason: these do not explain why the dimension is not applicable.
 
 ---
 
-## 7. Lightweight Blocking Rules
+## 7. When Review Should Block
 
-Shift Left does not block every issue by default.
+Shift Left must not block development by default.
 
-A task or PR should be blocked only when one of the following conditions exists:
+Block review only when there is a real governance risk, such as:
 
-- `Security = High` without mitigation, rejection, deferral, or explicit review evidence.
-- `Privacy = High` without minimization, boundary definition, rejection, deferral, or explicit review evidence.
-- `Compliance = High` without claim control, `[UNVALIDATED]` marking, rejection, deferral, or explicit review evidence.
-- A technical, commercial, safety, security-grade, or AI claim is unproven and not marked `[UNVALIDATED]`.
-- The change expands the protected MVP boundary without reviewed approval.
-- The change presents target service boundaries as implemented runtime without evidence.
-- The change moves technical source of truth from GitHub into Jira or Confluence.
-- The change creates a DOC-REGRESSION under `docs/governance/source-of-truth.md`.
+- `Security = High` without mitigation, deferral, rejection, or evidence;
+- `Privacy = High` without minimization, boundary definition, deferral, rejection, or evidence;
+- `Compliance = High` without claim control, `[UNVALIDATED]` marking, deferral, rejection, or evidence;
+- an unproven technical, commercial, safety, security-grade, or AI claim without `[UNVALIDATED]`;
+- silent MVP expansion;
+- target service boundaries presented as implemented runtime without evidence;
+- technical source of truth moved from GitHub to Jira or Confluence;
+- DOC-REGRESSION under `docs/governance/source-of-truth.md`.
 
-A task or PR should not be blocked solely because:
-
-- one or more dimensions are `Low` or `Medium` with sufficient rationale;
-- one or more dimensions are `N/A` with explicit justification;
-- the change is documentation-only;
-- the risk is known, bounded, and tracked;
-- the required action is a link, note, or future issue rather than immediate implementation.
+Do not block review only because a dimension is `Low`, `Medium`, or justified `N/A`.
 
 ---
 
-## 8. Issue Shift Left Template
-
-Use this section as the reusable issue-level template.
+## 8. Template to Copy Into Tasks
 
 ```md
 ## Shift Left Impact
@@ -260,83 +160,77 @@ Use this section as the reusable issue-level template.
 | Stakeholder Visibility | N/A / Low / Medium / High |  |  |
 ```
 
-Minimum completion standard:
+Each row must contain:
 
-```text
-Each row must contain an impact value, a rationale, and an evidence/action note.
-```
+1. an impact value;
+2. a short rationale;
+3. evidence, action, mitigation, deferral, rejection, or a clear `N/A` reason.
 
 ---
 
-## 9. Operational Examples
+## 9. Examples
 
-### 9.1 Documentation-Only Governance Issue
-
-Example: creating or updating a governance baseline.
+### 9.1 Documentation-only governance task
 
 | Dimension | Impact | Rationale | Evidence / Action |
 |---|---:|---|---|
-| Security | Low | Improves control policy, no runtime security behavior changed. | Link governance doc or PR. |
-| Privacy | Low | Clarifies privacy review expectations, no personal data processed. | Link governance doc or PR. |
-| Cost | N/A | No infrastructure, cloud, hardware, tooling, or runtime component introduced. | No cost action required. |
-| Compliance | Medium | Establishes review language for compliance-sensitive claims. | Preserve claim discipline and `[UNVALIDATED]` policy. |
-| Testing | N/A | Documentation-only change, no executable behavior modified. | Review diff only. |
-| Documentation | High | Canonical governance document created or updated. | Link canonical GitHub document. |
-| Stakeholder Visibility | Medium | Jira evidence link required; Confluence may link without duplicating. | Link PR/doc from Jira and, if useful, Confluence navigation. |
+| Security | Low | Improves governance, no runtime security behavior changed. | Link PR/doc. |
+| Privacy | Low | Clarifies privacy checks, no personal data processed. | Link PR/doc. |
+| Cost | N/A | No infrastructure, cloud, hardware, tooling, or runtime component introduced. | No action. |
+| Compliance | Medium | Adds claim-control rules. | Preserve `[UNVALIDATED]` policy. |
+| Testing | N/A | Documentation-only change. | Review diff. |
+| Documentation | High | Canonical governance document created or updated. | Link GitHub doc. |
+| Stakeholder Visibility | Medium | Jira evidence link required. | Link PR/doc from Jira. |
 
-### 9.2 Firmware Room/Door Node Change
-
-Example: changing `firmware/room-env-node/` behavior.
+### 9.2 Firmware room/door node task
 
 | Dimension | Impact | Rationale | Evidence / Action |
 |---|---:|---|---|
-| Security | Medium | Device behavior and local event production may affect trust boundaries. | Provide implementation diff and review notes. |
-| Privacy | Medium | Presence and door state are local non-identifying signals, but still privacy-relevant. | Confirm no person identification, raw audio, or behavioral history. |
+| Security | Medium | Device behavior can affect trust boundaries. | Review implementation diff. |
+| Privacy | Medium | Presence and door state are privacy-relevant even if non-identifying. | Confirm no identification, raw audio, or behavioral history. |
 | Cost | Low | No cloud cost unless event volume, hardware, or infrastructure changes. | Note hardware/runtime impact. |
-| Compliance | Medium | Must avoid safety-critical, security-grade, or certification claims. | Preserve `[UNVALIDATED]` where evidence is missing. |
-| Testing | High | Firmware behavior requires validation logs or reproducible test evidence. | Attach logs, manual test output, or automated test result. |
-| Documentation | Medium | Firmware README or product boundary docs may need update. | Link updated docs or explain no doc impact. |
-| Stakeholder Visibility | Low | Jira evidence link is usually sufficient. | Link PR and relevant test evidence. |
+| Compliance | Medium | Avoid safety-critical, security-grade, or certification claims. | Preserve `[UNVALIDATED]` where needed. |
+| Testing | High | Firmware behavior needs evidence. | Attach logs or test output. |
+| Documentation | Medium | Firmware docs may need update. | Link docs or explain no doc impact. |
+| Stakeholder Visibility | Low | Jira evidence is usually enough. | Link PR and test evidence. |
 
-### 9.3 New AI Insight Claim
-
-Example: describing future AI insight behavior.
+### 9.3 New AI insight claim
 
 | Dimension | Impact | Rationale | Evidence / Action |
 |---|---:|---|---|
-| Security | Medium | Generated insights may influence interpretation or future automation design. | Bound the claim and avoid runtime/security guarantees. |
-| Privacy | High | Inference can become behavioral profiling if not bounded. | Reject, defer, or mark as target `[UNVALIDATED]`; define minimization boundary. |
-| Cost | Medium | AI processing may introduce compute, storage, or provider cost. | Estimate or mark as future target `[UNVALIDATED]`. |
-| Compliance | High | AI capability claims can become misleading if unvalidated. | Mark unproven claims `[UNVALIDATED]`. |
-| Testing | Medium | Expected output and failure behavior need evidence before validation. | Require future evaluation evidence. |
-| Documentation | High | Product boundaries and claim status must be updated. | Link product/governance update. |
-| Stakeholder Visibility | Medium | Stakeholders may need a clear explanation if visible externally. | Link stakeholder-facing summary only; keep technical truth in GitHub. |
+| Security | Medium | Insights may influence interpretation or later automation. | Bound the claim. |
+| Privacy | High | Inference can become behavioral profiling. | Defer, reject, or mark `[UNVALIDATED]`. |
+| Cost | Medium | AI processing may introduce compute or provider cost. | Estimate or mark future target `[UNVALIDATED]`. |
+| Compliance | High | AI capability claims can be misleading if unvalidated. | Mark unproven claims `[UNVALIDATED]`. |
+| Testing | Medium | Expected output needs evidence before validation. | Require future evaluation evidence. |
+| Documentation | High | Product boundaries and claim status must stay clear. | Update canonical docs. |
+| Stakeholder Visibility | Medium | Stakeholders may need a clear summary if externally visible. | Link summary without duplicating technical truth. |
 
-### 9.4 Out-of-Scope Technical Request
+### 9.4 Out-of-scope technical request
 
 Example: direct ESP32 Kafka publishing or 220V automation.
 
 | Dimension | Impact | Rationale | Evidence / Action |
 |---|---:|---|---|
-| Security | High | Expands attack surface or unsafe control boundary beyond MVP. | Reject for MVP or defer through reviewed future task. |
-| Privacy | Medium | Depends on emitted data, retention, and downstream linkage. | Require future privacy review if reconsidered. |
-| Cost | Medium | Introduces infrastructure, hardware, operational, or maintenance complexity. | Require future cost review if reconsidered. |
-| Compliance | High | May trigger safety, certification, or regulatory concerns. | Keep out of MVP unless reviewed and explicitly approved. |
-| Testing | High | Requires validation beyond current MVP baseline. | No MVP test action; future validation required if approved. |
-| Documentation | High | Must be marked out of scope unless explicitly re-approved. | Preserve MVP boundary in Product Vision/source-of-truth docs. |
-| Stakeholder Visibility | Medium | Jira rationale is required when rejecting/defering scope. | Link decision rationale from Jira. |
+| Security | High | Expands attack surface or unsafe control boundary beyond MVP. | Reject for MVP or defer. |
+| Privacy | Medium | Depends on emitted data, retention, and linkage. | Require future privacy review if reconsidered. |
+| Cost | Medium | Adds infrastructure, hardware, or maintenance complexity. | Require future cost review if reconsidered. |
+| Compliance | High | May trigger safety, certification, or regulatory concerns. | Keep out of MVP unless reviewed and approved. |
+| Testing | High | Requires validation beyond current MVP baseline. | Future validation required if approved. |
+| Documentation | High | Must remain out of scope unless re-approved. | Preserve MVP boundary docs. |
+| Stakeholder Visibility | Medium | Jira rationale required when rejecting or deferring scope. | Link decision rationale. |
 
-Decision:
+Decision for MVP:
 
 ```text
-Reject for MVP or mark as future target [UNVALIDATED] through a reviewed source-of-truth change.
+Reject, defer, or mark as future target [UNVALIDATED] through a reviewed source-of-truth change.
 ```
 
 ---
 
 ## 10. Commit Convention
 
-All commits related to Jira issues MUST start with the Jira issue key.
+All commits related to Jira issues must start with the Jira issue key.
 
 Format:
 
@@ -356,51 +250,33 @@ Do not place the Jira issue key at the end of the commit message.
 
 ---
 
-## 11. Evidence Expectations
+## 11. Review Checklist
 
-Each task should leave evidence proportional to its impact.
-
-| Situation | Minimum evidence |
-|---|---|
-| Documentation-only | GitHub doc diff or PR link. |
-| Firmware behavior | Code diff plus validation log, manual test note, or automated test output. |
-| Backend/API behavior `[UNVALIDATED]` | Design doc, schema, test evidence, or explicit future-target marker. |
-| Privacy-sensitive change | Data boundary, minimization note, retention note, or rejection rationale. |
-| Cost-sensitive change | Cost note, infrastructure impact, or explicit no-runtime-cost rationale. |
-| Compliance-sensitive change | Claim-control note, `[UNVALIDATED]` marker, or rejection/defer rationale. |
-| Stakeholder-visible change | Jira evidence link and optional Confluence navigation/report link without duplicating GitHub technical truth. |
-
-Evidence must be linkable from Jira when the task moves to review.
-
----
-
-## 12. Review Checklist
-
-Use this checklist before requesting review:
+Before requesting review, check:
 
 ```text
-[ ] The task includes the mandatory Shift Left impact block.
+[ ] The task includes the mandatory Shift Left block.
 [ ] All seven dimensions are present in the required order.
-[ ] Every N/A has an explicit rationale.
-[ ] Every High impact has mitigation, rejection, deferral, or evidence action.
-[ ] No protected MVP boundary was expanded silently.
+[ ] Every N/A has a clear reason.
+[ ] Every High impact has mitigation, rejection, deferral, or evidence.
+[ ] No MVP boundary was expanded silently.
 [ ] No unproven claim appears without [UNVALIDATED].
 [ ] GitHub remains the technical source of truth.
-[ ] Jira is used for tracking and evidence links only.
+[ ] Jira is used for tracking and evidence links.
 [ ] Confluence is used for stakeholder navigation/reports only.
-[ ] README semantic links are updated when canonical paths change or new canonical docs are added.
+[ ] README links are updated when canonical docs are added or moved.
 [ ] Commit messages start with the Jira issue key.
 ```
 
 ---
 
-## 13. Relationship to Existing Governance
+## 12. Related Documents
 
-This document depends on and must not contradict:
+This baseline must stay aligned with:
 
 - `docs/governance/source-of-truth.md`;
 - `docs/product/product-vision.md`;
 - `docs/governance/stakeholder-transparency.md`;
-- `README.md` as root semantic index.
+- `README.md`.
 
-If this baseline conflicts with `docs/governance/source-of-truth.md`, the source-of-truth policy wins until a reviewed GitHub change resolves the conflict.
+If this document conflicts with `docs/governance/source-of-truth.md`, the source-of-truth policy wins until a reviewed GitHub change resolves the conflict.
