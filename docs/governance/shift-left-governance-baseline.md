@@ -6,6 +6,20 @@
 **Status:** Sprint 0 draft for review  
 **Source of truth:** GitHub repository documentation.
 
+<!--
+AI_AGENT_METADATA:
+  issue: IHAP-14
+  canonical_path: docs/governance/shift-left-governance-baseline.md
+  policy_role: issue_level_shift_left_baseline
+  source_of_truth_policy: docs/governance/source-of-truth.md
+  required_block: Security, Privacy, Cost, Compliance, Testing, Documentation, Stakeholder Visibility
+  impact_scale: N/A, Low, Medium, High
+  invariant: every_task_uses_same_block_same_order
+  na_rule: explicit_rationale_required
+  commit_convention: "IHAP-XX: Commit message"
+  protected_scope: MVP boundary and [UNVALIDATED] policy must not be changed here
+-->
+
 ---
 
 ## 1. Why This Document Exists
