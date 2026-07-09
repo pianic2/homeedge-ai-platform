@@ -19,6 +19,7 @@ AI_AGENT_METADATA:
   ai_review_agent_playbook: "docs/governance/ai-review-agent-playbook.md"
   governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
   team_working_rules: "docs/governance/team-working-rules.md"
+  engineering_assistant_rules: "docs/governance/engineering-assistant-rules.md"
   product_vision: "docs/product/product-vision.md"
   stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   current_glossary_location: "docs/product/product-vision.md"
@@ -63,6 +64,7 @@ AI_AGENT_ROUTING:
   - Read docs/governance/ai-review-agent-playbook.md before running concrete review-agent prompts or producing review summaries.
   - Read docs/governance/governance-lane-review-gate.md before moving governance-lane tasks toward review, stakeholder review, or Done.
   - Read docs/governance/team-working-rules.md before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
+  - Read docs/governance/engineering-assistant-rules.md before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
   - Read docs/product/product-vision.md before changing MVP scope, product language, glossary terms, firmware boundaries, service boundary wording, or stakeholder claims.
   - Read docs/governance/stakeholder-transparency.md before changing stakeholder visibility, Atlassian governance, Jira evidence comments, or Confluence hub/report behavior.
   - Do not infer runtime maturity from folder names.
@@ -83,6 +85,7 @@ AI_AGENT_ROUTING:
 | AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Provides concrete copy-paste prompts and the operating flow for using review agents in Jira, GitHub, PR, and stakeholder reviews. |
 | Governance lane review gate | `docs/governance/governance-lane-review-gate.md` | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done without source-of-truth divergence, missing evidence, unsupported claims, or premature AI/Project Owner authority violations. |
 | Team working rules | `docs/governance/team-working-rules.md` | Defines lightweight daily operating rules, collaboration boundaries, blocker handling, evidence discipline, and AI assistant usage boundaries. |
+| Engineering assistant rules | `docs/governance/engineering-assistant-rules.md` | Defines engineering assistant allowed actions, forbidden actions, operating flow, evidence expectations, and Project Owner authority boundaries. |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` | Canonical source for Product Vision, MVP inclusions/exclusions, and current glossary. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Defines stakeholder visibility, Jira evidence behavior, and Confluence hub usage. |
 | Stakeholder hub and reports | Confluence | Confluence is authoritative for stakeholder-facing hub, reports, forms, and navigation. |
@@ -207,13 +210,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
+| Docs | Source-of-truth governance, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, Product Vision, ADRs, Risk Assessments, stakeholder transparency |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 

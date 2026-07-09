@@ -38,6 +38,7 @@ CANONICAL_REFERENCES:
   ai_review_agents_policy: "docs/governance/ai-review-agents-policy.md"
   ai_review_agent_playbook: "docs/governance/ai-review-agent-playbook.md"
   governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
+  engineering_assistant_rules: "docs/governance/engineering-assistant-rules.md"
   stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   product_vision: "docs/product/product-vision.md"
 
@@ -156,6 +157,7 @@ AI supports review but does not approve.
 | Shift Left impact block | `docs/governance/shift-left-governance-baseline.md` |
 | Ready, Done, workflow movement, evidence expectations | `docs/governance/scrum-governance-dor-dod.md` |
 | AI review-agent limits and prompts | `docs/governance/ai-review-agents-policy.md`, `docs/governance/ai-review-agent-playbook.md` |
+| Engineering assistant operating rules | `docs/governance/engineering-assistant-rules.md` |
 | Governance-lane movement | `docs/governance/governance-lane-review-gate.md` |
 | Stakeholder visibility and Confluence behavior | `docs/governance/stakeholder-transparency.md` |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` |
