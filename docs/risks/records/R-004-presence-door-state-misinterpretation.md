@@ -54,7 +54,7 @@ The MVP includes local non-identifying presence state and door open/closed state
 | Likelihood | High | Door and presence wording is easy to overread as security/safety functionality. |
 | Impact | High | Misleading claim could violate project claim boundaries and create stakeholder confusion. |
 | Residual risk | High | Risk remains until every stakeholder-facing surface consistently uses telemetry-safe wording. |
-| Treatment proposal | Reject unsafe wording | Block alarm, antifurto, access-control, intrusion-detection, safety, and protection claims. |
+| Treatment proposal | Reject | Block alarm, antifurto, access-control, intrusion-detection, safety, and protection claims. |
 | Decision state | Pending Project Owner | No residual risk acceptance exists. |
 
 ---
