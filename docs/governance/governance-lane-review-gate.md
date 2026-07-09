@@ -28,6 +28,7 @@ AI_AGENT_METADATA:
   unvalidated_claim_marker: "[UNVALIDATED]"
   canonical_source_of_truth_policy: "docs/governance/source-of-truth.md"
   canonical_shift_left_baseline: "docs/governance/shift-left-governance-baseline.md"
+  canonical_scrum_governance_dor_dod: "docs/governance/scrum-governance-dor-dod.md"
   canonical_ai_review_agents_policy: "docs/governance/ai-review-agents-policy.md"
   canonical_ai_review_agent_playbook: "docs/governance/ai-review-agent-playbook.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
@@ -41,6 +42,7 @@ AI_AGENT_METADATA:
 
 HIDDEN_ANTI_REGRESSION_RULES:
   - This gate coordinates existing governance policies; it does not replace them.
+  - docs/governance/scrum-governance-dor-dod.md defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, and minimum evidence expectations.
   - GitHub remains the technical source of truth for technical documents, decisions, risks, policies, baselines, governance rules, source code, and PR evidence.
   - Jira remains authoritative for backlog, task state, workflow state, review state, blockers, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
@@ -114,7 +116,7 @@ This gate applies to the Sprint 0 governance-lane issues listed below:
 
 | Issue | Title | Gate relevance |
 |---|---|---|
-| IHAP-23 | Scrum Governance, DoR and DoD | Defines task readiness and completion rules. |
+| IHAP-23 | Scrum Governance, DoR and DoD | Defines lightweight Scrum governance, task readiness, completion rules, Jira workflow movement, and minimum evidence expectations through `docs/governance/scrum-governance-dor-dod.md`. |
 | IHAP-24 | Team Working Rules | Defines collaboration and operating rules. |
 | IHAP-25 | Engineering Assistant Rules | Defines assistant/tool usage boundaries. |
 | IHAP-34 | Configure Review Agents | Defines advisory review agents and severity model. |
@@ -167,6 +169,8 @@ A governance-lane task may be considered ready for work only when:
 [ ] Project Owner remains the final authority for readiness decisions.
 ```
 
+For the full Definition of Ready baseline, use `docs/governance/scrum-governance-dor-dod.md`.
+
 A task is not ready when it has unclear scope, missing acceptance criteria, missing Shift Left impact, unsupported claims, or source-of-truth ambiguity.
 
 ### 6.2 Review Gate
@@ -215,6 +219,8 @@ A governance-lane task may move toward Done only when:
 [ ] No unproven claim lacks [UNVALIDATED].
 [ ] No production-ready, safety-critical, commercial-ready, certification, or security-grade claim is introduced without traceable evidence.
 ```
+
+For the full Definition of Done baseline, use `docs/governance/scrum-governance-dor-dod.md`.
 
 Review agents must not declare Done. They may only state that no blocking findings were detected by their review pass.
 
@@ -365,6 +371,7 @@ This document satisfies IHAP-35 when:
 - Confluence remains stakeholder explanation and link layer only;
 - README semantic index links this document;
 - `docs/governance/source-of-truth.md` registers this canonical path;
+- `docs/governance/scrum-governance-dor-dod.md` remains the canonical baseline for Scrum governance, DoR, DoD, Jira workflow movement, and minimum evidence expectations;
 - no firmware, backend, mobile, cloud, runtime, production-ready, safety-critical, commercial-ready, or security-grade claim is introduced.
 
 ---
@@ -376,6 +383,7 @@ This gate must stay aligned with:
 - `README.md`;
 - `docs/governance/source-of-truth.md`;
 - `docs/governance/shift-left-governance-baseline.md`;
+- `docs/governance/scrum-governance-dor-dod.md`;
 - `docs/governance/ai-review-agents-policy.md`;
 - `docs/governance/ai-review-agent-playbook.md`;
 - `docs/governance/stakeholder-transparency.md`;
