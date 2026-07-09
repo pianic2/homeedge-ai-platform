@@ -22,6 +22,7 @@ AI_AGENT_METADATA:
   security_grade_claims_allowed: false
   unvalidated_claim_marker: "[UNVALIDATED]"
   canonical_policy_file: "docs/governance/source-of-truth.md"
+  canonical_documentation_strategy: "docs/governance/documentation-strategy.md"
   canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
   canonical_scrum_governance_dor_dod: "docs/governance/scrum-governance-dor-dod.md"
   canonical_governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
@@ -43,6 +44,7 @@ AI_AGENT_METADATA:
     - policies
     - technical_baselines
     - governance_rules
+    - documentation_strategy
     - scrum_governance_dor_dod
     - governance_lane_review_gate
     - team_working_rules
@@ -123,6 +125,7 @@ Included:
 - merge/review blocking rules for documentation regressions;
 - protected MVP boundaries inherited from Product Vision;
 - Jira-linked commit convention;
+- Documentation Strategy registration;
 - Scrum Governance, DoR and DoD registration;
 - Governance Lane Review Gate registration;
 - Team Working Rules registration;
@@ -156,6 +159,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Commits and branches | GitHub | Jira issue links | Jira-linked commits should start with the issue key, for example `IHAP-35: Register governance gate canonical path`. |
 | Technical documents | GitHub | Confluence link/summary only | Technical documents must live in the repository. Confluence must not become a duplicate technical documentation repository. |
 | Source-of-truth policy | `docs/governance/source-of-truth.md` | Jira/PR evidence links | Defines source-of-truth hierarchy, DOC-REGRESSION, canonical paths, and `[UNVALIDATED]` policy. |
+| Documentation Strategy | `docs/governance/documentation-strategy.md` | Jira/PR evidence links | Defines document families, when to create or update documents, anti-stale behavior, and documentation surface policy without replacing this source-of-truth policy. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
 | Scrum governance, DoR and DoD | `docs/governance/scrum-governance-dor-dod.md` | Jira/PR evidence links | Defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, minimum evidence expectations, and Project Owner authority. |
 | Governance Lane Review Gate | `docs/governance/governance-lane-review-gate.md` | Jira/PR evidence links | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done. |
@@ -367,6 +371,7 @@ Update GitHub when changing:
 - architecture baseline;
 - source-of-truth rules;
 - DOC-REGRESSION policy;
+- documentation strategy;
 - `[UNVALIDATED]` policy;
 - ADRs;
 - risk assessments;
@@ -472,6 +477,10 @@ docs/governance/source-of-truth.md
 ```
 
 ```text
+docs/governance/documentation-strategy.md
+```
+
+```text
 docs/governance/shift-left-governance-baseline.md
 ```
 
@@ -538,19 +547,20 @@ AI agents should use this routing order:
 
 1. Start from `README.md` for the semantic map.
 2. Read `docs/governance/source-of-truth.md` for source-of-truth, anti-regression, canonical-path, and commit-convention rules.
-3. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
-4. Read `docs/governance/scrum-governance-dor-dod.md` before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
-5. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
-6. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
-7. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
-8. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
-9. Read `docs/governance/engineering-assistant-rules.md` before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
-10. Read `docs/adr/README.md` before adding or changing ADRs, ADR naming, ADR status, or ADR link policy.
-11. Read `docs/adr/template.md` before drafting a new ADR.
-12. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-13. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-14. Use Jira for task state, workflow, review state, blockers, and evidence links.
-15. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+3. Read `docs/governance/documentation-strategy.md` before creating, moving, splitting, merging, deprecating, or reorganizing repository documentation.
+4. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
+5. Read `docs/governance/scrum-governance-dor-dod.md` before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
+6. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
+7. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
+8. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
+9. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
+10. Read `docs/governance/engineering-assistant-rules.md` before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
+11. Read `docs/adr/README.md` before adding or changing ADRs, ADR naming, ADR status, or ADR link policy.
+12. Read `docs/adr/template.md` before drafting a new ADR.
+13. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+14. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+15. Use Jira for task state, workflow, review state, blockers, and evidence links.
+16. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -582,14 +592,14 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 ## 11. Acceptance Criteria
 
-This policy satisfies IHAP-13 and remains aligned with IHAP-22, IHAP-23, IHAP-24, IHAP-25, and IHAP-35 when:
+This policy satisfies IHAP-13 and remains aligned with IHAP-22, IHAP-23, IHAP-24, IHAP-25, IHAP-29, and IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Documentation Strategy, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- canonical repository paths are listed, including `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
+- canonical repository paths are listed, including `docs/governance/documentation-strategy.md`, `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
 - stakeholder reports are explicitly assigned to Confluence;
 - no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
 - Project Owner approval remains required before task completion.
