@@ -47,6 +47,7 @@ AI_AGENT_METADATA:
     risks:
       - docs/risks/README.md
       - docs/risks/risk-model-baseline.md
+      - docs/risks/records/
     adr:
       - docs/adr/README.md
       - docs/adr/template.md
@@ -79,6 +80,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Source-of-truth rules | `governance/source-of-truth.md` |
 | Documentation strategy | `governance/documentation-strategy.md` |
 | Product Vision / MVP boundary | `product/product-vision.md` |
+| Risk documentation index | `risks/README.md` |
 | Risk model baseline | `risks/risk-model-baseline.md` |
 | ADR index | `adr/README.md` |
 | Templates | `templates/README.md` |
@@ -92,7 +94,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 |---|---|---|
 | Governance | `governance/` | Existing documentation family |
 | Product | `product/` | Existing documentation family |
-| Risks | `risks/` | Risk model baseline and future explicitly approved risk records |
+| Risks | `risks/` | Risk modeling guide and concrete risk records |
 | ADRs | `adr/` | Existing documentation family |
 | Templates | `templates/` | Existing documentation family |
 | Architecture | `architecture/` | Existing area; use only when needed |
