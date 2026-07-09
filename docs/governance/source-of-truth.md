@@ -21,6 +21,7 @@ AI_AGENT_METADATA:
   security_grade_claims_allowed: false
   unvalidated_claim_marker: "[UNVALIDATED]"
   canonical_policy_file: "docs/governance/source-of-truth.md"
+  canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   standalone_glossary_status: "future_candidate_not_created_by_ihap_13"
@@ -76,7 +77,7 @@ AI_AGENT_METADATA:
 
 HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub remains the source of truth for technical documents, decisions, risks, policies, technical baselines, governance rules, source code, and PR evidence.
-  - Jira remains authoritative for backlog, task state, workflow state, review state, blockers, and evidence links.
+  - Jira remains authoritative for backlog, task state, workflow state, blockers, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
   - Confluence stakeholder reports may summarize project state but must not override GitHub source-of-truth technical documents.
   - Confluence must not duplicate long-form technical source-of-truth documents from GitHub.
@@ -147,6 +148,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Task status | Jira | Confluence summary only | Jira is authoritative for status such as Backlog, Ready, In Progress, In Review, Stakeholder Review, and Done. |
 | Code | GitHub | Jira PR links | GitHub is authoritative for source code, repository structure, commits, branches, and PR evidence. |
 | Technical documents | GitHub | Confluence link/summary only | Technical documents must live in the repository. Confluence must not become a duplicate technical documentation repository. |
+| Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
 | Product Vision | `docs/product/product-vision.md` | Jira/Confluence links | Product Vision, MVP boundaries, and current glossary live in GitHub until superseded by reviewed change. |
 | Glossary | Current embedded glossary in `docs/product/product-vision.md` | Future `docs/glossary/project-glossary.md` candidate | Do not create a duplicate glossary until a later task explicitly extracts and links it. |
 | ADR | GitHub `docs/adr/` | Jira evidence link | ADRs are versioned source-of-truth decisions. Jira may link them but must not replace them. |
@@ -450,6 +452,10 @@ docs/governance/stakeholder-transparency.md
 docs/governance/source-of-truth.md
 ```
 
+```text
+docs/governance/shift-left-governance-baseline.md
+```
+
 Current MVP firmware path:
 
 ```text
@@ -485,10 +491,11 @@ AI agents should use this routing order:
 
 1. Start from `README.md` for the semantic map.
 2. Read `docs/governance/source-of-truth.md` for source-of-truth and anti-regression rules.
-3. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-4. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-5. Use Jira for task state, workflow, review state, blockers, and evidence links.
-6. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+3. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
+4. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+5. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+6. Use Jira for task state, workflow, review state, blockers, and evidence links.
+7. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
