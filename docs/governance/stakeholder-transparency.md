@@ -11,6 +11,8 @@
 <!--
 AI_AGENT_METADATA:
   issue: IHAP-12
+  related_issues:
+    - IHAP-18
   document_type: stakeholder_transparency_governance
   source_of_truth: github_versioned_repository_documentation
   task_scope: documentation_governance_only
@@ -19,6 +21,14 @@ AI_AGENT_METADATA:
   backend_changes_allowed: false
   mobile_changes_allowed: false
   production_ready_claims_allowed: false
+  commercial_ready_claims_allowed: false
+  safety_critical_claims_allowed: false
+  alarm_grade_claims_allowed: false
+  security_grade_claims_allowed: false
+  certification_claims_allowed: false
+  antifurto_claims_allowed: false
+  protection_claims_allowed: false
+  ai_runtime_validation_claims_allowed_without_evidence: false
   unvalidated_claim_marker: "[UNVALIDATED]"
   human_readability_requirement: "max_3_minutes"
   confluence_landing_page: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
@@ -66,6 +76,10 @@ AI_AGENT_METADATA:
     - production_grade_security_certification
     - commercial_claims
     - safety_critical_claims
+    - alarm_grade_claims
+    - antifurto_claims
+    - certified_access_control_claims
+    - certified_intrusion_detection_claims
   target_service_boundaries:
     - services/ingestion/
     - services/device-registry/
@@ -86,6 +100,8 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - The four service directories remain TARGET boundaries unless validated by later implementation evidence.
   - Stakeholder-facing pages and reports must not weaken, expand, or silently reinterpret MVP boundaries.
   - Any unproven claim must be marked as [UNVALIDATED].
+  - Door state and presence state must not be presented as antifurto, alarm-grade, certified access control, certified intrusion detection, safety-critical monitoring, or protection of people, goods, or environments.
+  - AI insight must not be presented as runtime validated without traceable runtime evidence.
 -->
 
 ---
@@ -183,7 +199,7 @@ If sensitive information is useful for debugging, it must be redacted before bei
 
 ## 6. Claim rule
 
-Unclear maturity must be marked down, not up.
+Unclear maturity must be marked down, not up. Stakeholder wording must use the weakest accurate claim.
 
 Use these labels consistently:
 
@@ -191,20 +207,31 @@ Use these labels consistently:
 |---|---|
 | `DONE` | Completed and supported by evidence |
 | `PLANNED` | Intended but not implemented |
+| `TARGET` | Architectural direction or boundary, not proof of runtime |
+| `FUTURE` | Possible later scope, not implemented now |
 | `IN REVIEW` | Produced, waiting for review |
-| `STAKEHOLDER REVIEW` | Ready for stakeholder visibility |
+| `STAKEHOLDER REVIEW` | Ready for stakeholder visibility, not Done |
 | `RISK` | Known uncertainty or possible negative outcome |
 | `DECISION` | Approved direction or constraint |
 | `[UNVALIDATED]` | Not implemented, tested, reviewed, or proven |
 | `OUT OF SCOPE` | Explicitly excluded |
 
-Forbidden pattern:
+Claim classes:
 
-```text
-Production-ready / secure / safety-critical / commercially ready
-```
+| Class | Allowed wording | Rule |
+|---|---|---|
+| Allowed | Educational, portfolio-grade, Sprint 0, MVP, target, planned, future, in review, stakeholder review | Use only when it matches linked evidence or source-of-truth scope. |
+| Allowed only with `[UNVALIDATED]` | Backend service boundaries, mobile dashboard, cloud/deployment, event schema, storage behavior, ingestion, device registry, read model, AI insight | Preserve `[UNVALIDATED]` until implementation and runtime evidence exist. |
+| Blocked | Production-ready, commercial-ready, security-certified, security-grade, safety-critical, alarm-grade, antifurto, certified access control, certified intrusion detection, protection of people, goods, or environments | Do not use in current stakeholder material. Future reconsideration requires reviewed source-of-truth change, implementation evidence, and Project Owner decision. |
 
-Unless a later reviewed implementation and validation task proves it.
+Stakeholder-safe wording:
+
+| Use | Avoid |
+|---|---|
+| `Door state telemetry is part of the MVP.` | `The system controls access or detects intrusions.` |
+| `Presence is local, non-identifying room state.` | `The system tracks people or guarantees occupancy safety.` |
+| `AI insight is a target/future boundary [UNVALIDATED].` | `AI insight is runtime validated.` |
+| `Backend/mobile/cloud are target boundaries [UNVALIDATED].` | `Backend/mobile/cloud are already implemented production services.` |
 
 ---
 
@@ -238,7 +265,8 @@ Outside MVP:
 - direct ESP32 Kafka publishing;
 - commercial claims;
 - safety-critical claims;
-- production/security-grade certification claims.
+- production/security-grade certification claims;
+- antifurto, alarm-grade, certified access control, or certified intrusion detection claims.
 
 Target service boundaries remain targets unless later implementation evidence proves otherwise:
 
