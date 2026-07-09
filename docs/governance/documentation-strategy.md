@@ -20,6 +20,8 @@ AI_AGENT_METADATA:
   stakeholder_transparency: docs/governance/stakeholder-transparency.md
   ai_review_agents_policy: docs/governance/ai-review-agents-policy.md
   ai_review_agent_playbook: docs/governance/ai-review-agent-playbook.md
+  templates_index: docs/templates/README.md
+  risk_assessment_template: docs/templates/risk-assessment.md
   product_vision: docs/product/product-vision.md
   adr_index: docs/adr/README.md
   adr_template: docs/adr/template.md
@@ -44,6 +46,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Confluence must summarize and link; it must not duplicate long-form GitHub technical documentation.
   - Do not create documents only to increase the file count.
   - Do not duplicate rules already defined by canonical documents; link them instead.
+  - Templates must link existing canonical templates instead of duplicating ADR, Shift Left, Jira evidence, AI review, governance gate, or stakeholder report templates.
   - README.md and docs/governance/source-of-truth.md must be updated when canonical documentation paths are added, moved, renamed, or deprecated.
   - Preserve [UNVALIDATED] on every unproven claim.
   - Do not expand MVP scope silently.
@@ -73,6 +76,7 @@ This strategy defines how HomeEdge documentation should grow without creating pa
 | Governance | `docs/governance/` | Source-of-truth rules, workflow rules, review gates, assistant rules, documentation strategy. |
 | Product | `docs/product/` | Product Vision, MVP boundaries, glossary, scope language. |
 | ADRs | `docs/adr/` | Architecture decisions that need durable traceability. |
+| Templates | `docs/templates/` | Lightweight template index and approved reusable templates. Must link existing canonical templates instead of duplicating them. |
 | Architecture | `docs/architecture/` | Architecture notes only when they reduce ambiguity and do not duplicate Product Vision or ADRs. |
 | Risk assessments | future `docs/risks/` | Risk records only when a task explicitly introduces or reviews risk. |
 | Reviews / evidence | future `docs/reviews/` or `docs/evidence/` | Durable evidence only when Jira/PR links are not enough. |
@@ -111,6 +115,7 @@ Update the existing canonical document when changing:
 | Jira workflow, Definition of Ready, Definition of Done, evidence expectations | `docs/governance/scrum-governance-dor-dod.md` |
 | Governance-lane movement checks | `docs/governance/governance-lane-review-gate.md` |
 | Stakeholder visibility, Confluence report behavior, redaction rules | `docs/governance/stakeholder-transparency.md` |
+| Reusable project template inventory, ownership, or template usage policy | `docs/templates/README.md` |
 | ADR naming, status, link policy, or template | `docs/adr/README.md` or `docs/adr/template.md` |
 
 If the change is only task status, blocker state, review state, or an evidence link, update Jira instead of changing GitHub docs.
@@ -147,6 +152,7 @@ Minimum maintenance rules:
 ```text
 [ ] Add or move a canonical document -> update README.md.
 [ ] Add or move a canonical source-of-truth path -> update docs/governance/source-of-truth.md.
+[ ] Add, move, or change reusable template paths -> update docs/templates/README.md.
 [ ] Change technical truth -> update GitHub through review.
 [ ] Change task state or blocker/evidence links -> update Jira.
 [ ] Change stakeholder summary/report/navigation -> update Confluence.
@@ -193,6 +199,7 @@ Before moving this documentation strategy toward review, check:
 [ ] docs/governance/source-of-truth.md registers this canonical path.
 [ ] No existing canonical rule is duplicated as a competing policy.
 [ ] No new document family is created without a concrete task need.
+[ ] Template changes link existing canonical templates instead of duplicating them.
 [ ] [UNVALIDATED] is preserved on unproven claims.
 [ ] MVP boundary is not expanded.
 [ ] No runtime, production-ready, safety-critical, commercial-ready, certification, or security-grade claim is introduced.
@@ -212,6 +219,7 @@ This strategy must stay aligned with:
 - `docs/governance/stakeholder-transparency.md`;
 - `docs/governance/ai-review-agents-policy.md`;
 - `docs/governance/ai-review-agent-playbook.md`;
+- `docs/templates/README.md`;
 - `docs/product/product-vision.md`;
 - `docs/adr/README.md`;
 - `docs/adr/template.md`.
