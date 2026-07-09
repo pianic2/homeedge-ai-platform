@@ -227,13 +227,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Docs Landing Page, Documentation Strategy, Project Templates, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency |
+| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Docs Landing Page, Documentation Strategy, Project Templates, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 
