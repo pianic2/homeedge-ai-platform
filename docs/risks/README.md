@@ -5,7 +5,7 @@
 **Document type:** Risk documentation index  
 **Status:** Sprint 0 draft for review  
 **Reading target:** less than 2 minutes for humans.  
-**Source of truth:** This index routes risk documentation under `docs/risks/`. It links canonical risk documents; it does not accept risk or replace Project Owner decisions.
+**Source of truth:** This index routes risk documentation under `docs/risks/`. It links canonical risk documents and concrete risk records; it does not accept risk or replace Project Owner decisions.
 
 <!--
 AI_AGENT_METADATA:
@@ -15,6 +15,7 @@ AI_AGENT_METADATA:
   source_of_truth: github_versioned_repository_documentation
   source_of_truth_policy: docs/governance/source-of-truth.md
   risk_model_baseline: docs/risks/risk-model-baseline.md
+  risk_records_path: docs/risks/records/
   risk_assessment_template: docs/templates/risk-assessment.md
   task_scope: documentation_governance_only
   runtime_changes_allowed: false
@@ -36,7 +37,7 @@ AI_AGENT_METADATA:
   unvalidated_claim_marker: "[UNVALIDATED]"
 
 HIDDEN_ANTI_REGRESSION_RULES:
-  - This file is an index, not a risk register and not a risk acceptance record.
+  - This file is an index, not a risk acceptance record.
   - GitHub remains the source of truth for risk documentation.
   - Jira tracks risk work state, blockers, review state, and evidence links.
   - Confluence may summarize and link risk posture for stakeholders but must not duplicate long-form risk documentation.
@@ -54,8 +55,8 @@ This folder contains versioned risk documentation for HomeEdge AI Platform.
 
 Use it for:
 
-- the project risk model baseline;
-- future risk records only when explicitly required by a Jira task and Project Owner-approved scope;
+- the project risk modeling guide;
+- concrete risk records;
 - links from Jira evidence and Confluence stakeholder summaries.
 
 Do not use it to accept risk automatically.
@@ -66,12 +67,32 @@ Do not use it to accept risk automatically.
 
 | Need | Use | Rule |
 |---|---|---|
-| Project risk model | `risk-model-baseline.md` | Defines risk categories, scoring, residual risk, treatment, evidence, ownership, and stakeholder visibility boundaries. |
-| Future risk assessment template | `../templates/risk-assessment.md` | Template only. Use only when an explicit future task requires a concrete risk assessment. |
+| Risk modeling guide | `risk-model-baseline.md` | Defines how risks are modeled, scored, linked, and reviewed. |
+| Concrete risk records | `records/` | Stores analyzed risks. Every record remains `Pending Project Owner` unless explicit decision evidence exists. |
+| Future risk assessment template | `../templates/risk-assessment.md` | Template only. Use only when an explicit future task requires a separate assessment. |
 
 ---
 
-## 3. Surface Rules
+## 3. Current Risk Records
+
+| ID | Record | Primary category | Decision state |
+|---|---|---|---|
+| R-001 | `records/R-001-device-identity-spoofing.md` | Security / Technical | Pending Project Owner |
+| R-002 | `records/R-002-event-payload-leakage.md` | Security / Privacy | Pending Project Owner |
+| R-003 | `records/R-003-technical-metadata-inference.md` | Privacy / Stakeholder Visibility | Pending Project Owner |
+| R-004 | `records/R-004-presence-door-state-misinterpretation.md` | Privacy / Compliance / Claims | Pending Project Owner |
+| R-005 | `records/R-005-target-boundary-overclaim.md` | Compliance / Documentation | Pending Project Owner |
+| R-006 | `records/R-006-source-of-truth-drift.md` | Documentation / Stakeholder Visibility | Pending Project Owner |
+| R-007 | `records/R-007-ai-inference-profiling.md` | AI / Privacy | Pending Project Owner |
+| R-008 | `records/R-008-cost-abuse.md` | Cost / Technical | Pending Project Owner |
+| R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | Pending Project Owner |
+| R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | Pending Project Owner |
+
+These records expose and analyze risk. They do not approve residual risk.
+
+---
+
+## 4. Surface Rules
 
 ```text
 GitHub defines risk truth.
@@ -84,9 +105,10 @@ Confluence must not duplicate long-form risk documentation. If stakeholder visib
 
 ---
 
-## 4. Practical Rule
+## 5. Practical Rule
 
 ```text
-Expose risk clearly.
-Do not use risk documentation to smuggle scope into the MVP.
+The README is the index.
+The baseline is the guide.
+The records carry the analysis.
 ```
