@@ -25,6 +25,7 @@ AI_AGENT_METADATA:
   risk_assessment_template: docs/templates/risk-assessment.md
   risk_index: docs/risks/README.md
   risk_model_baseline: docs/risks/risk-model-baseline.md
+  risk_records_path: docs/risks/records/
   product_vision: docs/product/product-vision.md
   adr_index: docs/adr/README.md
   adr_template: docs/adr/template.md
@@ -84,7 +85,7 @@ This strategy defines how HomeEdge documentation should grow without creating pa
 | ADRs | `docs/adr/` | Architecture decisions that need durable traceability. |
 | Templates | `docs/templates/` | Lightweight template index and approved reusable templates. Must link existing canonical templates instead of duplicating them. |
 | Architecture | `docs/architecture/` | Architecture notes only when they reduce ambiguity and do not duplicate Product Vision or ADRs. |
-| Risk documentation | `docs/risks/` | Risk model baseline and future risk records only when explicitly required by Jira task and Project Owner-approved scope. |
+| Risk documentation | `docs/risks/` | Risk modeling guide and concrete risk records. Records may propose treatment but do not accept risk without Project Owner decision. |
 | Reviews / evidence | future `docs/reviews/` or `docs/evidence/` | Durable evidence only when Jira/PR links are not enough. |
 | Stakeholder reports | Confluence | Short stakeholder-facing progress, risks, forms, and navigation. |
 
@@ -119,7 +120,8 @@ Update the existing canonical document when changing:
 | Repository semantic navigation or visible canonical links | `README.md` |
 | Documentation navigation under `docs/` | `docs/README.md` |
 | Product Vision, MVP boundary, glossary, target/runtime language | `docs/product/product-vision.md` |
-| Project risk taxonomy, scoring, residual risk treatment, risk evidence, risk authority boundaries, or stakeholder risk visibility | `docs/risks/risk-model-baseline.md` |
+| Project risk modeling guide | `docs/risks/risk-model-baseline.md` |
+| Concrete risk analysis | `docs/risks/records/` and `docs/risks/README.md` |
 | Jira workflow, Definition of Ready, Definition of Done, evidence expectations | `docs/governance/scrum-governance-dor-dod.md` |
 | Governance-lane movement checks | `docs/governance/governance-lane-review-gate.md` |
 | Stakeholder visibility, Confluence report behavior, redaction rules | `docs/governance/stakeholder-transparency.md` |
