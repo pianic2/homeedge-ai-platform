@@ -24,6 +24,9 @@ AI_AGENT_METADATA:
   docs_landing_page: "docs/README.md"
   templates_index: "docs/templates/README.md"
   risk_assessment_template: "docs/templates/risk-assessment.md"
+  risk_index: "docs/risks/README.md"
+  risk_model_baseline: "docs/risks/risk-model-baseline.md"
+  risk_records_path: "docs/risks/records/"
   adr_index: "docs/adr/README.md"
   adr_template: "docs/adr/template.md"
   product_vision: "docs/product/product-vision.md"
@@ -68,6 +71,8 @@ AI_AGENT_ROUTING:
   - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, Confluence summaries, canonical paths, or commit convention.
   - Read docs/governance/documentation-strategy.md before creating, moving, splitting, merging, deprecating, or reorganizing repository documentation.
   - Read docs/templates/README.md before creating, using, moving, or changing reusable project templates.
+  - Read docs/risks/risk-model-baseline.md before changing project risk taxonomy, scoring, residual risk treatment, risk evidence, or stakeholder risk visibility.
+  - Read docs/risks/README.md and docs/risks/records/ before changing concrete risk records.
   - Read docs/governance/shift-left-governance-baseline.md before planning issue-level impact blocks, review readiness, or Jira evidence.
   - Read docs/governance/scrum-governance-dor-dod.md before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
   - Read docs/governance/ai-review-agents-policy.md before understanding review-agent roles, severity model, and decision limits.
@@ -95,6 +100,8 @@ AI_AGENT_ROUTING:
 | Documentation strategy | `docs/governance/documentation-strategy.md` | Defines document families, when to create or update docs, anti-stale behavior, and documentation surface policy without duplicating source-of-truth rules. |
 | Docs landing page | `docs/README.md` | Provides navigable documentation index for `docs/` without replacing canonical documents or duplicating long-form rules. |
 | Project templates | `docs/templates/README.md` | Indexes reusable project templates and links canonical templates without duplicating their source documents. |
+| Risk documentation | `docs/risks/README.md` | Indexes the risk modeling guide and concrete risk records. |
+| Risk model baseline | `docs/risks/risk-model-baseline.md` | Defines how project risks are modeled, scored, linked, and reviewed. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Defines the mandatory issue-level impact block for security, privacy, cost, compliance, testing, documentation, and stakeholder visibility. |
 | Scrum governance, DoR and DoD | `docs/governance/scrum-governance-dor-dod.md` | Defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, minimum evidence expectations, and Project Owner authority. |
 | AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Defines Sprint 0 advisory review agents, severity model, review output template, and non-decision-making limits. |
@@ -105,7 +112,7 @@ AI_AGENT_ROUTING:
 | ADR index and template | `docs/adr/README.md`, `docs/adr/template.md` | Defines ADR index, naming convention, status model, template, and link policy. |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` | Canonical source for Product Vision, MVP inclusions/exclusions, and current glossary. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Defines stakeholder visibility, Jira evidence behavior, and Confluence hub usage. |
-| Stakeholder report data rules | `docs/governance/stakeholder-report-data-rules.md` | Defines what stakeholder reports may show, link, redact, or block without duplicating technical truth. |
+| Stakeholder report data rules | `docs/governance/stakeholder-report-data-rules.md` | Defines what stakeholder reports may show, link, redact, or block. |
 | Stakeholder hub and reports | Confluence | Confluence is authoritative for stakeholder-facing hub, reports, forms, and navigation. |
 | Backlog and task state | Jira | Jira is authoritative for backlog, workflow state, task status, blockers, review state, and evidence links. |
 | Code and PR evidence | GitHub | GitHub is authoritative for code, repository structure, commits, branches, PRs, and versioned technical documentation. |
@@ -150,6 +157,7 @@ homeedge-ai-platform/
 │   ├── architecture/
 │   ├── governance/
 │   ├── product/
+│   ├── risks/
 │   └── templates/
 ├── firmware/
 │   └── room-env-node/
@@ -230,13 +238,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency, stakeholder report data rules |
+| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency, stakeholder report data rules |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, stakeholder report data rules, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, stakeholder report data rules, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 

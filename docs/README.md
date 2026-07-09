@@ -44,6 +44,10 @@ AI_AGENT_METADATA:
       - docs/governance/engineering-assistant-rules.md
     product:
       - docs/product/product-vision.md
+    risks:
+      - docs/risks/README.md
+      - docs/risks/risk-model-baseline.md
+      - docs/risks/records/
     adr:
       - docs/adr/README.md
       - docs/adr/template.md
@@ -52,7 +56,6 @@ AI_AGENT_METADATA:
       - docs/templates/risk-assessment.md
 
   future_candidate_paths:
-    - docs/risks/
     - docs/reviews/
     - docs/evidence/
     - docs/glossary/project-glossary.md
@@ -61,7 +64,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - This page is a navigational index only.
   - This page must not replace README.md as the repository semantic index.
   - This page must not replace docs/governance/source-of-truth.md as the source-of-truth policy.
-  - This page must not duplicate long-form governance, product, ADR, template, or stakeholder report content.
+  - This page must not duplicate long-form governance, product, risk, ADR, template, or stakeholder report content.
   - Future candidate paths listed here are not validated or created by this page.
   - Preserve [UNVALIDATED] on unproven claims.
   - Do not expand the MVP boundary silently.
@@ -77,6 +80,8 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Source-of-truth rules | `governance/source-of-truth.md` |
 | Documentation strategy | `governance/documentation-strategy.md` |
 | Product Vision / MVP boundary | `product/product-vision.md` |
+| Risk documentation index | `risks/README.md` |
+| Risk model baseline | `risks/risk-model-baseline.md` |
 | ADR index | `adr/README.md` |
 | Templates | `templates/README.md` |
 | Stakeholder report data rules | `governance/stakeholder-report-data-rules.md` |
@@ -89,10 +94,10 @@ HIDDEN_ANTI_REGRESSION_RULES:
 |---|---|---|
 | Governance | `governance/` | Existing documentation family |
 | Product | `product/` | Existing documentation family |
+| Risks | `risks/` | Risk modeling guide and concrete risk records |
 | ADRs | `adr/` | Existing documentation family |
 | Templates | `templates/` | Existing documentation family |
 | Architecture | `architecture/` | Existing area; use only when needed |
-| Risks | future `risks/` | Candidate only |
 | Reviews / Evidence | future `reviews/` or `evidence/` | Candidate only |
 | Glossary | future `glossary/project-glossary.md` | Candidate only; current glossary stays in `product/product-vision.md` |
 
