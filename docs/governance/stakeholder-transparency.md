@@ -22,6 +22,11 @@ AI_AGENT_METADATA:
   unvalidated_claim_marker: "[UNVALIDATED]"
   human_readability_requirement: "max_3_minutes"
   confluence_landing_page: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
+  confluence_authoritative_for:
+    - stakeholder_hub
+    - stakeholder_reports
+    - stakeholder_forms
+    - stakeholder_navigation
   repository_source_of_truth_for:
     - documents
     - decisions
@@ -38,8 +43,10 @@ AI_AGENT_METADATA:
     - stakeholder_navigation
   confluence_role:
     - stakeholder_facing_landing_page
+    - stakeholder_reports
+    - stakeholder_forms
     - summary_navigation_layer
-    - not_source_of_truth
+    - not_technical_source_of_truth
   mvp_firmware_node: "firmware/room-env-node/"
   mvp_node_semantics: "generic_room_door_node"
   mvp_includes:
@@ -65,15 +72,17 @@ AI_AGENT_METADATA:
     - services/ai-insight/
 
 HIDDEN_ANTI_REGRESSION_RULES:
-  - The repository remains the source of truth for documentation, decisions, risks, policies, and technical baselines.
+  - The repository remains the source of truth for technical documentation, decisions, risks, policies, and technical baselines.
   - Jira must not duplicate source-of-truth documents; it must expose state, evidence links, review status, blockers, and stakeholder navigation.
-  - Confluence is a stakeholder landing page and navigation layer; it must not replace or duplicate the repository source of truth.
+  - Confluence is the stakeholder landing page, stakeholder report surface, stakeholder form surface, and navigation layer; it must not replace or duplicate repository technical source of truth.
+  - Stakeholder reports live on Confluence because that surface is better suited for human reports and forms.
+  - Stakeholder reports must summarize and link; they must not redefine technical truth.
   - The only firmware node in the MVP remains firmware/room-env-node/.
   - firmware/room-env-node/ remains a generic room/door node.
   - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
   - Raw audio, person tracking, behavioral history, identity inference, window scope, 220V automation, and direct ESP32 Kafka publishing remain out of MVP.
   - The four service directories remain TARGET boundaries unless validated by later implementation evidence.
-  - Stakeholder-facing pages must not weaken, expand, or silently reinterpret MVP boundaries.
+  - Stakeholder-facing pages and reports must not weaken, expand, or silently reinterpret MVP boundaries.
   - Any unproven claim must be marked as [UNVALIDATED].
 -->
 
@@ -85,11 +94,11 @@ HomeEdge AI Platform uses three surfaces with different roles:
 
 | Surface | Role | What it is for |
 |---|---|---|
-| **GitHub repository** | Source of truth | Official documents, decisions, risks, policies, technical baselines, PR evidence |
+| **GitHub repository** | Technical source of truth | Official technical documents, decisions, risks, policies, technical baselines, PR evidence |
 | **Jira** | Tracking and review | Task state, sprint visibility, blockers, evidence links, project-owner review |
-| **Confluence** | Stakeholder landing page | Fast human overview with links to Jira and GitHub |
+| **Confluence** | Stakeholder hub and reports | Fast human overview, stakeholder-facing reports, forms, and links to Jira/GitHub |
 
-Confluence helps a professor understand where to look. It does not replace the repository.
+Confluence helps a professor understand where to look and provides a convenient place for stakeholder reports and forms. It does not replace the repository technical source of truth.
 
 ---
 
@@ -98,13 +107,13 @@ Confluence helps a professor understand where to look. It does not replace the r
 A professor or reviewer should be able to follow the project like this:
 
 ```text
-Confluence Stakeholder Hub
+Confluence Stakeholder Hub / Report
   -> Jira board / Jira issue
   -> PR evidence
   -> repository source-of-truth document
 ```
 
-The Confluence hub gives the first overview. Jira shows status and evidence. GitHub contains the durable truth.
+The Confluence hub gives the first overview and hosts stakeholder reports/forms. Jira shows status and evidence. GitHub contains the durable technical truth.
 
 Stakeholder hub:
 
@@ -128,7 +137,7 @@ A stakeholder must be able to see quickly:
 - PR and document evidence;
 - `[UNVALIDATED]` claims.
 
-The page must be short. If a stakeholder needs depth, they should follow links to Jira or GitHub.
+The page or report must be short. If a stakeholder needs depth, they should follow links to Jira or GitHub.
 
 ---
 
@@ -166,7 +175,7 @@ Stakeholder-facing material must not expose:
 - individual tracking;
 - behavioral history.
 
-If sensitive information is useful for debugging, it must be redacted before being shared in Jira, Confluence, screenshots, or public repository documentation.
+If sensitive information is useful for debugging, it must be redacted before being shared in Jira, Confluence, screenshots, public repository documentation, stakeholder reports, or stakeholder forms.
 
 ---
 
@@ -240,14 +249,30 @@ services/ai-insight/
 
 ---
 
-## 8. Practical rule
+## 8. Stakeholder report rule
+
+Stakeholder reports live on Confluence.
+
+Reason:
+
+- Confluence is easier for stakeholder-facing pages;
+- Confluence supports forms and lightweight reporting workflows;
+- professors/reviewers can navigate reports without reading repository internals first.
+
+Constraint:
+
+Stakeholder reports must not redefine Product Vision, MVP scope, ADRs, risk posture, technical baselines, or implementation maturity. They must summarize and link back to GitHub/Jira evidence.
+
+---
+
+## 9. Practical rule
 
 The operating rule for IHAP stakeholder transparency is simple:
 
 ```text
-Confluence shows the map.
-Jira shows the status.
-GitHub contains the truth.
+Confluence reports and orients.
+Jira tracks and links evidence.
+GitHub defines the technical truth.
 ```
 
-If they disagree, GitHub wins until the project owner approves a reviewed source-of-truth update.
+If they disagree on technical content, GitHub wins until the project owner approves a reviewed source-of-truth update.
