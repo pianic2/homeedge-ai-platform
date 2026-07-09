@@ -24,6 +24,7 @@ AI_AGENT_METADATA:
   canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
+  commit_convention: "IHAP-XX: Commit message"
   standalone_glossary_status: "future_candidate_not_created_by_ihap_13"
   current_glossary_location: "docs/product/product-vision.md"
   stakeholder_report_authoritative_surface: "Confluence"
@@ -121,7 +122,8 @@ Included:
 - `[UNVALIDATED]` claim policy;
 - initial canonical repository paths;
 - merge/review blocking rules for documentation regressions;
-- protected MVP boundaries inherited from the Product Vision.
+- protected MVP boundaries inherited from the Product Vision;
+- Jira-linked commit convention.
 
 Excluded:
 
@@ -147,6 +149,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Backlog | Jira | GitHub only as linked evidence | Jira owns backlog items, prioritization, workflow state, blockers, and review state. |
 | Task status | Jira | Confluence summary only | Jira is authoritative for status such as Backlog, Ready, In Progress, In Review, Stakeholder Review, and Done. |
 | Code | GitHub | Jira PR links | GitHub is authoritative for source code, repository structure, commits, branches, and PR evidence. |
+| Commits and branches | GitHub | Jira issue links | Jira-linked commits should start with the issue key, for example `IHAP-14: Update governance baseline`. |
 | Technical documents | GitHub | Confluence link/summary only | Technical documents must live in the repository. Confluence must not become a duplicate technical documentation repository. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
 | Product Vision | `docs/product/product-vision.md` | Jira/Confluence links | Product Vision, MVP boundaries, and current glossary live in GitHub until superseded by reviewed change. |
@@ -357,6 +360,7 @@ Update GitHub when changing:
 - ADRs;
 - risk assessments;
 - canonical paths;
+- commit convention;
 - source code;
 - runtime evidence committed as project evidence.
 
@@ -490,7 +494,7 @@ docs/glossary/project-glossary.md
 AI agents should use this routing order:
 
 1. Start from `README.md` for the semantic map.
-2. Read `docs/governance/source-of-truth.md` for source-of-truth and anti-regression rules.
+2. Read `docs/governance/source-of-truth.md` for source-of-truth, anti-regression, canonical-path, and commit-convention rules.
 3. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
 4. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
 5. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
@@ -501,7 +505,31 @@ AI agents must not infer implementation maturity from directory names alone. Emp
 
 ---
 
-## 10. Acceptance Criteria
+## 10. Commit Convention
+
+Jira-linked commits should start with the Jira issue key.
+
+Format:
+
+```text
+IHAP-XX: Commit message
+```
+
+Examples:
+
+```text
+IHAP-14: Add Shift Left governance baseline
+IHAP-14: Register Shift Left canonical path
+IHAP-15: Add risk register baseline
+```
+
+Do not place the Jira issue key at the end of the commit message.
+
+This is a repository governance convention. It must not be duplicated inside individual task-level governance documents unless a later reviewed source-of-truth change says otherwise.
+
+---
+
+## 11. Acceptance Criteria
 
 This policy satisfies IHAP-13 when:
 
@@ -517,7 +545,7 @@ This policy satisfies IHAP-13 when:
 
 ---
 
-## 11. Practical Rule
+## 12. Practical Rule
 
 ```text
 Confluence reports and orients.
