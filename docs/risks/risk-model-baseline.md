@@ -57,57 +57,38 @@ This file is the guide. The index is `docs/risks/README.md`. Concrete risk recor
 
 ---
 
-## 2. What a Risk Record Must Contain
+## 2. Required Fields
 
-Each concrete risk record must include:
+Every concrete risk record must define:
 
-| Field | Required rule |
+| Field | Rule |
 |---|---|
-| Risk statement | One clear sentence: “There is a risk that ... because ...”. |
+| Risk statement | One sentence: “There is a risk that ... because ...”. |
 | Source trigger | Why the risk exists in the current project scope. |
 | Affected assets | Device, event payload, metadata, target service, stakeholder surface, or governance surface. |
-| Trust boundary | The boundary where the risk can materialize. |
+| Trust boundary | Where the risk can materialize. |
 | Category | Technical, Security, Privacy, Compliance / Claims, Cost, Documentation, Stakeholder Visibility, or AI / Inference. |
-| Likelihood | Low / Medium / High. |
-| Impact | Low / Medium / High. |
-| Residual risk | Low / Medium / High / Pending evidence. |
-| Treatment proposal | Mitigate / Defer / Reject / Candidate accept. This is not approved until Project Owner decision. |
-| Evidence gap | What is still missing. Missing proof keeps related claims `[UNVALIDATED]`. |
+| Scoring | Likelihood, impact, residual risk, treatment proposal, decision state. |
+| Evidence gap | What is still missing. Missing proof keeps `[UNVALIDATED]`. |
 | Stakeholder visibility | Show, link, redact, or block. |
-| Decision state | `Pending Project Owner` unless explicit Project Owner evidence says otherwise. |
 
 ---
 
-## 3. Categories
+## 3. Scoring
 
-| Category | Use for |
+| Field | Values |
 |---|---|
-| Technical | Firmware behavior, event payloads, target services, runtime maturity. |
-| Security | Spoofing, tampering, replay, exposed secrets, unsafe trust boundaries. |
-| Privacy | Presence state, door state, metadata inference, retention, domestic context leakage. |
-| Compliance / Claims | Misleading production, commercial, safety, security, certification, alarm, antifurto, access-control, intrusion-detection, or protection wording. |
-| Cost | Hardware, cloud, logs, tooling, event volume, future AI/provider costs. |
-| Documentation | Stale docs, duplicate truth, source-of-truth drift, missing evidence links. |
-| Stakeholder Visibility | Misunderstanding, overexposure, missing redaction, missing `[UNVALIDATED]`. |
-| AI / Inference | Future insight ambiguity, profiling, false interpretation, unvalidated AI claims. |
-
----
-
-## 4. Scoring
-
-| Field | Values | Meaning |
-|---|---|---|
-| Likelihood | Low / Medium / High | Probability under current scope and evidence. |
-| Impact | Low / Medium / High | Expected damage to project, privacy, security, cost, compliance, evidence, or stakeholder clarity. |
-| Residual risk | Low / Medium / High / Pending evidence | Risk remaining after current controls or proposed treatment. |
-| Treatment proposal | Mitigate / Defer / Reject / Candidate accept | Proposed action only. Project Owner decision is still required. |
-| Decision state | Pending Project Owner / Accepted / Deferred / Rejected | Final state requires explicit Project Owner evidence. |
+| Likelihood | Low / Medium / High |
+| Impact | Low / Medium / High |
+| Residual risk | Low / Medium / High / Pending evidence |
+| Treatment proposal | Mitigate / Defer / Reject / Candidate accept |
+| Decision state | Pending Project Owner / Accepted / Deferred / Rejected |
 
 `Candidate accept` means candidate for Project Owner review. It does not accept the risk.
 
 ---
 
-## 5. Source Boundaries
+## 4. Source Boundaries
 
 Risk records must preserve these boundaries:
 
@@ -121,13 +102,11 @@ Risk documentation must not introduce runtime behavior, expand MVP scope, approv
 
 ---
 
-## 6. Review Checklist
-
-Before adding or changing a risk record:
+## 5. Review Checklist
 
 ```text
 [ ] The risk is tied to a concrete source trigger.
-[ ] The risk has affected assets and trust boundary.
+[ ] Affected assets and trust boundary are explicit.
 [ ] Likelihood, impact, residual risk, and treatment proposal are explicit.
 [ ] Decision state is Pending Project Owner unless explicit evidence says otherwise.
 [ ] Missing proof keeps [UNVALIDATED].
@@ -138,7 +117,7 @@ Before adding or changing a risk record:
 
 ---
 
-## 7. Practical Rule
+## 6. Practical Rule
 
 ```text
 The baseline defines the model.
