@@ -28,6 +28,7 @@ AI_AGENT_METADATA:
   canonical_risk_assessment_template: "docs/templates/risk-assessment.md"
   canonical_risk_index: "docs/risks/README.md"
   canonical_risk_model_baseline: "docs/risks/risk-model-baseline.md"
+  canonical_risk_records_path: "docs/risks/records/"
   canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
   canonical_scrum_governance_dor_dod: "docs/governance/scrum-governance-dor-dod.md"
   canonical_governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
@@ -48,6 +49,7 @@ AI_AGENT_METADATA:
     - product_vision
     - adr
     - risk_model_baseline
+    - risk_records
     - risk_assessment
     - templates
     - policies
@@ -180,7 +182,8 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Templates index | `docs/templates/README.md` | Jira/PR evidence links | Indexes reusable project templates and links existing canonical templates without duplicating them. |
 | Risk Assessment template | `docs/templates/risk-assessment.md` | Jira/PR evidence links | Provides a minimal template for future risk assessments; concrete risk records are created only by explicit task need. |
 | Risk documentation index | `docs/risks/README.md` | Jira/PR evidence links, Confluence summary | Routes risk documentation without accepting or duplicating risk decisions. |
-| Risk Model Baseline | `docs/risks/risk-model-baseline.md` | Jira/PR evidence links, Confluence summary | Defines risk categories, scoring, residual risk treatment, evidence expectations, authority boundaries, and stakeholder risk visibility. |
+| Risk Model Baseline | `docs/risks/risk-model-baseline.md` | Jira/PR evidence links, Confluence summary | Defines how risks are modeled, scored, linked, and reviewed. |
+| Risk records | `docs/risks/records/` | Jira/PR evidence links, Confluence summary | Store concrete analyzed risks. They may propose treatment but do not accept, defer, or reject residual risk without Project Owner decision. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
 | Scrum governance, DoR and DoD | `docs/governance/scrum-governance-dor-dod.md` | Jira/PR evidence links | Defines lightweight Scrum governance, Definition of Ready, Definition of Done, Jira workflow movement, minimum evidence expectations, and Project Owner authority. |
 | Governance Lane Review Gate | `docs/governance/governance-lane-review-gate.md` | Jira/PR evidence links | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done. |
@@ -398,6 +401,7 @@ Update GitHub when changing:
 - reusable project template inventory or canonical template paths;
 - stakeholder report data rules;
 - risk model baseline;
+- risk records;
 - risk assessments;
 - `[UNVALIDATED]` policy;
 - ADRs;
@@ -519,6 +523,7 @@ docs/templates/risk-assessment.md
 ```text
 docs/risks/README.md
 docs/risks/risk-model-baseline.md
+docs/risks/records/
 ```
 
 ```text
@@ -581,7 +586,7 @@ docs/glossary/project-glossary.md
 
 `docs/glossary/project-glossary.md` is a future candidate. It must not be created as a duplicate while the glossary remains embedded in the Product Vision or other existing governance sections.
 
-`docs/risks/` is now a canonical risk documentation area. `docs/risks/risk-model-baseline.md` defines the project risk model. `docs/templates/risk-assessment.md` remains only a reusable template and does not accept any risk by itself.
+`docs/risks/` is now a canonical risk documentation area. `docs/risks/risk-model-baseline.md` defines the risk modeling guide. `docs/risks/records/` stores concrete analyzed risk records. `docs/templates/risk-assessment.md` remains only a reusable template and does not accept any risk by itself.
 
 ---
 
@@ -595,20 +600,21 @@ AI agents should use this routing order:
 4. Read `docs/governance/documentation-strategy.md` before creating, moving, splitting, merging, deprecating, or reorganizing repository documentation.
 5. Read `docs/templates/README.md` before creating, using, moving, or changing reusable project templates.
 6. Read `docs/risks/risk-model-baseline.md` before changing project risk taxonomy, scoring, residual risk treatment, risk evidence, or stakeholder risk visibility.
-7. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
-8. Read `docs/governance/scrum-governance-dor-dod.md` before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
-9. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
-10. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
-11. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
-12. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
-13. Read `docs/governance/engineering-assistant-rules.md` before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
-14. Read `docs/adr/README.md` before adding or changing ADRs, ADR naming, ADR status, or ADR link policy.
-15. Read `docs/adr/template.md` before drafting a new ADR.
-16. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-17. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-18. Read `docs/governance/stakeholder-report-data-rules.md` before changing what stakeholder reports may show, link, redact, or block.
-19. Use Jira for task state, workflow, review state, blockers, and evidence links.
-20. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+7. Read `docs/risks/README.md` and `docs/risks/records/` before changing concrete risk records.
+8. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
+9. Read `docs/governance/scrum-governance-dor-dod.md` before evaluating Definition of Ready, Definition of Done, Jira workflow movement, or minimum evidence expectations.
+10. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
+11. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
+12. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
+13. Read `docs/governance/team-working-rules.md` before changing daily collaboration rules, blocker handling, evidence discipline, working agreements, or AI assistant usage boundaries.
+14. Read `docs/governance/engineering-assistant-rules.md` before using or changing engineering assistant operating boundaries, allowed actions, forbidden actions, or assistant evidence rules.
+15. Read `docs/adr/README.md` before adding or changing ADRs, ADR naming, ADR status, or ADR link policy.
+16. Read `docs/adr/template.md` before drafting a new ADR.
+17. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+18. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+19. Read `docs/governance/stakeholder-report-data-rules.md` before changing what stakeholder reports may show, link, redact, or block.
+20. Use Jira for task state, workflow, review state, blockers, and evidence links.
+21. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -642,12 +648,12 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 This policy satisfies IHAP-13 and remains aligned with IHAP-16, IHAP-22, IHAP-23, IHAP-24, IHAP-25, IHAP-29, IHAP-30, IHAP-31, IHAP-33, and IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Docs Landing Page, Product Vision, ADRs, Risk Model Baseline, Risk Assessments, Templates, stakeholder hub, stakeholder reports, stakeholder report data rules, PR evidence, runtime evidence, Documentation Strategy, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Docs Landing Page, Product Vision, ADRs, Risk Model Baseline, Risk Records, Risk Assessments, Templates, stakeholder hub, stakeholder reports, stakeholder report data rules, PR evidence, runtime evidence, Documentation Strategy, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- canonical repository paths are listed, including `docs/README.md`, `docs/governance/documentation-strategy.md`, `docs/templates/README.md`, `docs/templates/risk-assessment.md`, `docs/risks/README.md`, `docs/risks/risk-model-baseline.md`, `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/governance/stakeholder-report-data-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
+- canonical repository paths are listed, including `docs/README.md`, `docs/governance/documentation-strategy.md`, `docs/templates/README.md`, `docs/templates/risk-assessment.md`, `docs/risks/README.md`, `docs/risks/risk-model-baseline.md`, `docs/risks/records/`, `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/governance/stakeholder-report-data-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
 - stakeholder reports are explicitly assigned to Confluence;
 - no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
 - Project Owner approval remains required before task completion.
