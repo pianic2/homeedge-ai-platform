@@ -4,7 +4,7 @@
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Document type:** Documentation / Source of Truth governance  
 **Status:** Sprint 0 draft for review  
-**Source of truth:** This versioned GitHub document is the canonical policy for source-of-truth rules, document divergence handling, DOC-REGRESSION handling, and `[UNVALIDATED]` claim governance until superseded by a later reviewed change.
+**Source of truth:** This versioned GitHub document is the canonical policy for source-of-truth rules, document divergence handling, DOC-REGRESSION handling, canonical paths, and `[UNVALIDATED]` claim governance until superseded by a later reviewed change.
 
 <!--
 AI_AGENT_METADATA:
@@ -18,15 +18,15 @@ AI_AGENT_METADATA:
   mobile_changes_allowed: false
   production_ready_claims_allowed: false
   safety_critical_claims_allowed: false
+  commercial_ready_claims_allowed: false
   security_grade_claims_allowed: false
   unvalidated_claim_marker: "[UNVALIDATED]"
   canonical_policy_file: "docs/governance/source-of-truth.md"
   canonical_shift_left_governance_baseline: "docs/governance/shift-left-governance-baseline.md"
+  canonical_governance_lane_review_gate: "docs/governance/governance-lane-review-gate.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
   commit_convention: "IHAP-XX: Commit message"
-  standalone_glossary_status: "future_candidate_not_created_by_ihap_13"
-  current_glossary_location: "docs/product/product-vision.md"
   stakeholder_report_authoritative_surface: "Confluence"
   confluence_stakeholder_hub: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
   repository_source_of_truth_for:
@@ -38,6 +38,7 @@ AI_AGENT_METADATA:
     - policies
     - technical_baselines
     - governance_rules
+    - governance_lane_review_gate
     - pr_evidence
     - runtime_evidence_when_committed_or_linked
   jira_authoritative_for:
@@ -70,35 +71,25 @@ AI_AGENT_METADATA:
     - commercial_claims
     - safety_critical_claims
     - production_security_grade_certification
-  target_service_boundaries:
-    - services/ingestion/
-    - services/device-registry/
-    - services/read-model/
-    - services/ai-insight/
 
 HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub remains the source of truth for technical documents, decisions, risks, policies, technical baselines, governance rules, source code, and PR evidence.
-  - Jira remains authoritative for backlog, task state, workflow state, blockers, and evidence links.
+  - Jira remains authoritative for backlog, task state, workflow state, blockers, review state, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
   - Confluence stakeholder reports may summarize project state but must not override GitHub source-of-truth technical documents.
   - Confluence must not duplicate long-form technical source-of-truth documents from GitHub.
   - If GitHub and Jira diverge on technical content, GitHub wins until a reviewed GitHub change updates the source of truth.
   - If GitHub and Confluence diverge on technical content, GitHub wins and Confluence must be realigned as a stakeholder-facing summary or link layer.
-  - The only firmware node in the MVP remains firmware/room-env-node/.
-  - firmware/room-env-node/ remains a generic room/door node.
-  - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
-  - Raw audio, person tracking, behavioral history, identity inference, window scope, 220V automation, direct ESP32 Kafka publishing, commercial claims, safety-critical claims, and production/security-grade certification claims remain out of MVP.
-  - The four services directories are target service boundaries unless validated by later implementation evidence.
   - Any unproven claim must be marked as [UNVALIDATED].
+  - The protected MVP boundary must not be silently expanded.
+  - The four service directories are target service boundaries unless validated by later implementation evidence.
 -->
 
 ---
 
 ## 1. Purpose
 
-This document defines the operating rules for source of truth, document divergence, DOC-REGRESSION handling, and `[UNVALIDATED]` claims in HomeEdge AI Platform.
-
-The goal is to prevent the project from developing parallel truths across GitHub, Jira, and Confluence.
+This document defines the operating rules for source of truth, document divergence, DOC-REGRESSION handling, canonical paths, and `[UNVALIDATED]` claims in HomeEdge AI Platform.
 
 Core rule:
 
@@ -108,7 +99,7 @@ Jira tracks work and review state.
 Confluence presents stakeholder navigation and stakeholder reports.
 ```
 
-This document is governance-only. It does not introduce firmware, backend, mobile, infrastructure, cloud, Kafka runtime, AI runtime, production readiness, safety-critical guarantees, or security-grade certification.
+This document is governance-only. It does not introduce firmware, backend, mobile, infrastructure, cloud, Kafka runtime, AI runtime, production readiness, safety-critical guarantees, commercial readiness, or security-grade certification.
 
 ---
 
@@ -120,14 +111,14 @@ Included:
 - DOC-REGRESSION definition and severity;
 - anti-divergence rules for GitHub, Jira, and Confluence;
 - `[UNVALIDATED]` claim policy;
-- initial canonical repository paths;
+- canonical repository paths;
 - merge/review blocking rules for documentation regressions;
-- protected MVP boundaries inherited from the Product Vision;
-- Jira-linked commit convention.
+- protected MVP boundaries inherited from Product Vision;
+- Jira-linked commit convention;
+- Governance Lane Review Gate registration.
 
 Excluded:
 
-- historical passive documentation;
 - firmware implementation;
 - backend implementation;
 - mobile implementation;
@@ -135,6 +126,7 @@ Excluded:
 - cloud deployment;
 - production-readiness claims;
 - safety-critical claims;
+- commercial readiness claims;
 - security-grade claims;
 - stakeholder report creation.
 
@@ -147,18 +139,22 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | Domain | Authoritative source | Secondary surface | Rule |
 |---|---|---|---|
 | Backlog | Jira | GitHub only as linked evidence | Jira owns backlog items, prioritization, workflow state, blockers, and review state. |
-| Task status | Jira | Confluence summary only | Jira is authoritative for status such as Backlog, Ready, In Progress, In Review, Stakeholder Review, and Done. |
+| Task status | Jira | Confluence summary only | Jira is authoritative for Backlog, Ready, In Progress, In Review, Stakeholder Review, Done, and blockers. |
 | Code | GitHub | Jira PR links | GitHub is authoritative for source code, repository structure, commits, branches, and PR evidence. |
-| Commits and branches | GitHub | Jira issue links | Jira-linked commits should start with the issue key, for example `IHAP-14: Update governance baseline`. |
+| Commits and branches | GitHub | Jira issue links | Jira-linked commits should start with the issue key, for example `IHAP-35: Register governance gate canonical path`. |
 | Technical documents | GitHub | Confluence link/summary only | Technical documents must live in the repository. Confluence must not become a duplicate technical documentation repository. |
+| Source-of-truth policy | `docs/governance/source-of-truth.md` | Jira/PR evidence links | Defines source-of-truth hierarchy, DOC-REGRESSION, canonical paths, and `[UNVALIDATED]` policy. |
 | Shift Left governance baseline | `docs/governance/shift-left-governance-baseline.md` | Jira/PR evidence links | Defines the mandatory issue-level impact block and lightweight Shift Left review baseline. |
+| Governance Lane Review Gate | `docs/governance/governance-lane-review-gate.md` | Jira/PR evidence links | Defines when governance-lane tasks may advance toward review, stakeholder review, or Done. |
+| AI review agents policy | `docs/governance/ai-review-agents-policy.md` | Jira/PR evidence links | Defines advisory review agents, severity model, outputs, and decision limits. |
+| AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Jira/PR evidence links | Defines reusable review-agent prompts and operating flow. |
+| Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Confluence summary/link | Defines stakeholder visibility and Atlassian governance behavior. |
 | Product Vision | `docs/product/product-vision.md` | Jira/Confluence links | Product Vision, MVP boundaries, and current glossary live in GitHub until superseded by reviewed change. |
 | Glossary | Current embedded glossary in `docs/product/product-vision.md` | Future `docs/glossary/project-glossary.md` candidate | Do not create a duplicate glossary until a later task explicitly extracts and links it. |
 | ADR | GitHub `docs/adr/` | Jira evidence link | ADRs are versioned source-of-truth decisions. Jira may link them but must not replace them. |
 | Risk Assessment | GitHub `docs/risks/` | Jira evidence link, Confluence summary | Risk records are versioned in GitHub when introduced. Stakeholder summaries may link to them. |
 | Stakeholder hub | Confluence | README/GitHub links back to hub | Confluence is authoritative for stakeholder navigation and landing-page experience. |
 | Stakeholder reports | Confluence | Jira links/evidence, GitHub links to canonical docs | Stakeholder reports live on Confluence because pages/forms are better suited there. Reports must not override GitHub technical truth. |
-| Sprint review | GitHub for durable review docs; Jira for task state; Confluence for stakeholder report | PR links and Jira evidence | Sprint review evidence must be linkable and must not duplicate technical truth inconsistently. |
 | PR evidence | GitHub | Jira evidence link | PRs are the primary evidence of repository changes. |
 | Runtime evidence | GitHub when committed as logs/reports or linked from Jira | Jira evidence link | Runtime claims require evidence. Missing evidence means the claim remains `[UNVALIDATED]`. |
 | `[UNVALIDATED]` claims | GitHub policy and source documents | Jira/Confluence must preserve marker | Any unproven claim must keep `[UNVALIDATED]` across all surfaces. |
@@ -222,7 +218,8 @@ A DOC-REGRESSION occurs when a change:
 - moves technical source of truth from GitHub into Jira or Confluence;
 - duplicates long-form technical documents in Confluence and creates divergence risk;
 - changes canonical paths without updating semantic links;
-- closes a task without the expected review/evidence trail.
+- closes a task without the expected review/evidence trail;
+- lets review agents approve ADRs, close issues, declare Done, or transition Jira without explicit Project Owner instruction.
 
 ### 5.1 Examples
 
@@ -278,14 +275,12 @@ The AI insight service boundary is a target direction `[UNVALIDATED]` until impl
 
 | Severity | Meaning | Examples | Required action |
 |---|---|---|---|
-| S0 — Blocking | Contradicts protected MVP, safety/security posture, or source-of-truth hierarchy | Direct ESP32 Kafka in MVP; production-ready claim; 220V automation in MVP | Block merge/review until fixed |
+| S0 — Blocking | Contradicts protected MVP, safety/security posture, approval authority, or source-of-truth hierarchy | Direct ESP32 Kafka in MVP; production-ready claim; 220V automation in MVP; AI agent declares Done | Block merge/review until fixed |
 | S1 — High | Creates divergence between GitHub, Jira, and Confluence | Confluence duplicates technical docs and changes MVP wording | Block merge/review unless corrected or explicitly approved |
 | S2 — Medium | Ambiguous maturity or missing `[UNVALIDATED]` marker | Target service described as implemented | Fix before approval |
 | S3 — Low | Navigation, typo, broken link, unclear phrasing | Wrong path spelling; weak link label | Fix before or during review depending on impact |
 
 ### 5.3 Reporting format
-
-Use this format in PR reviews, Jira comments, or review notes:
 
 ```text
 DOC-REGRESSION
@@ -302,7 +297,7 @@ Evidence:
 
 A PR or review must not be approved while it contains unresolved S0 or S1 DOC-REGRESSION issues.
 
-A PR or review should not be approved while it contains unresolved S2 issues involving `[UNVALIDATED]`, MVP scope, target/runtime confusion, or source-of-truth ambiguity.
+A PR or review should not be approved while it contains unresolved S2 issues involving `[UNVALIDATED]`, MVP scope, target/runtime confusion, source-of-truth ambiguity, evidence, or approval authority.
 
 ### 5.5 Resolution flow
 
@@ -313,7 +308,7 @@ A PR or review should not be approved while it contains unresolved S2 issues inv
 5. Update GitHub source of truth only through a reviewed repository change.
 6. Link the fix as evidence.
 7. Request review again.
-8. Do not close the task without project owner approval.
+8. Do not close the task without Project Owner approval.
 
 ---
 
@@ -360,6 +355,7 @@ Update GitHub when changing:
 - ADRs;
 - risk assessments;
 - canonical paths;
+- governance lane review gate;
 - commit convention;
 - source code;
 - runtime evidence committed as project evidence.
@@ -383,7 +379,7 @@ Never resolve a divergence by copying long-form GitHub technical documentation i
 
 ## 7. `[UNVALIDATED]` Policy
 
-`[UNVALIDATED]` marks any claim that is not yet proven by implementation, tests, logs, reviewed PRs, runtime evidence, or approved source-of-truth documentation.
+`[UNVALIDATED]` marks any claim that is not yet proven by implementation, tests, logs, reviewed PRs, runtime evidence, approved ADRs, Project Owner approval, or approved source-of-truth documentation.
 
 Use `[UNVALIDATED]` for:
 
@@ -417,7 +413,7 @@ Remove `[UNVALIDATED]` only when there is traceable evidence such as:
 - tests or logs committed or linked;
 - runtime evidence reviewed;
 - ADR approved;
-- project owner approval recorded;
+- Project Owner approval recorded;
 - source-of-truth document updated through review.
 
 Forbidden unqualified claims:
@@ -460,6 +456,18 @@ docs/governance/source-of-truth.md
 docs/governance/shift-left-governance-baseline.md
 ```
 
+```text
+docs/governance/ai-review-agents-policy.md
+```
+
+```text
+docs/governance/ai-review-agent-playbook.md
+```
+
+```text
+docs/governance/governance-lane-review-gate.md
+```
+
 Current MVP firmware path:
 
 ```text
@@ -496,10 +504,13 @@ AI agents should use this routing order:
 1. Start from `README.md` for the semantic map.
 2. Read `docs/governance/source-of-truth.md` for source-of-truth, anti-regression, canonical-path, and commit-convention rules.
 3. Read `docs/governance/shift-left-governance-baseline.md` for the mandatory issue-level Shift Left impact block.
-4. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
-5. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-6. Use Jira for task state, workflow, review state, blockers, and evidence links.
-7. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+4. Read `docs/governance/ai-review-agents-policy.md` for advisory review-agent roles, severity model, and decision limits.
+5. Read `docs/governance/ai-review-agent-playbook.md` for concrete review-agent prompts and review-output format.
+6. Read `docs/governance/governance-lane-review-gate.md` before evaluating governance-lane movement toward Review, Stakeholder Review, or Done.
+7. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
+8. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
+9. Use Jira for task state, workflow, review state, blockers, and evidence links.
+10. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -520,7 +531,7 @@ Examples:
 ```text
 IHAP-14: Add Shift Left governance baseline
 IHAP-14: Register Shift Left canonical path
-IHAP-15: Add risk register baseline
+IHAP-35: Register governance gate canonical path
 ```
 
 Do not place the Jira issue key at the end of the commit message.
@@ -531,17 +542,17 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 ## 11. Acceptance Criteria
 
-This policy satisfies IHAP-13 when:
+This policy satisfies IHAP-13 and remains aligned with IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, sprint review, PR evidence, runtime evidence, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Product Vision, ADRs, Risk Assessments, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Governance Lane Review Gate, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- initial canonical repository paths are listed;
+- canonical repository paths are listed, including `docs/governance/governance-lane-review-gate.md`;
 - stakeholder reports are explicitly assigned to Confluence;
-- no firmware, backend, mobile, runtime, production-ready, security-grade, or safety-critical claim is introduced;
-- project owner approval remains required before task completion.
+- no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
+- Project Owner approval remains required before task completion.
 
 ---
 
