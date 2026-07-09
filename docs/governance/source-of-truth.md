@@ -92,7 +92,7 @@ AI_AGENT_METADATA:
 HIDDEN_ANTI_REGRESSION_RULES:
   - GitHub remains the source of truth for technical documents, decisions, risks, policies, technical baselines, governance rules, templates, source code, and PR evidence.
   - docs/README.md is a documentation landing page only; it must not replace this source-of-truth policy or duplicate long-form canonical documents.
-  - Jira remains authoritative for backlog, task state, workflow state, blockers, and evidence links.
+  - Jira remains authoritative for backlog, task state, workflow state, blockers, review state, and evidence links.
   - Confluence remains authoritative for stakeholder hub, stakeholder reports, stakeholder forms, and stakeholder navigation.
   - Confluence stakeholder reports may summarize project state but must not override GitHub source-of-truth technical documents.
   - Confluence must not duplicate long-form technical source-of-truth documents from GitHub.
