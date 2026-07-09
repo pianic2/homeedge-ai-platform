@@ -39,6 +39,7 @@ AI_AGENT_METADATA:
       - docs/governance/ai-review-agents-policy.md
       - docs/governance/ai-review-agent-playbook.md
       - docs/governance/stakeholder-transparency.md
+      - docs/governance/stakeholder-report-data-rules.md
       - docs/governance/team-working-rules.md
       - docs/governance/engineering-assistant-rules.md
     product:
@@ -78,6 +79,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Product Vision / MVP boundary | `product/product-vision.md` |
 | ADR index | `adr/README.md` |
 | Templates | `templates/README.md` |
+| Stakeholder report data rules | `governance/stakeholder-report-data-rules.md` |
 
 ---
 

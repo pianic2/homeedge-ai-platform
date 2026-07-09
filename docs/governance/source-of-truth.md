@@ -35,6 +35,7 @@ AI_AGENT_METADATA:
   canonical_adr_template: "docs/adr/template.md"
   canonical_product_vision: "docs/product/product-vision.md"
   canonical_stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
+  canonical_stakeholder_report_data_rules: "docs/governance/stakeholder-report-data-rules.md"
   commit_convention: "IHAP-XX: Commit message"
   stakeholder_report_authoritative_surface: "Confluence"
   confluence_stakeholder_hub: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
@@ -50,6 +51,7 @@ AI_AGENT_METADATA:
     - technical_baselines
     - governance_rules
     - documentation_strategy
+    - stakeholder_report_data_rules
     - scrum_governance_dor_dod
     - governance_lane_review_gate
     - team_working_rules
@@ -138,7 +140,8 @@ Included:
 - Governance Lane Review Gate registration;
 - Team Working Rules registration;
 - Engineering Assistant Rules registration;
-- ADR index and template registration.
+- ADR index and template registration;
+- Stakeholder Report Data Rules registration.
 
 Excluded:
 
@@ -181,6 +184,7 @@ Stakeholder reports are intentionally kept on Confluence because Confluence supp
 | AI review agent playbook | `docs/governance/ai-review-agent-playbook.md` | Jira/PR evidence links | Defines reusable review-agent prompts and operating flow. |
 | ADR index and template | `docs/adr/README.md`, `docs/adr/template.md` | Jira evidence link | Defines ADR index, naming convention, status model, template, and link policy. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Confluence summary/link | Defines stakeholder visibility and Atlassian governance behavior. |
+| Stakeholder report data rules | `docs/governance/stakeholder-report-data-rules.md` | Confluence summary/link | Defines what stakeholder reports may show, link, redact, or block. |
 | Product Vision | `docs/product/product-vision.md` | Jira/Confluence links | Product Vision, MVP boundaries, and current glossary live in GitHub until superseded by reviewed change. |
 | Glossary | Current embedded glossary in `docs/product/product-vision.md` | Future `docs/glossary/project-glossary.md` candidate | Do not create a duplicate glossary until a later task explicitly extracts and links it. |
 | ADR | GitHub `docs/adr/` | Jira evidence link | ADRs are versioned source-of-truth decisions. Jira may link them but must not replace them. |
@@ -386,6 +390,7 @@ Update GitHub when changing:
 - documentation strategy;
 - documentation landing page;
 - reusable project template inventory or canonical template paths;
+- stakeholder report data rules;
 - `[UNVALIDATED]` policy;
 - ADRs;
 - risk assessments;
@@ -488,6 +493,7 @@ docs/product/product-vision.md
 
 ```text
 docs/governance/stakeholder-transparency.md
+docs/governance/stakeholder-report-data-rules.md
 ```
 
 ```text
@@ -588,8 +594,9 @@ AI agents should use this routing order:
 14. Read `docs/adr/template.md` before drafting a new ADR.
 15. Read `docs/product/product-vision.md` for Product Vision, MVP boundaries, and current glossary.
 16. Read `docs/governance/stakeholder-transparency.md` for stakeholder visibility and Atlassian governance rules.
-17. Use Jira for task state, workflow, review state, blockers, and evidence links.
-18. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
+17. Read `docs/governance/stakeholder-report-data-rules.md` before changing what stakeholder reports may show, link, redact, or block.
+18. Use Jira for task state, workflow, review state, blockers, and evidence links.
+19. Use Confluence for stakeholder hub, stakeholder reports, stakeholder forms, and navigation.
 
 AI agents must not infer implementation maturity from directory names alone. Empty or placeholder paths are not runtime proof.
 
@@ -621,14 +628,14 @@ This is a repository governance convention. It must not be duplicated inside ind
 
 ## 11. Acceptance Criteria
 
-This policy satisfies IHAP-13 and remains aligned with IHAP-22, IHAP-23, IHAP-24, IHAP-25, IHAP-29, IHAP-31, IHAP-33, and IHAP-35 when:
+This policy satisfies IHAP-13 and remains aligned with IHAP-22, IHAP-23, IHAP-24, IHAP-25, IHAP-29, IHAP-30, IHAP-31, IHAP-33, and IHAP-35 when:
 
-- source-of-truth responsibility is defined for backlog, task state, code, documents, Docs Landing Page, Product Vision, ADRs, Risk Assessments, Templates, stakeholder hub, stakeholder reports, PR evidence, runtime evidence, Documentation Strategy, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
+- source-of-truth responsibility is defined for backlog, task state, code, documents, Docs Landing Page, Product Vision, ADRs, Risk Assessments, Templates, stakeholder hub, stakeholder reports, stakeholder report data rules, PR evidence, runtime evidence, Documentation Strategy, Scrum Governance DoR/DoD, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and `[UNVALIDATED]` claims;
 - DOC-REGRESSION is defined with examples and severity levels;
 - reporting, blocking, and resolution flow are defined;
 - GitHub/Jira/Confluence anti-divergence rules are explicit;
 - `[UNVALIDATED]` usage and removal rules are documented;
-- canonical repository paths are listed, including `docs/README.md`, `docs/governance/documentation-strategy.md`, `docs/templates/README.md`, `docs/templates/risk-assessment.md`, `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
+- canonical repository paths are listed, including `docs/README.md`, `docs/governance/documentation-strategy.md`, `docs/templates/README.md`, `docs/templates/risk-assessment.md`, `docs/governance/scrum-governance-dor-dod.md`, `docs/governance/governance-lane-review-gate.md`, `docs/governance/team-working-rules.md`, `docs/governance/engineering-assistant-rules.md`, `docs/governance/stakeholder-report-data-rules.md`, `docs/adr/README.md`, and `docs/adr/template.md`;
 - stakeholder reports are explicitly assigned to Confluence;
 - no firmware, backend, mobile, runtime, production-ready, security-grade, commercial-ready, or safety-critical claim is introduced;
 - Project Owner approval remains required before task completion.

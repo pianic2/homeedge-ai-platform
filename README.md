@@ -28,6 +28,7 @@ AI_AGENT_METADATA:
   adr_template: "docs/adr/template.md"
   product_vision: "docs/product/product-vision.md"
   stakeholder_transparency: "docs/governance/stakeholder-transparency.md"
+  stakeholder_report_data_rules: "docs/governance/stakeholder-report-data-rules.md"
   current_glossary_location: "docs/product/product-vision.md"
   standalone_glossary_status: "future_candidate_not_created_by_ihap_13"
   stakeholder_hub: "https://niccolopiazzi01.atlassian.net/wiki/spaces/IEHAP/overview"
@@ -78,6 +79,7 @@ AI_AGENT_ROUTING:
   - Read docs/adr/template.md before drafting a new ADR.
   - Read docs/product/product-vision.md before changing MVP scope, product language, glossary terms, firmware boundaries, service boundary wording, or stakeholder claims.
   - Read docs/governance/stakeholder-transparency.md before changing stakeholder visibility, Atlassian governance, Jira evidence comments, or Confluence hub/report behavior.
+  - Read docs/governance/stakeholder-report-data-rules.md before changing what stakeholder reports may show, link, redact, or block.
   - Do not infer runtime maturity from folder names.
   - Preserve [UNVALIDATED] on all unproven claims.
   - Do not introduce production-ready, safety-critical, commercial-ready, or security-grade claims without reviewed evidence.
@@ -103,6 +105,7 @@ AI_AGENT_ROUTING:
 | ADR index and template | `docs/adr/README.md`, `docs/adr/template.md` | Defines ADR index, naming convention, status model, template, and link policy. |
 | Product Vision and MVP boundary | `docs/product/product-vision.md` | Canonical source for Product Vision, MVP inclusions/exclusions, and current glossary. |
 | Stakeholder transparency | `docs/governance/stakeholder-transparency.md` | Defines stakeholder visibility, Jira evidence behavior, and Confluence hub usage. |
+| Stakeholder report data rules | `docs/governance/stakeholder-report-data-rules.md` | Defines what stakeholder reports may show, link, redact, or block without duplicating technical truth. |
 | Stakeholder hub and reports | Confluence | Confluence is authoritative for stakeholder-facing hub, reports, forms, and navigation. |
 | Backlog and task state | Jira | Jira is authoritative for backlog, workflow state, task status, blockers, review state, and evidence links. |
 | Code and PR evidence | GitHub | GitHub is authoritative for code, repository structure, commits, branches, PRs, and versioned technical documentation. |
@@ -227,13 +230,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency |
+| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency, stakeholder report data rules |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, stakeholder report data rules, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 
