@@ -167,25 +167,151 @@ Findings about divergence, missing links, missing markers, or source-of-truth mi
 **Decision limits**  
 This agent cannot approve source-of-truth changes, approve ADRs, close issues, declare Done, or transition Jira tickets.
 
+---
+
 ### 5.2 Architecture Regression Reviewer
 
-Protects MVP boundaries and prevents target/runtime confusion. This agent cannot approve architecture changes or redefine MVP scope.
+**Purpose**  
+Prevent silent MVP expansion and target/runtime confusion.
+
+**Inputs**
+
+- `docs/product/product-vision.md`
+- `docs/governance/source-of-truth.md`
+- README architecture and MVP sections
+- issue description and PR diff, when applicable
+
+**Primary checks**
+
+- The only MVP firmware node remains `firmware/room-env-node/`.
+- The MVP node remains a generic room/door node.
+- MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
+- Raw audio, person tracking, behavioral history, person identification, window sensor scope, 220V automation, direct ESP32 Kafka producer, commercial claims, safety-critical claims, and production/security-grade certification claims remain outside MVP unless a later reviewed source-of-truth change says otherwise.
+- Target service boundaries are not described as implemented runtime without evidence.
+
+**Output**  
+Findings about scope expansion, architectural maturity overclaiming, or missing `[UNVALIDATED]` markers.
+
+**Decision limits**  
+This agent cannot approve architecture changes or redefine MVP scope.
+
+---
 
 ### 5.3 Event Contract Reviewer
 
-Prevents unsupported claims about event schemas, event contracts, producers, consumers, ingestion, Kafka, or event streaming. This agent cannot approve event contracts or declare schemas stable.
+**Purpose**  
+Prevent unsupported claims about event schemas, event contracts, producers, consumers, ingestion, Kafka, or event streaming.
+
+**Inputs**
+
+- README service-boundary sections
+- `schemas/` when present
+- `services/ingestion/` when present
+- relevant architecture documents, ADRs, PR diffs, or issue descriptions
+
+**Primary checks**
+
+- Event contracts are not presented as stable or implemented without reviewed evidence.
+- Backend-side event streaming remains `[UNVALIDATED]` until implementation and review evidence exist.
+- Direct ESP32 Kafka publishing is not introduced into MVP.
+- Schema, payload, producer, consumer, ingestion, or event-routing claims have traceable evidence.
+- Placeholder directories are not treated as runtime proof.
+
+**Output**  
+Findings about contract maturity, missing schemas, unsupported streaming claims, or target/runtime confusion.
+
+**Decision limits**  
+This agent cannot approve event contracts or declare schemas stable.
+
+---
 
 ### 5.4 Security & Privacy Reviewer
 
-Prevents unsafe security, privacy, compliance, and stakeholder-facing claims. This agent cannot certify security, approve privacy posture, or authorize safety/compliance claims.
+**Purpose**  
+Prevent unsafe security, privacy, compliance, and stakeholder-facing claims.
+
+**Inputs**
+
+- Shift Left Impact block
+- `docs/governance/source-of-truth.md`
+- `docs/governance/stakeholder-transparency.md`
+- relevant issue, PR, README, governance, product, or stakeholder text
+
+**Primary checks**
+
+- No production-ready, security-grade, safety-critical, commercial-ready, certified access-control, or alarm-grade claim appears without traceable evidence.
+- Presence detection remains local and non-identifying inside MVP.
+- Raw audio, person identification, individual tracking, behavioral history, and sensitive domestic data are not introduced silently.
+- Stakeholder-facing content does not expose tokens, passwords, API keys, private network details, addresses, sensitive logs, private images/videos, raw audio, individual tracking, or behavioral history.
+- Privacy-sensitive and security-sensitive claims remain `[UNVALIDATED]` when not proven.
+
+**Output**  
+Findings about security/privacy risk, misleading compliance posture, sensitive data exposure, or missing `[UNVALIDATED]` markers.
+
+**Decision limits**  
+This agent cannot certify security, approve privacy posture, or authorize safety/compliance claims.
+
+---
 
 ### 5.5 Testing & Evidence Reviewer
 
-Ensures claims and completion states are backed by traceable evidence. This agent cannot declare acceptance criteria satisfied, close the task, or transition the issue.
+**Purpose**  
+Ensure claims and completion states are backed by traceable evidence.
+
+**Inputs**
+
+- Jira acceptance criteria
+- Jira evidence links
+- PRs, commits, diffs, tests, logs, screenshots, or review comments
+- Shift Left Impact block
+- relevant source-of-truth documents
+- `docs/governance/governance-lane-review-gate.md` when reviewing governance-lane movement
+
+**Primary checks**
+
+- Every completed claim has evidence.
+- Missing evidence keeps the claim `[UNVALIDATED]`.
+- Documentation-only changes have reviewable diff evidence.
+- Implementation claims have implementation, test, log, runtime, or review evidence.
+- Jira contains evidence links before movement toward Done.
+- No unresolved blocking finding remains before closure.
+- Governance-lane movement respects `docs/governance/governance-lane-review-gate.md`.
+
+**Output**  
+Findings about missing evidence, weak evidence, incomplete acceptance criteria, or premature Done risk.
+
+**Decision limits**  
+This agent cannot declare acceptance criteria satisfied, close the task, or transition the issue.
+
+---
 
 ### 5.6 Stakeholder Clarity Reviewer
 
-Keeps stakeholder-facing material readable, link-based, and aligned with canonical technical truth. This agent cannot approve stakeholder reports as final project truth or override GitHub source-of-truth documents.
+**Purpose**  
+Keep stakeholder-facing material readable, link-based, and aligned with canonical technical truth.
+
+**Inputs**
+
+- `docs/governance/stakeholder-transparency.md`
+- `docs/governance/governance-lane-review-gate.md` when reviewing governance-lane stakeholder movement
+- Confluence stakeholder hub/report, when applicable
+- Jira issue summary, status, comments, blockers, and evidence links
+- GitHub canonical documents linked by the stakeholder material
+
+**Primary checks**
+
+- Stakeholder-facing content is short, readable, and navigable.
+- Confluence reports summarize and link; they do not redefine technical truth.
+- Stakeholders can quickly find current phase, active task state, completed work, review state, blockers, risks, decisions, PR/document evidence, and `[UNVALIDATED]` claims.
+- Technical depth remains in GitHub.
+- Jira remains the tracking and evidence-link layer.
+- Governance-lane stakeholder movement respects `docs/governance/governance-lane-review-gate.md`.
+
+**Output**  
+Findings about stakeholder confusion, duplicated technical documentation, missing links, missing evidence, or misleading maturity wording.
+
+**Decision limits**  
+This agent cannot approve stakeholder reports as final project truth or override GitHub source-of-truth documents.
 
 ---
 
@@ -318,6 +444,17 @@ Security-grade.
 ## 11. `[UNVALIDATED]` Handling
 
 `[UNVALIDATED]` must remain attached to any claim that is not yet proven by implementation, tests, logs, reviewed PRs, runtime evidence, approved ADRs, or explicit Project Owner approval recorded in the proper source.
+
+Use `[UNVALIDATED]` for:
+
+- target architecture not implemented yet;
+- service boundaries without runtime evidence;
+- firmware behavior not tested yet;
+- backend integrations not implemented yet;
+- AI insight claims without validation;
+- reliability or performance claims without measurement;
+- security or privacy claims without specific validation;
+- stakeholder-facing claims that may be read as already proven.
 
 Removing `[UNVALIDATED]` is a review-sensitive action and must be backed by traceable evidence.
 
