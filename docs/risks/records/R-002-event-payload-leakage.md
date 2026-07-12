@@ -6,8 +6,8 @@
 **Last reviewed:** 2026-07-12  
 **Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-40  
-**PR:** Pending  
+**Jira:** IHAP-40, IHAP-42  
+**PR:** #21  
 **Owner decision:** Pending
 
 <!--
@@ -63,16 +63,16 @@ Out of scope: AI data flows, runtime implementation in IHAP-40, and residual-ris
 
 | Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
 |---|---|---|---|---|---|---|
-| RT-R002-01 | Payload minimization and disclosure controls | Mitigate | Proposed | Pending Project Owner approval — future task 2 | Candidate | 2026-07-12 |
+| RT-R002-01 | Payload minimization and disclosure controls | Mitigate | Proposed | IHAP-42 | Candidate | 2026-07-12 |
 
 ## 7. RT-R002-01 — Payload minimization and disclosure controls
 
 **Strategy:** Mitigate  
 **Lifecycle status:** Proposed  
 **Treatment owner:** Event contract / backend engineering  
-**Jira coordination:** Pending Project Owner approval — future task 2  
+**Jira coordination:** IHAP-42  
 **Related ADRs:** Candidate  
-**Next review trigger:** An event schema, ingestion implementation, logging policy or retention mechanism is proposed.
+**Next review trigger:** IHAP-42 begins schema, logging, retention, implementation or verification work.
 
 Planned actions:
 
@@ -90,6 +90,7 @@ Remaining exposure: transport confidentiality, access control and runtime retent
 | SRC-01 | [Regulation (EU) 2016/679, Article 5](https://eur-lex.europa.eu/eli/reg/2016/679/oj) | Regulation | Minimization, storage limitation, integrity and confidentiality | Verified | 2026-07-12 | Applicability depends on identifiability and processing context |
 | SRC-02 | [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) | Official security guidance | Logging exclusion, protection, verification and disposal | Verified | 2026-07-12 | Guidance, not implementation evidence |
 | SRC-03 | `docs/governance/stakeholder-report-data-rules.md` | Project docs | Stakeholder disclosure boundary | Verified | 2026-07-12 | Stakeholder surfaces only |
+| SRC-04 | IHAP-42 | Jira coordination | Approved implementation and verification work path | Verified | 2026-07-12 | Coordination evidence only; not implementation evidence |
 
 ### Evidence and Effectiveness
 
@@ -105,15 +106,16 @@ Remaining exposure: transport confidentiality, access control and runtime retent
 
 | Relationship | Link | Rule |
 |---|---|---|
-| Jira review task | IHAP-40 | Record migration only |
-| Jira treatment task | Pending Project Owner approval — future task 2 | Shared with R-003 runtime treatment |
+| Jira review task | IHAP-40 | Record migration and treatment topology |
+| Jira treatment task | IHAP-42 | Shared operational coordination with R-003 |
+| Pull request | #21 | Risk record migration and Jira link update |
 | Related ADR | Candidate | No ADR created by IHAP-40 |
 | Related risks | R-003 | Shared payload and metadata boundary |
 
 ## 9. Stakeholder Visibility
 
 ```text
-Event payload leakage is tracked as an MVP privacy/security risk. Payload, logging and redaction behavior remain [UNVALIDATED] until implemented and reviewed.
+Event payload leakage is tracked as an MVP privacy/security risk. Payload, logging and redaction behavior remain [UNVALIDATED] until implemented and reviewed through IHAP-42.
 ```
 
 ## 10. Assessment History
@@ -121,14 +123,16 @@ Event payload leakage is tracked as an MVP privacy/security risk. Payload, loggi
 | Date | Change | Treatment | Decision |
 |---|---|---|---|
 | 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R002-01 Proposed | Pending |
+| 2026-07-12 | Linked approved operational task IHAP-42 | RT-R002-01 remains Proposed | Pending |
 
 ## 11. Review Notes
 
 ```text
 [x] Treatment starts as Proposed.
+[x] Jira treatment task IHAP-42 is linked.
 [x] Runtime and effectiveness evidence remain [UNVALIDATED].
 [x] ADR is Candidate only.
-[x] Orphan check passed through a proposed treatment path.
+[x] Orphan check passed through a proposed treatment and Jira path.
 [x] AI and other non-MVP flows were excluded.
 [x] Project Owner decision remains Pending.
 ```
