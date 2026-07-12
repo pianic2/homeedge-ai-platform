@@ -6,8 +6,8 @@
 **Last reviewed:** 2026-07-12  
 **Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-40  
-**PR:** Pending  
+**Jira:** IHAP-40, IHAP-41  
+**PR:** #21  
 **Owner decision:** Pending
 
 <!--
@@ -64,16 +64,16 @@ Out of scope: runtime implementation in IHAP-40, future nodes, and residual-risk
 
 | Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
 |---|---|---|---|---|---|---|
-| RT-R001-01 | Device identity and ingestion trust boundary | Mitigate | Proposed | Pending Project Owner approval — future task 1 | Candidate | 2026-07-12 |
+| RT-R001-01 | Device identity and ingestion trust boundary | Mitigate | Proposed | IHAP-41 | Candidate | 2026-07-12 |
 
 ## 7. RT-R001-01 — Device identity and ingestion trust boundary
 
 **Strategy:** Mitigate  
 **Lifecycle status:** Proposed  
 **Treatment owner:** Device / backend engineering  
-**Jira coordination:** Pending Project Owner approval — future task 1  
+**Jira coordination:** IHAP-41  
 **Related ADRs:** Candidate  
-**Next review trigger:** A device registry, ingestion endpoint, provisioning flow, or event contract is proposed.
+**Next review trigger:** IHAP-41 begins design, implementation or verification work.
 
 Planned actions:
 
@@ -91,6 +91,7 @@ Remaining exposure: provisioning, rotation, compromise recovery and cryptographi
 |---|---|---|---|---|---|---|
 | SRC-01 | [NIST IR 8259A](https://csrc.nist.gov/pubs/ir/8259/a/final) | Official guidance | IoT device cybersecurity capability baseline | Verified | 2026-07-12 | Does not prescribe the project mechanism |
 | SRC-02 | `docs/product/product-vision.md` | Project docs | MVP node and target service boundary | Verified | 2026-07-12 | Design evidence only |
+| SRC-03 | IHAP-41 | Jira coordination | Approved implementation and verification work path | Verified | 2026-07-12 | Coordination evidence only; not implementation evidence |
 
 ### Evidence and Effectiveness
 
@@ -106,8 +107,9 @@ Remaining exposure: provisioning, rotation, compromise recovery and cryptographi
 
 | Relationship | Link | Rule |
 |---|---|---|
-| Jira review task | IHAP-40 | Record migration only |
-| Jira treatment task | Pending Project Owner approval — future task 1 | Operational coordination only |
+| Jira review task | IHAP-40 | Record migration and treatment topology |
+| Jira treatment task | IHAP-41 | Operational coordination and evidence links |
+| Pull request | #21 | Risk record migration and Jira link update |
 | Related ADR | Candidate | No ADR created by IHAP-40 |
 | Related risks | R-002 | Event origin validation may partially support payload trust |
 
@@ -116,7 +118,7 @@ Remaining exposure: provisioning, rotation, compromise recovery and cryptographi
 Stakeholder-safe wording:
 
 ```text
-Device identity is a tracked MVP risk and remains [UNVALIDATED] until registry and ingestion behavior are implemented and tested.
+Device identity is a tracked MVP risk and remains [UNVALIDATED] until registry and ingestion behavior are implemented and tested through IHAP-41.
 ```
 
 ## 10. Assessment History
@@ -124,15 +126,17 @@ Device identity is a tracked MVP risk and remains [UNVALIDATED] until registry a
 | Date | Change | Treatment | Decision |
 |---|---|---|---|
 | 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R001-01 Proposed | Pending |
+| 2026-07-12 | Linked approved operational task IHAP-41 | RT-R001-01 remains Proposed | Pending |
 
 ## 11. Review Notes
 
 ```text
 [x] Existing controls are separated from planned actions.
 [x] Treatment starts as Proposed.
+[x] Jira treatment task IHAP-41 is linked.
 [x] Implementation and verification remain [UNVALIDATED].
 [x] ADR is Candidate only; no ADR was created.
-[x] Orphan check passed through a proposed treatment path.
+[x] Orphan check passed through a proposed treatment and Jira path.
 [x] No runtime or MVP expansion was introduced.
 [x] Project Owner decision remains Pending.
 ```
