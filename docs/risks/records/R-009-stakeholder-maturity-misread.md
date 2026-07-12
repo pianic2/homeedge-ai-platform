@@ -1,104 +1,113 @@
 # R-009 — Stakeholder Maturity Misread
 
-**Status:** Draft  
+**Risk ID:** R-009  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Stakeholder Visibility / Claims  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-009
-  canonical_path: docs/risks/records/R-009-stakeholder-maturity-misread.md
-  risk_model: docs/risks/risk-model-baseline.md
-  stakeholder_transparency: docs/governance/stakeholder-transparency.md
-  stakeholder_report_rules: docs/governance/stakeholder-report-data-rules.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
-  unvalidated_claim_marker: "[UNVALIDATED]"
+  orphan_status: not_orphan
 -->
-
----
 
 ## 1. Risk Statement
 
-There is a risk that stakeholders interpret Sprint 0 documentation as production-ready, commercial-ready, security-grade, safety-critical, alarm-grade, antifurto, certified, or protective system maturity because summaries can compress technical nuance too much.
+There is a risk that stakeholders interpret Sprint 0 or target documentation as production-ready, commercial-ready, security-grade, safety-critical or otherwise completed capability.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+Stakeholders often consume short Jira and Confluence summaries before detailed technical evidence.
 
-The project intentionally exposes progress through Jira and Confluence for stakeholder visibility. This is useful, but short summaries can accidentally upgrade target, planned, draft, or `[UNVALIDATED]` claims into perceived completed capability.
+In scope: Confluence, Jira comments, README, PR summaries and demos.  
+Out of scope: changing runtime maturity or admitting FUTURE capability into MVP.
 
----
-
-## 3. Affected Assets and Trust Boundary
-
-| Area | Detail |
-|---|---|
-| Asset | Confluence stakeholder hub, reports, Jira comments, PR summaries, README claims. |
-| Trust boundary | Technical evidence -> stakeholder-readable summary. |
-| Data involved | Status labels, maturity wording, risk summaries, evidence links. |
-| Stakeholder surface | Directly affected. |
-
----
-
-## 4. Scoring
+## 3. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | Stakeholders read summaries first, not full GitHub documents. |
-| Impact | High | Misread maturity weakens claim governance and can misrepresent project state. |
-| Residual risk | High | Risk persists whenever reports or demos are created. |
-| Treatment proposal | Mitigate | Use weakest accurate labels and preserve `[UNVALIDATED]` across stakeholder surfaces. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
+| Category | Stakeholder Visibility / Claims | Interpretation of current project maturity |
+| Likelihood | Medium | Summaries compress technical nuance |
+| Impact | High | Misread maturity can misrepresent project state |
+| Residual risk | High | Every new summary can reintroduce the risk |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
----
+## 4. Existing Controls
 
-## 5. Existing Controls
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Stakeholder transparency policy | `docs/governance/stakeholder-transparency.md` | Full as policy | Requires repeated application |
+| Report data and claim rules | `docs/governance/stakeholder-report-data-rules.md` | Full for reports | Summaries can still be written incorrectly |
 
-- Stakeholder transparency defines GitHub/Jira/Confluence roles.
-- Stakeholder report data rules define allowed, linked, redacted, and blocked content.
-- Claim boundaries block forbidden production, commercial, security-grade, safety, alarm, antifurto, access-control, intrusion-detection, and protection wording.
+## 5. Risk Treatment
 
----
+### RT-R009-01 — Preserve the weakest accurate stakeholder maturity label
 
-## 6. Evidence Gap
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Stakeholder / documentation review  
+**Jira coordination:** Not required — existing policy and review  
+**Related ADRs:** None  
+**Next review trigger:** Any stakeholder report, demo, Jira evidence comment or public project summary is created.
 
-Missing or future evidence:
+Planned actions:
 
-- every Confluence report review after each merge;
-- explicit `[UNVALIDATED]` preservation in reports;
-- link checks from report to PR/Jira/GitHub;
-- reviewer confirmation that stakeholder wording remains safe.
+- use `TARGET`, `FUTURE`, `IN REVIEW`, `STAKEHOLDER REVIEW`, `OUT OF SCOPE` or `[UNVALIDATED]` precisely;
+- avoid Done unless evidence and Project Owner approval exist;
+- link technical evidence instead of copying it;
+- block unsupported maturity and protection claims.
 
----
+**Remaining exposure:** Stakeholder interpretation can still vary and requires recurring clarity review.
 
-## 7. Mitigation Proposal
+### Source and Evidence Register
 
-Every stakeholder surface should:
+| ID | Source | Verification | Checked on | Limitations |
+|---|---|---|---|---|
+| SRC-01 | `docs/governance/stakeholder-transparency.md` | Verified | 2026-07-12 | Requires recurring application |
+| SRC-02 | `docs/governance/stakeholder-report-data-rules.md` | Verified | 2026-07-12 | Applies to stakeholder surfaces |
 
-- use `TARGET`, `FUTURE`, `IN REVIEW`, `STAKEHOLDER REVIEW`, `OUT OF SCOPE`, or `[UNVALIDATED]` precisely;
-- avoid “done” unless evidence supports it and Project Owner approves;
-- link GitHub/Jira instead of copying long technical content;
-- block maturity and protection claims.
+### Evidence and Effectiveness
 
----
+| Evidence | Expected result | Actual result | Status |
+|---|---|---|---|
+| EV-01 | Every summary uses the weakest accurate label and links evidence | Future reviews pending | `[UNVALIDATED]` |
 
-## 8. Stakeholder Visibility
+**Effectiveness:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-| Item | Rule |
-|---|---|
-| Risk summary | Show allowed. |
-| Claim maturity | Must use weakest accurate label. |
-| Technical depth | Link only. |
-| Forbidden maturity/protection wording | Blocked. |
+## 6. Traceability
 
-Stakeholder-safe wording:
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Jira treatment task | Not required | Existing stakeholder governance is sufficient |
+| Related ADR | None | No architectural decision required |
+
+## 7. Stakeholder Visibility
 
 ```text
-The project is in Sprint 0 / review state. Target or future capabilities remain [UNVALIDATED] until linked implementation and runtime evidence exists.
+The project is in Sprint 0 and review states. Target or future capabilities remain [UNVALIDATED] until linked implementation and runtime evidence exists.
+```
+
+## 8. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R009-01 Proposed | Pending |
+
+## 9. Review Notes
+
+```text
+[x] Treatment starts as Proposed.
+[x] No new Jira task or ADR is required.
+[x] Maturity labels remain evidence-bound.
+[x] Orphan check passed through a governance treatment.
+[x] Project Owner decision remains Pending.
 ```
