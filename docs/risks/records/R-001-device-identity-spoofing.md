@@ -1,22 +1,23 @@
 # R-001 — Device Identity Spoofing
 
-**Status:** Draft  
+**Risk ID:** R-001  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Security / Technical  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**PR:** Pending  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-001
-  canonical_path: docs/risks/records/R-001-device-identity-spoofing.md
-  risk_model: docs/risks/risk-model-baseline.md
-  product_boundary: docs/product/product-vision.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
+  risk_acceptance_authority: project_owner
+  orphan_status: not_orphan
   unvalidated_claim_marker: "[UNVALIDATED]"
 -->
 
@@ -24,88 +25,114 @@ AI_AGENT_METADATA:
 
 ## 1. Risk Statement
 
-There is a risk that a fake, cloned, or unknown device is treated as trusted because device identity and registry behavior are target boundaries `[UNVALIDATED]` until implemented and tested.
+There is a risk that a fake, cloned, disabled, or unknown MVP room/door node is treated as trusted because device identity and registry behavior remain `[UNVALIDATED]`.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+The MVP includes one ESP32-class room/door node and target ingestion/registry boundaries. The system must eventually distinguish known from unknown devices.
 
-The MVP has an ESP32-class room/door node and target service boundaries for ingestion and device registry. The device registry is not yet runtime-proven.
-
-This risk is not theoretical noise: every edge-to-backend system eventually needs to decide whether an incoming device should be trusted.
-
----
+In scope: MVP node identity, registration, ingestion validation, rejection behavior and evidence.  
+Out of scope: runtime implementation in IHAP-40, future nodes, and residual-risk decisions.
 
 ## 3. Affected Assets and Trust Boundary
 
 | Area | Detail |
 |---|---|
-| Asset | ESP32 room/door node, device id, event payload, ingestion target, device registry target. |
-| Trust boundary | Device -> network -> ingestion -> registry/read model. |
-| Data involved | Device id, room id, firmware version, timestamp, telemetry fields. |
-| Stakeholder surface | Risk summary may be shown; implementation detail should be linked, not copied. |
+| Assets | Room/door node, device identifier, event origin, ingestion and registry boundaries |
+| Trust boundary | Device -> network -> ingestion -> registry/read model |
+| Data involved | Device identifier and technical event metadata |
+| Stakeholder surface | Risk summary may be shown; credentials, secrets and private topology are blocked |
 
----
-
-## 4. Scoring
+## 4. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | No runtime identity control exists yet; current service boundaries are target only. |
-| Impact | High | Fake device data can corrupt telemetry, read models, stakeholder evidence, and future automation assumptions. |
-| Residual risk | Pending evidence | No implemented registry/auth evidence exists yet. |
-| Treatment proposal | Mitigate | Future implementation should define known-device registration, request validation, and rejected-device handling. |
-| Decision state | Pending Project Owner | No acceptance, deferral, or rejection has been approved. |
-
----
+| Category | Security / Technical | Current MVP trust boundary |
+| Likelihood | Medium | No runtime identity control exists |
+| Impact | High | Untrusted events could corrupt telemetry and evidence |
+| Residual risk | Pending Evidence | No implementation or verification evidence exists |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
 ## 5. Existing Controls
 
-- MVP boundary limits scope to one generic room/door node.
-- Target services remain `[UNVALIDATED]` instead of being claimed as implemented.
-- Stakeholder reports must not overstate security maturity.
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Single generic MVP node boundary | `docs/product/product-vision.md` | Partial | Limits scope but does not authenticate a device |
+| Target boundaries remain `[UNVALIDATED]` | `README.md` and Product Vision | Partial | Prevents overclaiming but provides no runtime control |
 
----
+## 6. Risk Treatment Summary
 
-## 6. Evidence Gap
+| Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
+|---|---|---|---|---|---|---|
+| RT-R001-01 | Device identity and ingestion trust boundary | Mitigate | Proposed | Pending Project Owner approval — future task 1 | Candidate | 2026-07-12 |
 
-Missing evidence:
+## 7. RT-R001-01 — Device identity and ingestion trust boundary
 
-- device registration model;
-- accepted/rejected device behavior;
-- ingestion validation logic;
-- tests or logs proving unknown-device rejection;
-- documented error handling.
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Device / backend engineering  
+**Jira coordination:** Pending Project Owner approval — future task 1  
+**Related ADRs:** Candidate  
+**Next review trigger:** A device registry, ingestion endpoint, provisioning flow, or event contract is proposed.
 
-Until evidence exists, device identity security remains `[UNVALIDATED]`.
+Planned actions:
 
----
+- define stable device identity semantics;
+- define registration, disablement and rejection behavior;
+- validate event origin at ingestion;
+- produce privacy-safe audit evidence;
+- test unknown, disabled and malformed device handling.
 
-## 7. Mitigation Proposal
+Remaining exposure: provisioning, rotation, compromise recovery and cryptographic strength remain undecided and `[UNVALIDATED]`.
 
-Future implementation should define:
+### Source and Evidence Register
 
-- stable device identifier format;
-- known-device registry boundary;
-- request validation at ingestion;
-- behavior for unknown, disabled, or malformed device identity;
-- audit/log evidence without exposing private domestic details.
+| ID | Source | Type | Supports | Verification | Checked on | Limitations |
+|---|---|---|---|---|---|---|
+| SRC-01 | [NIST IR 8259A](https://csrc.nist.gov/pubs/ir/8259/a/final) | Official guidance | IoT device cybersecurity capability baseline | Verified | 2026-07-12 | Does not prescribe the project mechanism |
+| SRC-02 | `docs/product/product-vision.md` | Project docs | MVP node and target service boundary | Verified | 2026-07-12 | Design evidence only |
 
-No ADR is introduced by this record.
+### Evidence and Effectiveness
 
----
+| Evidence | Class | Expected result | Actual result | Status |
+|---|---|---|---|---|
+| EV-01 | Implementation / Verification | Unknown, disabled and malformed identities are rejected | Not executed | `[UNVALIDATED]` |
 
-## 8. Stakeholder Visibility
+**Effectiveness:** Pending Evidence  
+**Residual risk after treatment:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-| Item | Rule |
-|---|---|
-| Risk summary | Show allowed. |
-| Device identity design | Link only when implemented. |
-| Secrets, tokens, private topology | Blocked. |
-| Security maturity claim | Keep `[UNVALIDATED]`; no security-grade wording. |
+## 8. Traceability
+
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Jira treatment task | Pending Project Owner approval — future task 1 | Operational coordination only |
+| Related ADR | Candidate | No ADR created by IHAP-40 |
+| Related risks | R-002 | Event origin validation may partially support payload trust |
+
+## 9. Stakeholder Visibility
 
 Stakeholder-safe wording:
 
 ```text
-Device identity is a known risk area and remains [UNVALIDATED] until the registry and ingestion behavior are implemented and tested.
+Device identity is a tracked MVP risk and remains [UNVALIDATED] until registry and ingestion behavior are implemented and tested.
+```
+
+## 10. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R001-01 Proposed | Pending |
+
+## 11. Review Notes
+
+```text
+[x] Existing controls are separated from planned actions.
+[x] Treatment starts as Proposed.
+[x] Implementation and verification remain [UNVALIDATED].
+[x] ADR is Candidate only; no ADR was created.
+[x] Orphan check passed through a proposed treatment path.
+[x] No runtime or MVP expansion was introduced.
+[x] Project Owner decision remains Pending.
 ```
