@@ -1,23 +1,22 @@
 # R-002 — Event Payload Leakage
 
-**Status:** Draft  
+**Risk ID:** R-002  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Security / Privacy  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**PR:** Pending  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-002
-  canonical_path: docs/risks/records/R-002-event-payload-leakage.md
-  risk_model: docs/risks/risk-model-baseline.md
-  product_boundary: docs/product/product-vision.md
-  stakeholder_report_rules: docs/governance/stakeholder-report-data-rules.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
+  orphan_status: not_orphan
   unvalidated_claim_marker: "[UNVALIDATED]"
 -->
 
@@ -25,84 +24,111 @@ AI_AGENT_METADATA:
 
 ## 1. Risk Statement
 
-There is a risk that event payloads expose sensitive domestic or operational details because transport, logging, retention, and stakeholder reporting behavior are not yet implemented and tested.
+There is a risk that MVP event payloads or logs expose unnecessary domestic or operational details because schema, transport, logging and retention behavior remain `[UNVALIDATED]`.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+The MVP includes temperature, humidity, local non-identifying presence and door-state telemetry moving toward a target ingestion boundary.
 
-The MVP direction includes HTTP/JSON event flow from the room/door node toward ingestion. The event shape contains room telemetry and technical metadata, but schema, transport, log handling, and storage are still `[UNVALIDATED]`.
-
----
+In scope: MVP payload fields, logs, retention, examples, screenshots and stakeholder evidence.  
+Out of scope: AI data flows, runtime implementation in IHAP-40, and residual-risk decisions.
 
 ## 3. Affected Assets and Trust Boundary
 
 | Area | Detail |
 |---|---|
-| Asset | Event payload, HTTP/JSON path, ingestion target, logs, stakeholder reports. |
-| Trust boundary | Device -> network -> ingestion -> logs/reports. |
-| Data involved | Temperature, humidity, presence state, door state, timestamp, device id, room id, firmware version. |
-| Stakeholder surface | Summary allowed; raw payloads/logs should be linked only when safe and redacted. |
+| Assets | Event payload, logs, examples, screenshots and stakeholder reports |
+| Trust boundary | Device -> network -> ingestion -> logs/evidence |
+| Data involved | Environmental telemetry, door/presence state and technical metadata |
+| Stakeholder surface | Summary allowed; raw payloads and logs require minimization and redaction |
 
----
-
-## 4. Scoring
+## 4. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | Payload and logging behavior are not yet proven; leakage commonly happens through debug output and reports. |
-| Impact | High | Door/presence state and metadata can reveal domestic patterns if exposed or correlated. |
-| Residual risk | Medium | Current documentation defines boundaries but no runtime redaction/enforcement exists. |
-| Treatment proposal | Mitigate | Minimize payload, redact logs/reports, and keep sensitive data out of stakeholder surfaces. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
-
----
+| Category | Security / Privacy | MVP telemetry disclosure risk |
+| Likelihood | Medium | Payload and logging behavior are not implemented |
+| Impact | High | Correlated telemetry can reveal domestic patterns |
+| Residual risk | Pending Evidence | No runtime enforcement or tests exist |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
 ## 5. Existing Controls
 
-- Raw audio, identity, individual tracking, and behavioral history are OUT OF MVP.
-- Stakeholder report data rules block secrets, private addresses, raw audio, identity data, and behavioral history.
-- `[UNVALIDATED]` prevents unproven transport/storage claims.
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Blocked data categories | `docs/product/product-vision.md` | Partial | Documentation does not enforce runtime payloads |
+| Stakeholder report redaction | `docs/governance/stakeholder-report-data-rules.md` | Partial | Does not cover service logs or retention |
 
----
+## 6. Risk Treatment Summary
 
-## 6. Evidence Gap
+| Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
+|---|---|---|---|---|---|---|
+| RT-R002-01 | Payload minimization and disclosure controls | Mitigate | Proposed | Pending Project Owner approval — future task 2 | Candidate | 2026-07-12 |
 
-Missing evidence:
+## 7. RT-R002-01 — Payload minimization and disclosure controls
 
-- implemented event schema;
-- transport behavior and logs;
-- ingestion validation output;
-- redaction checks for logs/screenshots/reports;
-- proof that raw sensitive payloads are not copied into Confluence.
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Event contract / backend engineering  
+**Jira coordination:** Pending Project Owner approval — future task 2  
+**Related ADRs:** Candidate  
+**Next review trigger:** An event schema, ingestion implementation, logging policy or retention mechanism is proposed.
 
----
+Planned actions:
 
-## 7. Mitigation Proposal
+- define the minimum event fields;
+- exclude OUT OF MVP and identifying fields;
+- define logging, redaction, retention and disposal rules;
+- test payloads, logs and stakeholder evidence against blocked fields.
 
-Future implementation and docs should require:
+Remaining exposure: transport confidentiality, access control and runtime retention remain implementation-specific and `[UNVALIDATED]`.
 
-- minimal payload fields;
-- no raw audio or identity fields;
-- redacted examples in docs and stakeholder reports;
-- private network metadata omitted from reports;
-- logs reviewed before being shared.
+### Source and Evidence Register
 
-No runtime security claim is made by this mitigation proposal.
+| ID | Source | Type | Supports | Verification | Checked on | Limitations |
+|---|---|---|---|---|---|---|
+| SRC-01 | [Regulation (EU) 2016/679, Article 5](https://eur-lex.europa.eu/eli/reg/2016/679/oj) | Regulation | Minimization, storage limitation, integrity and confidentiality | Verified | 2026-07-12 | Applicability depends on identifiability and processing context |
+| SRC-02 | [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) | Official security guidance | Logging exclusion, protection, verification and disposal | Verified | 2026-07-12 | Guidance, not implementation evidence |
+| SRC-03 | `docs/governance/stakeholder-report-data-rules.md` | Project docs | Stakeholder disclosure boundary | Verified | 2026-07-12 | Stakeholder surfaces only |
 
----
+### Evidence and Effectiveness
 
-## 8. Stakeholder Visibility
+| Evidence | Class | Expected result | Actual result | Status |
+|---|---|---|---|---|
+| EV-01 | Implementation / Verification | Only approved fields appear and sensitive values are absent from shared evidence | Not executed | `[UNVALIDATED]` |
 
-| Item | Rule |
-|---|---|
-| Risk summary | Show allowed. |
-| Raw payload examples | Link/redact only. |
-| Sensitive logs | Redact or block. |
-| Transport security claim | `[UNVALIDATED]` until evidence exists. |
+**Effectiveness:** Pending Evidence  
+**Residual risk after treatment:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-Stakeholder-safe wording:
+## 8. Traceability
+
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Jira treatment task | Pending Project Owner approval — future task 2 | Shared with R-003 runtime treatment |
+| Related ADR | Candidate | No ADR created by IHAP-40 |
+| Related risks | R-003 | Shared payload and metadata boundary |
+
+## 9. Stakeholder Visibility
 
 ```text
-Event payload leakage is tracked as a privacy/security risk. Payload, logging, and redaction behavior remain [UNVALIDATED] until implemented and reviewed.
+Event payload leakage is tracked as an MVP privacy/security risk. Payload, logging and redaction behavior remain [UNVALIDATED] until implemented and reviewed.
+```
+
+## 10. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R002-01 Proposed | Pending |
+
+## 11. Review Notes
+
+```text
+[x] Treatment starts as Proposed.
+[x] Runtime and effectiveness evidence remain [UNVALIDATED].
+[x] ADR is Candidate only.
+[x] Orphan check passed through a proposed treatment path.
+[x] AI and other non-MVP flows were excluded.
+[x] Project Owner decision remains Pending.
 ```
