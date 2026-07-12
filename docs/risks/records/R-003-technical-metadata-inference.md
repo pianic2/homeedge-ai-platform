@@ -6,8 +6,8 @@
 **Last reviewed:** 2026-07-12  
 **Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-40  
-**PR:** Pending  
+**Jira:** IHAP-40, IHAP-42  
+**PR:** #21  
 **Owner decision:** Pending
 
 <!--
@@ -64,7 +64,7 @@ Out of scope: behavioral profiling, AI inference and other FUTURE capabilities.
 | Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
 |---|---|---|---|---|---|---|
 | RT-R003-01 | Stakeholder metadata redaction | Mitigate | Proposed | Not required — existing policy and review | None | 2026-07-12 |
-| RT-R003-02 | Metadata minimization and retention boundary | Mitigate | Proposed | Pending Project Owner approval — future task 2 | Candidate | 2026-07-12 |
+| RT-R003-02 | Metadata minimization and retention boundary | Mitigate | Proposed | IHAP-42 | Candidate | 2026-07-12 |
 
 ## 7. Risk Treatments
 
@@ -93,9 +93,9 @@ Source: `docs/governance/stakeholder-report-data-rules.md` — Verified on 2026-
 **Strategy:** Mitigate  
 **Lifecycle status:** Proposed  
 **Treatment owner:** Event contract / backend engineering  
-**Jira coordination:** Pending Project Owner approval — future task 2  
+**Jira coordination:** IHAP-42  
 **Related ADRs:** Candidate  
-**Next review trigger:** An event schema, logging store or retention mechanism is proposed.
+**Next review trigger:** IHAP-42 begins schema, logging, retention, implementation or verification work.
 
 Planned actions:
 
@@ -113,6 +113,7 @@ Planned actions:
 | SRC-01 | [Regulation (EU) 2016/679, Article 5](https://eur-lex.europa.eu/eli/reg/2016/679/oj) | Regulation | Minimization and storage limitation | Verified | 2026-07-12 | Applicability depends on context |
 | SRC-02 | [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) | Official security guidance | Logging exclusion, protection and disposal | Verified | 2026-07-12 | Guidance only |
 | SRC-03 | `docs/product/product-vision.md` | Project docs | MVP data boundary | Verified | 2026-07-12 | Design evidence only |
+| SRC-04 | IHAP-42 | Jira coordination | Approved implementation and verification work path | Verified | 2026-07-12 | Coordination evidence only; not implementation evidence |
 
 ### Evidence and Effectiveness
 
@@ -129,15 +130,16 @@ Planned actions:
 
 | Relationship | Link | Rule |
 |---|---|---|
-| Jira review task | IHAP-40 | Record migration only |
-| Jira treatment task | Pending Project Owner approval — future task 2 | Shared with R-002 |
+| Jira review task | IHAP-40 | Record migration and treatment topology |
+| Jira treatment task | IHAP-42 | Shared operational coordination with R-002 |
+| Pull request | #21 | Risk record migration and Jira link update |
 | Related ADR | Candidate for RT-R003-02 | No ADR created by IHAP-40 |
 | Related risks | R-002 | Shared payload and metadata boundary |
 
 ## 9. Stakeholder Visibility
 
 ```text
-Technical metadata is useful for MVP evidence but may expose domestic context. Private topology and network details are redacted or omitted.
+Technical metadata is useful for MVP evidence but may expose domestic context. Private topology and network details are redacted or omitted; runtime controls remain [UNVALIDATED] until implemented through IHAP-42.
 ```
 
 ## 10. Assessment History
@@ -145,12 +147,14 @@ Technical metadata is useful for MVP evidence but may expose domestic context. P
 | Date | Change | Treatment | Decision |
 |---|---|---|---|
 | 2026-07-12 | Migrated and split into governance/runtime treatments | RT-R003-01; RT-R003-02 Proposed | Pending |
+| 2026-07-12 | Linked approved operational task IHAP-42 | RT-R003-02 remains Proposed | Pending |
 
 ## 11. Review Notes
 
 ```text
 [x] Both treatments start as Proposed.
 [x] Policy and runtime responsibilities are separated.
+[x] Jira treatment task IHAP-42 is linked to RT-R003-02.
 [x] Runtime and effectiveness evidence remain [UNVALIDATED].
 [x] ADR is Candidate only for the runtime boundary.
 [x] Orphan check passed through treatment paths.
