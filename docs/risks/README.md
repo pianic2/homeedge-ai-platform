@@ -61,9 +61,9 @@ Do not keep speculative risks solely for capabilities classified as FUTURE or OU
 
 | ID | Record | Primary category | Treatment state | Jira coordination | Decision state |
 |---|---|---|---|---|---|
-| R-001 | `records/R-001-device-identity-spoofing.md` | Security / Technical | RT-R001-01 Proposed | Future task 1 pending approval | Pending Project Owner |
-| R-002 | `records/R-002-event-payload-leakage.md` | Security / Privacy | RT-R002-01 Proposed | Future task 2 pending approval | Pending Project Owner |
-| R-003 | `records/R-003-technical-metadata-inference.md` | Privacy / Stakeholder Visibility | RT-R003-01 and RT-R003-02 Proposed | Policy review + future task 2 pending approval | Pending Project Owner |
+| R-001 | `records/R-001-device-identity-spoofing.md` | Security / Technical | RT-R001-01 Proposed | IHAP-41 | Pending Project Owner |
+| R-002 | `records/R-002-event-payload-leakage.md` | Security / Privacy | RT-R002-01 Proposed | IHAP-42 | Pending Project Owner |
+| R-003 | `records/R-003-technical-metadata-inference.md` | Privacy / Stakeholder Visibility | RT-R003-01 and RT-R003-02 Proposed | Existing policy review + IHAP-42 | Pending Project Owner |
 | R-004 | `records/R-004-presence-door-state-misinterpretation.md` | Privacy / Compliance / Claims | RT-R004-01 Proposed | Existing policy/review | Pending Project Owner |
 | R-005 | `records/R-005-target-boundary-overclaim.md` | Compliance / Documentation | RT-R005-01 Proposed | Existing policy/review | Pending Project Owner |
 | R-006 | `records/R-006-source-of-truth-drift.md` | Documentation / Stakeholder Visibility | RT-R006-01 Proposed; Monitoring | Governance gate | Pending Project Owner |
@@ -89,14 +89,14 @@ Removal does not approve AI behavior and does not weaken the existing Product Vi
 
 ---
 
-## 5. Approved Future Coordination Topology
+## 5. Approved Treatment Task Topology
 
-Only two future operational treatment tasks are planned:
+The Project Owner approved and Jira now tracks exactly two operational treatment tasks:
 
-1. `RT-R001-01 — Device Identity and Ingestion Trust Controls`;
-2. `RT-R002-01 / RT-R003-02 — Payload and Metadata Privacy Controls`.
+1. `IHAP-41 — RT-R001-01 — Device Identity and Ingestion Trust Controls`;
+2. `IHAP-42 — RT-R002-01 / RT-R003-02 — Payload and Metadata Privacy Controls`.
 
-They are not created automatically by IHAP-40. Project Owner approval remains required.
+Both tasks remain operational coordination surfaces. The linked Risk Records remain canonical for treatment rationale, evidence, lifecycle and effectiveness.
 
 R-001, R-002 and R-003 record ADR status as `Candidate`; IHAP-40 creates no ADR.
 
