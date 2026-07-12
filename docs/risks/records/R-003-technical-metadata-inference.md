@@ -1,23 +1,22 @@
 # R-003 — Technical Metadata Inference
 
-**Status:** Draft  
+**Risk ID:** R-003  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Privacy / Stakeholder Visibility  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**PR:** Pending  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-003
-  canonical_path: docs/risks/records/R-003-technical-metadata-inference.md
-  risk_model: docs/risks/risk-model-baseline.md
-  product_boundary: docs/product/product-vision.md
-  stakeholder_report_rules: docs/governance/stakeholder-report-data-rules.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
+  orphan_status: not_orphan
   unvalidated_claim_marker: "[UNVALIDATED]"
 -->
 
@@ -25,82 +24,135 @@ AI_AGENT_METADATA:
 
 ## 1. Risk Statement
 
-There is a risk that technical metadata enables domestic inference because timestamps, device ids, room ids, firmware versions, and network details can reveal patterns when retained, correlated, logged, or exposed.
+There is a risk that MVP technical metadata reveals domestic context when timestamps, device identifiers, room labels or network details are retained, correlated or exposed.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+Technical metadata is useful for debugging and evidence, but combinations may reveal topology or activity patterns.
 
-The Product Vision allows minimal event direction fields such as timestamp, device id, room id, and firmware version, while IP/network metadata is out of stakeholder view. These fields are useful for engineering evidence but can become privacy-sensitive in combination.
-
----
+In scope: MVP metadata, logs, retention, screenshots, examples and stakeholder summaries.  
+Out of scope: behavioral profiling, AI inference and other FUTURE capabilities.
 
 ## 3. Affected Assets and Trust Boundary
 
 | Area | Detail |
 |---|---|
-| Asset | Timestamp, device id, room id, firmware version, IP/network metadata. |
-| Trust boundary | Runtime telemetry -> logs/storage -> stakeholder reports. |
-| Data involved | Technical metadata and domestic context labels. |
-| Stakeholder surface | Generic labels only; private topology redacted or omitted. |
+| Assets | Technical metadata, logs, screenshots, examples and stakeholder summaries |
+| Trust boundary | Runtime telemetry -> logs/storage -> stakeholder evidence |
+| Data involved | Timestamps, device identifiers, generic room labels, firmware version and network metadata |
+| Stakeholder surface | Generic summaries allowed; private topology and network details are redacted or blocked |
 
----
-
-## 4. Scoring
+## 4. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | Metadata is likely to be present in events, logs, screenshots, or debugging evidence. |
-| Impact | Medium | Metadata may expose domestic layout, activity timing, or device topology. |
-| Residual risk | Medium | Current docs define redaction intent, but runtime retention/redaction is not implemented. |
-| Treatment proposal | Mitigate | Redact private topology, aggregate where possible, and keep stakeholder views generic. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
-
----
+| Category | Privacy / Stakeholder Visibility | MVP metadata exposure |
+| Likelihood | Medium | Metadata is likely to appear in engineering evidence |
+| Impact | Medium | Correlation may reveal topology or activity timing |
+| Residual risk | Pending Evidence | Retention and correlation controls are not implemented |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
 ## 5. Existing Controls
 
-- Product data boundary marks IP/network metadata as out of stakeholder view.
-- Stakeholder report rules require redaction or omission of device/network details when sensitive.
-- Raw identity and behavioral data are OUT OF MVP.
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Private network metadata excluded from stakeholder view | `docs/product/product-vision.md` | Partial | Runtime collection and retention remain unknown |
+| Redaction and link-only reporting | `docs/governance/stakeholder-report-data-rules.md` | Partial | Requires repeated human review |
 
----
+## 6. Risk Treatment Summary
 
-## 6. Evidence Gap
+| Treatment ID | Title | Strategy | Lifecycle status | Jira | ADR | Last review |
+|---|---|---|---|---|---|---|
+| RT-R003-01 | Stakeholder metadata redaction | Mitigate | Proposed | Not required — existing policy and review | None | 2026-07-12 |
+| RT-R003-02 | Metadata minimization and retention boundary | Mitigate | Proposed | Pending Project Owner approval — future task 2 | Candidate | 2026-07-12 |
 
-Missing evidence:
+## 7. Risk Treatments
 
-- actual event schema and metadata fields;
-- runtime retention behavior;
-- log redaction behavior;
-- stakeholder report examples after redaction;
-- rule for generic room labels versus private domestic labels.
+### RT-R003-01 — Stakeholder metadata redaction
 
----
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Documentation / stakeholder review  
+**Jira coordination:** Not required — existing policy and review  
+**Related ADRs:** None  
+**Next review trigger:** A report, demo, screenshot, payload example or public log is prepared.
 
-## 7. Mitigation Proposal
+Planned actions:
 
-Future implementation and documentation should:
+- use generic room labels;
+- remove private addresses and topology;
+- omit network identifiers;
+- review examples and screenshots before publication.
 
-- use generic room labels in examples;
-- avoid private addresses and precise domestic topology;
-- omit IP/network metadata from stakeholder material;
-- avoid publishing raw logs without redaction review;
-- keep metadata retention `[UNVALIDATED]` until implemented and reviewed.
+**Remaining exposure:** Human review can fail; runtime metadata still requires RT-R003-02.
 
----
+Source: `docs/governance/stakeholder-report-data-rules.md` — Verified on 2026-07-12.
 
-## 8. Stakeholder Visibility
+### RT-R003-02 — Metadata minimization and retention boundary
 
-| Item | Rule |
-|---|---|
-| Generic metadata risk summary | Show allowed. |
-| Room labels | Generic only. |
-| IP/network/private topology | Redact or omit. |
-| Retention or correlation claim | `[UNVALIDATED]` until evidence exists. |
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Event contract / backend engineering  
+**Jira coordination:** Pending Project Owner approval — future task 2  
+**Related ADRs:** Candidate  
+**Next review trigger:** An event schema, logging store or retention mechanism is proposed.
 
-Stakeholder-safe wording:
+Planned actions:
+
+- classify and justify metadata fields;
+- define generic versus private labels;
+- bound retention and disposal;
+- test correlation and disclosure paths.
+
+**Remaining exposure:** Some timestamps and identifiers may remain necessary for operation and evidence.
+
+### Source and Evidence Register
+
+| ID | Source | Type | Supports | Verification | Checked on | Limitations |
+|---|---|---|---|---|---|---|
+| SRC-01 | [Regulation (EU) 2016/679, Article 5](https://eur-lex.europa.eu/eli/reg/2016/679/oj) | Regulation | Minimization and storage limitation | Verified | 2026-07-12 | Applicability depends on context |
+| SRC-02 | [OWASP Logging Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Logging_Cheat_Sheet.html) | Official security guidance | Logging exclusion, protection and disposal | Verified | 2026-07-12 | Guidance only |
+| SRC-03 | `docs/product/product-vision.md` | Project docs | MVP data boundary | Verified | 2026-07-12 | Design evidence only |
+
+### Evidence and Effectiveness
+
+| Evidence | Treatment | Expected result | Actual result | Status |
+|---|---|---|---|---|
+| EV-01 | RT-R003-01 | Published evidence excludes private topology and network metadata | Not executed | `[UNVALIDATED]` |
+| EV-02 | RT-R003-02 | Metadata fields and retention are justified, bounded and tested | Not executed | `[UNVALIDATED]` |
+
+**Effectiveness:** Pending Evidence  
+**Residual risk after treatment:** Pending Evidence  
+**Project Owner decision required:** Yes
+
+## 8. Traceability
+
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Jira treatment task | Pending Project Owner approval — future task 2 | Shared with R-002 |
+| Related ADR | Candidate for RT-R003-02 | No ADR created by IHAP-40 |
+| Related risks | R-002 | Shared payload and metadata boundary |
+
+## 9. Stakeholder Visibility
 
 ```text
-Technical metadata is useful for evidence but may expose domestic context. Private topology and network details are redacted or omitted from stakeholder material.
+Technical metadata is useful for MVP evidence but may expose domestic context. Private topology and network details are redacted or omitted.
+```
+
+## 10. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Migrated and split into governance/runtime treatments | RT-R003-01; RT-R003-02 Proposed | Pending |
+
+## 11. Review Notes
+
+```text
+[x] Both treatments start as Proposed.
+[x] Policy and runtime responsibilities are separated.
+[x] Runtime and effectiveness evidence remain [UNVALIDATED].
+[x] ADR is Candidate only for the runtime boundary.
+[x] Orphan check passed through treatment paths.
+[x] Non-MVP profiling and AI inference were excluded.
 ```
