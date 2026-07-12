@@ -1,106 +1,115 @@
 # R-006 — Source-of-Truth Drift
 
-**Status:** Draft  
+**Risk ID:** R-006  
+**Risk status:** Monitoring  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Documentation / Stakeholder Visibility  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-006
-  canonical_path: docs/risks/records/R-006-source-of-truth-drift.md
-  risk_model: docs/risks/risk-model-baseline.md
-  source_of_truth_policy: docs/governance/source-of-truth.md
-  documentation_strategy: docs/governance/documentation-strategy.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
-  unvalidated_claim_marker: "[UNVALIDATED]"
+  orphan_status: not_orphan
 -->
-
----
 
 ## 1. Risk Statement
 
-There is a risk that GitHub, Jira, and Confluence drift into parallel truths because each surface contains project information but only some surfaces are authoritative for technical content.
+There is a risk that GitHub, Jira and Confluence diverge into parallel truths because each surface carries different project information.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+The project intentionally separates technical truth, workflow state and stakeholder summaries across three systems.
 
-The project intentionally uses GitHub for technical truth, Jira for work state/evidence, and Confluence for stakeholder reports/navigation. This split is useful, but it creates divergence risk if technical content is copied instead of linked.
+In scope: canonical documents, Jira evidence links, Confluence summaries and navigation.  
+Out of scope: duplicating technical records in Jira or Confluence.
 
----
-
-## 3. Affected Assets and Trust Boundary
-
-| Area | Detail |
-|---|---|
-| Asset | GitHub docs, Jira issue descriptions/comments, Confluence stakeholder hub/reports. |
-| Trust boundary | Technical truth -> tracking summary -> stakeholder summary. |
-| Data involved | Scope, risk posture, maturity labels, evidence links, status summaries. |
-| Stakeholder surface | High: stakeholders mainly read summaries first. |
-
----
-
-## 4. Scoring
+## 3. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | Multiple surfaces are used regularly and can become stale. |
-| Impact | High | Divergence can mislead review, invalidate evidence, or weaken claim boundaries. |
-| Residual risk | Medium | Existing policy reduces the risk, but every future update must keep links aligned. |
-| Treatment proposal | Mitigate | Keep GitHub canonical, Jira evidence-linked, and Confluence summary/link-only. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
+| Category | Documentation / Stakeholder Visibility | Cross-surface governance risk |
+| Likelihood | Medium | Multiple surfaces are updated regularly |
+| Impact | High | Divergence can mislead reviews and stakeholders |
+| Residual risk | Medium | Existing policy reduces but cannot eliminate recurrence |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
----
+## 4. Existing Controls
 
-## 5. Existing Controls
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Surface authority policy | `docs/governance/source-of-truth.md` | Full as governance | Does not automatically prevent stale links |
+| Documentation strategy | `docs/governance/documentation-strategy.md` | Partial | Requires disciplined execution |
+| Source of Truth Guardian | `docs/governance/ai-review-agents-policy.md` | Partial | Advisory review, not enforcement |
 
-- `source-of-truth.md` defines surface authority.
-- `documentation-strategy.md` defines when to create/update docs.
-- Stakeholder reports must summarize and link, not duplicate long-form technical docs.
-- Review agents are configured to detect source-of-truth divergence.
+## 5. Risk Treatment
 
----
+### RT-R006-01 — Monitor cross-surface source-of-truth alignment
 
-## 6. Evidence Gap
+**Strategy:** Monitor  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Governance / documentation review  
+**Jira coordination:** Not required — governance gate and issue evidence  
+**Related ADRs:** None  
+**Next review trigger:** A canonical document, Jira evidence link or Confluence stakeholder report changes.
 
-Missing or future evidence:
+Monitoring actions:
 
-- continued link correctness after every PR;
-- stakeholder reports aligned after merges;
-- Jira comments pointing to current PR/document paths;
-- review output for each governance movement.
+- keep technical truth in GitHub;
+- use Jira for state, blockers and evidence links;
+- use Confluence for summary and navigation only;
+- run Source of Truth Guardian before stakeholder-facing movement;
+- replace copied technical content with canonical links.
 
----
+**Remaining exposure:** Drift can recur after any update across the three surfaces.
 
-## 7. Mitigation Proposal
+### Source and Evidence Register
 
-Operational mitigation:
+| ID | Source | Verification | Checked on | Limitations |
+|---|---|---|---|---|
+| SRC-01 | `docs/governance/source-of-truth.md` | Verified | 2026-07-12 | Requires recurring application |
+| SRC-02 | `docs/governance/documentation-strategy.md` | Verified | 2026-07-12 | Process evidence only |
 
-- update GitHub when technical truth changes;
-- update Jira only for state/evidence links;
-- update Confluence only for stakeholder summary/navigation;
-- replace copied technical content with links;
-- run Source of Truth Guardian before movement toward Stakeholder Review or Done.
+### Evidence and Effectiveness
 
----
+| Evidence | Expected result | Actual result | Status |
+|---|---|---|---|
+| EV-01 | Current links and summaries remain aligned after material changes | Future reviews pending | `[UNVALIDATED]` |
 
-## 8. Stakeholder Visibility
+**Effectiveness:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-| Item | Rule |
-|---|---|
-| Risk summary | Show allowed. |
-| Canonical technical docs | Link only. |
-| Divergent copied text | Replace with link or update GitHub. |
-| Status | Jira remains authoritative. |
+## 6. Traceability
 
-Stakeholder-safe wording:
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Monitoring path | Governance lane review gate | Reassess on each trigger |
+| Related ADR | None | No architectural decision required |
+
+## 7. Stakeholder Visibility
 
 ```text
 GitHub remains the technical source of truth. Jira tracks work and evidence. Confluence summarizes and links for stakeholder navigation.
+```
+
+## 8. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Converted to formal event-driven monitoring | RT-R006-01 Proposed | Pending |
+
+## 9. Review Notes
+
+```text
+[x] Monitoring path and trigger are explicit.
+[x] Treatment starts as Proposed.
+[x] No duplicate technical truth was introduced.
+[x] Orphan check passed through formal monitoring.
+[x] Project Owner decision remains Pending.
 ```
