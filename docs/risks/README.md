@@ -1,15 +1,15 @@
 # Risk Documentation
 
-**Issue:** IHAP-16 — S0-007 — Risk Model Baseline; extended by IHAP-39 — S0-029 — Risk Treatment Workflow and Traceability  
+**Issue:** IHAP-16 — S0-007 — Risk Model Baseline; extended by IHAP-39 and reviewed by IHAP-40  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Document type:** Risk documentation index  
 **Status:** Sprint 0 draft for review  
 **Reading target:** less than 2 minutes for humans.  
-**Source of truth:** This index routes risk documentation under `docs/risks/`. It does not accept risk or replace Project Owner decisions.
+**Source of truth:** This index routes current MVP risk documentation under `docs/risks/`. It does not accept risk or replace Project Owner decisions.
 
 <!--
 AI_AGENT_METADATA:
-  issue: IHAP-39
+  issue: IHAP-40
   document_type: risk_documentation_index
   canonical_path: docs/risks/README.md
   risk_model_baseline: docs/risks/risk-model-baseline.md
@@ -21,27 +21,28 @@ AI_AGENT_METADATA:
   unvalidated_claim_marker: "[UNVALIDATED]"
 
 HIDDEN_ANTI_REGRESSION_RULES:
-  - This file is an index, not a treatment dossier or risk acceptance record.
+  - Keep only risks with a concrete current-MVP or current-governance exposure.
+  - FUTURE or OUT OF MVP capability does not justify a standing canonical risk record.
+  - Reassess removed risks only when the related capability is explicitly proposed for scope.
   - Risk and treatment truth lives in each GitHub Risk Record.
-  - Jira tracks treatment work, blockers, workflow state, and evidence links.
-  - Confluence may summarize and link but must not duplicate technical records.
-  - Preserve [UNVALIDATED] on unproven implementation or effectiveness claims.
+  - Jira coordinates work and links evidence.
+  - Confluence summarizes and links only.
 -->
 
 ---
 
 ## 1. Purpose
 
-This folder contains versioned risk documentation for HomeEdge AI Platform.
+This folder contains the versioned risk and treatment documentation for the current HomeEdge AI Platform MVP and its active governance surfaces.
 
 Use it for:
 
 - the project risk and treatment model;
 - concrete living Risk Records;
-- traceability from risk to treatment, Jira, ADR, and evidence;
-- links from Jira evidence and Confluence stakeholder summaries.
+- traceability from risk to treatment, Jira, optional ADR and evidence;
+- links from Jira and stakeholder summaries.
 
-Do not use this index to accept risk automatically.
+Do not keep speculative risks solely for capabilities classified as FUTURE or OUT OF MVP. Create or restore a risk record when that capability is explicitly proposed for scope.
 
 ---
 
@@ -49,70 +50,87 @@ Do not use this index to accept risk automatically.
 
 | Need | Use | Rule |
 |---|---|---|
-| Risk and treatment model | `risk-model-baseline.md` | Defines lifecycle, source verification, traceability, orphan rules, and decision boundaries. |
-| Concrete Risk Records | `records/` | Each record is the canonical living dossier for the risk and its treatments. |
-| Risk Record template | `../templates/risk-assessment.md` | Use when an explicit task creates or revises a Risk Record. |
-| ADR relationship | `../adr/template.md` | Use only when a stable architectural decision is required. |
+| Risk and treatment model | `risk-model-baseline.md` | Defines lifecycle, source verification, traceability, orphan rules and decision boundaries |
+| Concrete Risk Records | `records/` | Stores current MVP and current-governance risk dossiers |
+| Risk Record template | `../templates/risk-assessment.md` | Use when an explicit task creates or revises a Risk Record |
+| ADR relationship | `../adr/template.md` | Use only when a stable architectural decision is required |
 
 ---
 
 ## 3. Current Risk Records
 
-| ID | Record | Primary category | Treatment state | Decision state |
-|---|---|---|---|---|
-| R-001 | `records/R-001-device-identity-spoofing.md` | Security / Technical | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-002 | `records/R-002-event-payload-leakage.md` | Security / Privacy | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-003 | `records/R-003-technical-metadata-inference.md` | Privacy / Stakeholder Visibility | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-004 | `records/R-004-presence-door-state-misinterpretation.md` | Privacy / Compliance / Claims | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-005 | `records/R-005-target-boundary-overclaim.md` | Compliance / Documentation | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-006 | `records/R-006-source-of-truth-drift.md` | Documentation / Stakeholder Visibility | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-007 | `records/R-007-ai-inference-profiling.md` | AI / Privacy | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-008 | `records/R-008-cost-abuse.md` | Cost / Technical | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | To be reviewed by IHAP-40 | Pending Project Owner |
-| R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | To be reviewed by IHAP-40 | Pending Project Owner |
+| ID | Record | Primary category | Treatment state | Jira coordination | Decision state |
+|---|---|---|---|---|---|
+| R-001 | `records/R-001-device-identity-spoofing.md` | Security / Technical | RT-R001-01 Proposed | Future task 1 pending approval | Pending Project Owner |
+| R-002 | `records/R-002-event-payload-leakage.md` | Security / Privacy | RT-R002-01 Proposed | Future task 2 pending approval | Pending Project Owner |
+| R-003 | `records/R-003-technical-metadata-inference.md` | Privacy / Stakeholder Visibility | RT-R003-01 and RT-R003-02 Proposed | Policy review + future task 2 pending approval | Pending Project Owner |
+| R-004 | `records/R-004-presence-door-state-misinterpretation.md` | Privacy / Compliance / Claims | RT-R004-01 Proposed | Existing policy/review | Pending Project Owner |
+| R-005 | `records/R-005-target-boundary-overclaim.md` | Compliance / Documentation | RT-R005-01 Proposed | Existing policy/review | Pending Project Owner |
+| R-006 | `records/R-006-source-of-truth-drift.md` | Documentation / Stakeholder Visibility | RT-R006-01 Proposed; Monitoring | Governance gate | Pending Project Owner |
+| R-008 | `records/R-008-cost-abuse.md` | Cost / Technical | RT-R008-01 Proposed | IHAP-17 | Pending Project Owner |
+| R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | RT-R009-01 Proposed | Existing policy/review | Pending Project Owner |
+| R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | RT-R010-01 Proposed | Governance gate | Pending Project Owner |
 
-IHAP-39 defines the model only. IHAP-40 must migrate and review these records without inventing evidence, Jira tasks, ADRs, or Project Owner decisions.
+All current records have a treatment or monitoring path and are not orphan under the IHAP-39 rule.
 
 ---
 
-## 4. Navigation Rule
+## 4. Removed Non-MVP Risk
+
+`R-007 — AI Inference and Profiling` was removed by IHAP-40 because AI inference is classified as FUTURE / `[UNVALIDATED]` and no concrete AI function is currently proposed inside the MVP.
+
+Reassessment trigger:
+
+```text
+Create or restore an AI risk record only when an explicit Jira task proposes an AI function, dataset, inference flow, evaluation boundary, or related MVP scope change.
+```
+
+Removal does not approve AI behavior and does not weaken the existing Product Vision or privacy boundaries. It prevents speculative governance and overengineering.
+
+---
+
+## 5. Approved Future Coordination Topology
+
+Only two future operational treatment tasks are planned:
+
+1. `RT-R001-01 — Device Identity and Ingestion Trust Controls`;
+2. `RT-R002-01 / RT-R003-02 — Payload and Metadata Privacy Controls`.
+
+They are not created automatically by IHAP-40. Project Owner approval remains required.
+
+R-001, R-002 and R-003 record ADR status as `Candidate`; IHAP-40 creates no ADR.
+
+---
+
+## 6. Navigation Rule
 
 ```text
 Risk Record -> Risk Treatment -> Jira coordination -> optional ADR -> evidence -> effectiveness review -> Project Owner decision
 ```
 
-The index may expose status and routing. It must not duplicate treatment rationale, source registers, evidence, or decision reasoning from the Risk Record.
+The index exposes status and routing only. It does not duplicate treatment rationale, source registers or evidence.
 
 ---
 
-## 5. Surface Rules
+## 7. Surface Rules
 
 ```text
 GitHub Risk Records define risk and treatment truth.
 Jira coordinates work and links evidence.
-ADRs document stable architectural decisions when required.
+ADRs document stable architectural decisions only when required.
 Confluence summarizes and links for stakeholders.
 Project Owner decides residual risk.
 ```
 
-Confluence must not duplicate long-form risk or treatment documentation. Stakeholder summaries must preserve `[UNVALIDATED]` where evidence is missing.
-
 ---
 
-## 6. Orphan Review
-
-A record requires review when it lacks a treatment, monitoring, explicit decision, current source verification, required Jira coordination, or current effectiveness review.
-
-Do not mark a newly identified risk orphan while treatment triage is active. Apply the full rule from `risk-model-baseline.md`.
-
----
-
-## 7. Practical Rule
+## 8. Practical Rule
 
 ```text
-The README is the index.
-The baseline is the model.
-The records carry the living analysis and treatments.
-Jira coordinates.
+Keep risks aligned to current MVP exposure.
+Remove speculative FUTURE-only risks.
+Restore them only when concrete scope is proposed.
+Treatments start as Proposed.
+Evidence proves effectiveness.
 The Project Owner decides.
 ```
