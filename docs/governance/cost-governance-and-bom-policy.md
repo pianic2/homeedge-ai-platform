@@ -26,6 +26,7 @@ AI_AGENT_METADATA:
   purchase_execution_allowed: false
   price_model: dated_snapshot
   shipping_allocation_rule: separate_by_order_never_arbitrary
+  current_shipping_total_eur: 0.00
   central_node_reference: raspberry_pi_4_or_equivalent
   central_node_minimum_cpu_cores: 2
   central_node_minimum_ram_gb: 2
@@ -83,7 +84,7 @@ Do not treat a price choice as an architectural decision.
 Included:
 
 - hardware inventory and BOM governance;
-- dated price snapshots;
+- dated price snapshots and order evidence;
 - pack-price and normalized-unit-price rules;
 - edge-node, central-node, shared-tooling, and shipping separation;
 - current Project Owner purchase records;
@@ -169,7 +170,7 @@ Evidence levels:
 | `E3` | Public supplier price snapshot with date. | Reference replication price only. |
 | `E4` | Official manufacturer documentation. | Technical identity or constraints, never purchase price by itself. |
 
-The current inventory snapshot is primarily `E2`: the Project Owner supplied quantities and prices on 2026-07-14, while supplier names and original order dates remain to be attached.
+The first inventory batch remains primarily `E2`. The LD2410C, BME280, heat-insert kit, PH2.0 connector kit, and MC-38 entries are supported by Project Owner order screenshots showing supplier, order status, quantity, price, and date; they are treated as `E1` evidence.
 
 ### 4.1 Shipping and taxes
 
@@ -178,50 +179,79 @@ Shipping is recorded separately for each order or supplier.
 Shipping is never divided across components by an invented allocation formula.
 ```
 
-| Order / supplier | Product subtotal | Shipping | Tax / customs | Total order | Evidence date | Status |
-|---|---:|---:|---:|---:|---|---|
-| To be linked from Project Owner order evidence | TBD | TBD | TBD | TBD | TBD | Evidence pending |
-
-When shipping is unknown, the platform total must state `shipping excluded` rather than assuming zero.
-
----
-
-## 5. Project Owner Inventory Snapshot
-
-The following table records the inventory and prices provided for IHAP-17 on 2026-07-14. Currency is EUR. Supplier and original purchase date are not yet recorded; therefore these entries are historical owner records, not guaranteed current-market prices.
-
-| ID | Component | Brand / variant | Purchased units | Total price | Normalized unit price | Current classification | Notes |
-|---|---|---|---:|---:|---:|---|---|
-| INV-001 | OLED display | AOICRIE, white, 128×64 px | 5 | €7.71 | €1.5420 | `OPTIONAL` / `FUTURE` | Local display candidate; not required by current MVP boundary. |
-| INV-002 | Jumper wires | 15 cm | 40 | €2.15 | €0.0538 | `SHARED_TOOLING` | Per-node quantity depends on a validated wiring plan. |
-| INV-003 | Heat-shrink tubing | UMLIFE, assorted | 580 | €4.30 | €0.0074 | `SHARED_TOOLING` | Assembly consumable; usable-unit definition requires review. |
-| INV-004 | Jumper wires | 20 cm | 120 | €5.86 | €0.0488 | `SHARED_TOOLING` | Per-node quantity depends on a validated wiring plan. |
-| INV-005 | DHT11 module | Model not yet recorded | 2 | €1.96 | €0.9800 | `EDGE_REQUIRED` | Current reference temperature/humidity module. |
-| INV-006 | GY-MAX4466 audio module | MAX4466-based microphone preamplifier module | 3 | €3.24 | €1.0800 | `EDGE_INSTALLED_DISABLED` | Physical cost included; raw-audio collection, transmission, storage, and exposure remain outside MVP. |
-| INV-007 | DHT22 module | Model not yet recorded | 1 | €1.66 | €1.6600 | `EDGE_ALTERNATIVE` | Alternative environmental sensor; not counted together with DHT11 in the reference configuration. |
-| INV-008 | 5 V street-light LED module | Model not yet recorded | 1 | €1.14 | €1.1400 | `FUTURE` / `OPTIONAL` | Not part of the current room/door node acceptance boundary. |
-| INV-009 | 400-point breadboard | Brand not recorded | 3 | €4.17 | €1.3900 | `EDGE_REQUIRED` for prototype | A production enclosure/PCB path remains separate future work. |
-| INV-010 | TP4056 Type-C charging module | Brand not recorded | 15 | €4.07 | €0.2713 | `EDGE_REQUIRED` candidate `[UNVALIDATED]` | Exact protection variant and complete 18650 power architecture are not validated. |
-| INV-011 | TP4056 Type-C charging module | AOICRIE | 10 | €0.00 | €0.0000 | Owner inventory only | Zero-price units are recorded as acquired but excluded from universal replication pricing. |
-| INV-012 | Tarp clips | Brand not recorded | 50 | €1.93 | €0.0386 | `OPTIONAL` | Mounting role has not been validated for the reference node. |
-| INV-013 | Resistor kit | 600-piece assortment | 600 | €3.17 | €0.0053 | `SHARED_TOOLING` | Per-node resistor count and values depend on the validated circuit. |
-| INV-014 | 18650 battery holder with leads | Model not recorded | 10 | €3.15 | €0.3150 | `EDGE_REQUIRED` candidate `[UNVALIDATED]` | Holder does not prove battery protection, charging, or voltage-regulation safety. |
-| INV-015 | Assorted LED kit | UMLIFE, 3 mm / 5 mm, white/green/red/blue/yellow | 100 | €1.15 | €0.0115 | `SHARED_TOOLING` / `OPTIONAL` | Status indicators only when required by a validated design. |
-| INV-016 | ESP32-C3 development board | Exact SuperMini variant not recorded | 2 | €0.00 | €0.0000 | Owner inventory only | Promotional or zero-price units are excluded from universal replication pricing. |
-| INV-017 | ESP32-C3 development board | Exact SuperMini variant not recorded | 3 | €8.75 | €2.9167 | `EDGE_REQUIRED` | Paid batch provides the current reference replication unit price. |
-
-### 5.1 Inventory acquisition subtotal
+The Project Owner confirmed that shipping was free for all components currently recorded.
 
 ```text
-OWNER_REPORTED_PRODUCT_ACQUISITION_SUBTOTAL = €54.41
-SHIPPING = excluded and pending order evidence
+SHIPPING_TOTAL = €0.00
 ```
 
-This €54.41 subtotal is **not** the platform replication total. It includes bulk inventory, alternatives, optional items, future items, and zero-price promotional rows.
+No separate tax or customs charge is visible in the supplied order screenshots. This policy does not infer that tax or customs can never apply to future orders.
 
 ---
 
-## 6. Reference Edge Node BOM
+## 5. Verified Order Evidence — 18 June 2026
+
+The following closed orders were evidenced through Project Owner screenshots supplied on 2026-07-14. Currency is EUR. Shipping was confirmed as free.
+
+| Order line | Supplier | Variant / pack | Purchased quantity | Total product price | Normalized unit price | Shipping | Classification | Evidence |
+|---|---|---|---:|---:|---:|---:|---|---|
+| LD2410C 24 GHz presence sensor | Camera Module Factory Store | LD2410C module | 2 modules | €8.78 | €4.3900 per module | €0.00 | `EDGE_REQUIRED` | Closed order dated 2026-06-18 |
+| BME280 module | Shop1104003965 Store | GY-BME280-5V | 2 modules | €9.10 | €4.5500 per module | €0.00 | `EDGE_ALTERNATIVE` | Closed order dated 2026-06-18 |
+| Brass heat-set insert kit | YMAX A Salted Fish Store | M2 / M2.5 / M3, 508 pieces | 1 kit | €7.07 | €0.0139 per insert | €0.00 | `SHARED_TOOLING` | Closed order dated 2026-06-18 |
+| PH2.0 connector terminal kit | Professional Sample Kit Store | 230 pieces, 2/3/4/5-pin, 2.0 mm pitch | 1 kit | €2.94 | €0.0128 per piece | €0.00 | `SHARED_TOOLING` | Closed order dated 2026-06-18 |
+| MC-38 magnetic contacts | Mega Semiconductor CO., Ltd. | 10 pairs | 1 pack | €7.19 | €0.7190 per pair | €0.00 | `EDGE_REQUIRED` | Closed order dated 2026-06-18 |
+
+```text
+VERIFIED_2026_06_18_ORDER_PRODUCT_SUBTOTAL = €35.08
+VERIFIED_2026_06_18_ORDER_SHIPPING_TOTAL = €0.00
+```
+
+The brass heat-insert order appears in more than one screenshot but is counted once.
+
+---
+
+## 6. Project Owner Inventory Snapshot
+
+The following table combines the earlier Project Owner inventory record with the verified order evidence above. Supplier and original order date remain pending for the rows marked `E2`.
+
+| ID | Component | Brand / variant | Purchased units | Total price | Unit price | Evidence | Current classification |
+|---|---|---|---:|---:|---:|---|---|
+| INV-001 | OLED display | AOICRIE, white, 128×64 px | 5 | €7.71 | €1.5420 | `E2` | `OPTIONAL` / `FUTURE` |
+| INV-002 | Jumper wires | 15 cm | 40 | €2.15 | €0.0538 | `E2` | `SHARED_TOOLING` |
+| INV-003 | Heat-shrink tubing | UMLIFE, assorted | 580 | €4.30 | €0.0074 | `E2` | `SHARED_TOOLING` |
+| INV-004 | Jumper wires | 20 cm | 120 | €5.86 | €0.0488 | `E2` | `SHARED_TOOLING` |
+| INV-005 | DHT11 module | Model not yet recorded | 2 | €1.96 | €0.9800 | `E2` | `EDGE_REQUIRED` |
+| INV-006 | GY-MAX4466 audio module | MAX4466-based microphone preamplifier module | 3 | €3.24 | €1.0800 | `E2` | `EDGE_INSTALLED_DISABLED` |
+| INV-007 | DHT22 module | Model not yet recorded | 1 | €1.66 | €1.6600 | `E2` | `EDGE_ALTERNATIVE` |
+| INV-008 | 5 V street-light LED module | Model not yet recorded | 1 | €1.14 | €1.1400 | `E2` | `FUTURE` / `OPTIONAL` |
+| INV-009 | 400-point breadboard | Brand not recorded | 3 | €4.17 | €1.3900 | `E2` | `EDGE_REQUIRED` for prototype |
+| INV-010 | TP4056 Type-C charging module | Brand not recorded | 15 | €4.07 | €0.2713 | `E2` | `EDGE_REQUIRED` candidate `[UNVALIDATED]` |
+| INV-011 | TP4056 Type-C charging module | AOICRIE | 10 | €0.00 | €0.0000 | `E2` | Owner inventory only |
+| INV-012 | Tarp clips | Brand not recorded | 50 | €1.93 | €0.0386 | `E2` | `OPTIONAL` |
+| INV-013 | Resistor kit | 600-piece assortment | 600 | €3.17 | €0.0053 | `E2` | `SHARED_TOOLING` |
+| INV-014 | 18650 battery holder with leads | Model not recorded | 10 | €3.15 | €0.3150 | `E2` | `EDGE_REQUIRED` candidate `[UNVALIDATED]` |
+| INV-015 | Assorted LED kit | UMLIFE, 3 mm / 5 mm | 100 | €1.15 | €0.0115 | `E2` | `SHARED_TOOLING` / `OPTIONAL` |
+| INV-016 | ESP32-C3 development board | Exact SuperMini variant not recorded | 2 | €0.00 | €0.0000 | `E2` | Owner inventory only |
+| INV-017 | ESP32-C3 development board | Exact SuperMini variant not recorded | 3 | €8.75 | €2.9167 | `E2` | `EDGE_REQUIRED` |
+| INV-018 | LD2410C presence sensor | Camera Module Factory Store | 2 | €8.78 | €4.3900 | `E1`, 2026-06-18 | `EDGE_REQUIRED` |
+| INV-019 | BME280 module | GY-BME280-5V, Shop1104003965 Store | 2 | €9.10 | €4.5500 | `E1`, 2026-06-18 | `EDGE_ALTERNATIVE` |
+| INV-020 | Brass heat-set inserts | M2/M2.5/M3, 508 pieces | 508 | €7.07 | €0.0139 | `E1`, 2026-06-18 | `SHARED_TOOLING` |
+| INV-021 | PH2.0 connector terminal kit | 230 pieces | 230 | €2.94 | €0.0128 | `E1`, 2026-06-18 | `SHARED_TOOLING` |
+| INV-022 | MC-38 magnetic contacts | 10 pairs | 10 pairs | €7.19 | €0.7190 | `E1`, 2026-06-18 | `EDGE_REQUIRED` |
+
+### 6.1 Inventory acquisition subtotal
+
+```text
+OWNER_REPORTED_PRODUCT_ACQUISITION_SUBTOTAL = €89.49
+SHIPPING_TOTAL = €0.00
+OWNER_REPORTED_ACQUISITION_TOTAL_WITH_SHIPPING = €89.49
+```
+
+This subtotal is **not** the platform replication total. It includes bulk inventory, alternatives, optional items, future items, shared tooling, and zero-price promotional rows.
+
+---
+
+## 7. Reference Edge Node BOM
 
 The Project Owner selected the following physical reference configuration:
 
@@ -233,22 +263,22 @@ The Project Owner selected the following physical reference configuration:
 - 18650 battery and holder;
 - TP4056 Type-C charging module;
 - 400-point breadboard;
-- jumper wires, connectors, resistors, insulation, mounting, and enclosure materials required for a complete build.
+- jumper wires, PH2.0 connectors, resistors, insulation, mounting, and enclosure materials required for a complete build.
 
 Physical presence and runtime authorization are separate properties.
 
 | Component | Qty | Reference unit price | Known subtotal | Physical state | MVP runtime state | Evidence gap |
 |---|---:|---:|---:|---|---|---|
-| ESP32-C3 SuperMini development board | 1 | €2.9167 | €2.9167 | Required | Active MVP compute reference | Exact board listing and supplier pending. |
-| DHT11 module | 1 | €0.9800 | €0.9800 | Required | Active MVP environmental telemetry | Exact module listing pending. |
-| LD2410C presence radar | 1 | TBD | TBD | Required | Active MVP local non-identifying presence direction `[UNVALIDATED]` | Purchase price, supplier, and exact variant pending. |
-| MC-38 magnetic contact | 1 | TBD | TBD | Required | Active MVP door-state direction `[UNVALIDATED]` | Pack quantity, purchase price, and supplier pending. |
-| GY-MAX4466 module | 1 | €1.0800 | €1.0800 | Required by Project Owner physical configuration | Installed and disabled for MVP | Firmware use and any derived-signal policy require separate reviewed work. |
+| ESP32-C3 SuperMini development board | 1 | €2.9167 | €2.9167 | Required | Active MVP compute reference | Exact listing and supplier pending. |
+| DHT11 module | 1 | €0.9800 | €0.9800 | Required | Active MVP environmental telemetry | Exact listing pending. |
+| LD2410C presence radar | 1 | €4.3900 | €4.3900 | Required | Active MVP local non-identifying presence direction `[UNVALIDATED]` | Compatibility and runtime evidence remain pending. |
+| MC-38 magnetic contact pair | 1 | €0.7190 | €0.7190 | Required | Active MVP door-state direction `[UNVALIDATED]` | Wiring and runtime evidence remain pending. |
+| GY-MAX4466 module | 1 | €1.0800 | €1.0800 | Required by Project Owner physical configuration | Installed and disabled for MVP | Firmware use and derived-signal policy require separate reviewed work. |
 | 400-point breadboard | 1 | €1.3900 | €1.3900 | Required for prototype | Physical assembly only | Production assembly approach is future work. |
 | TP4056 Type-C charging module | 1 | €0.2713 | €0.2713 | Candidate required `[UNVALIDATED]` | Power subsystem only | Protection variant and full power design pending. |
 | 18650 holder with leads | 1 | €0.3150 | €0.3150 | Candidate required `[UNVALIDATED]` | Power subsystem only | Mechanical and electrical validation pending. |
 | 18650 cell | 1 | TBD | TBD | Required | Power subsystem only | Chemistry, capacity, protection, supplier, and price pending. |
-| Jumper wires and connectors | TBD | Mixed inventory | TBD | Required | Physical assembly only | Validated wiring count and connector types pending. |
+| Jumper wires and PH2.0 connectors | TBD | Mixed inventory | TBD | Required | Physical assembly only | Validated wiring count and connector types pending. |
 | Resistors / passives | TBD | Mixed inventory | TBD | Required when circuit demands them | Physical/electrical support | Values and quantities pending validated circuit. |
 | Heat-shrink / insulation | TBD | Mixed inventory | TBD | Required where needed | Physical assembly only | Allocation based on actual build, never arbitrary. |
 | Enclosure and mounting materials | 1 set | TBD | TBD | Required for installable replica | Physical assembly only | Design, materials, supplier, and price pending. |
@@ -256,52 +286,32 @@ Physical presence and runtime authorization are separate properties.
 Current known-price edge totals:
 
 ```text
-EDGE_ACTIVE_MVP_KNOWN_SUBTOTAL = €5.8730
-EDGE_PHYSICAL_BUILD_KNOWN_SUBTOTAL = €6.9530
+EDGE_ACTIVE_MVP_KNOWN_SUBTOTAL = €10.9820
+EDGE_PHYSICAL_BUILD_KNOWN_SUBTOTAL = €12.0620
 EDGE_COMPLETE_REPLICATION_TOTAL = INCOMPLETE
 ```
 
 `EDGE_ACTIVE_MVP_KNOWN_SUBTOTAL` excludes the GY-MAX4466 because its runtime use is not authorized in the current MVP. `EDGE_PHYSICAL_BUILD_KNOWN_SUBTOTAL` includes its physical acquisition cost.
 
-Missing required prices and quantities prevent a complete total. The policy must not hide this gap behind an estimated zero.
+### 7.1 Audio boundary
 
-### 6.1 Audio boundary
-
-The GY-MAX4466 is costed because it is part of the Project Owner's physical configuration. It does not authorize:
-
-- raw-audio recording;
-- raw-audio transmission;
-- raw-audio persistence;
-- voice recognition;
-- person identification;
-- behavioral or routine profiling;
-- stakeholder exposure of audio data.
+The GY-MAX4466 is costed because it is part of the Project Owner's physical configuration. It does not authorize raw-audio recording, transmission, persistence, recognition, person identification, behavioral profiling, or stakeholder exposure.
 
 Any future non-reversible, local derived signal remains `FUTURE` and `[UNVALIDATED]` until a dedicated privacy, architecture, firmware, and evidence review permits it.
 
-### 6.2 18650 power boundary
+### 7.2 18650 power boundary
 
 The presence of a cell holder and TP4056 module does not prove that the node has a validated charging, protection, regulation, thermal, enclosure, or low-voltage cutoff design.
 
-Before battery operation is represented as validated, a separate technical task must establish at least:
-
-- exact cell type and provenance;
-- protected versus unprotected cell policy;
-- TP4056 board variant and protection capabilities;
-- input, charge, discharge, and regulator topology;
-- current budget and runtime measurement;
-- safe enclosure and connector behavior;
-- test and failure evidence.
+Before battery operation is represented as validated, a separate technical task must establish exact cell provenance, protected-cell policy, TP4056 variant, regulator topology, current budget, runtime measurements, enclosure behavior, and failure evidence.
 
 IHAP-17 records cost only and does not approve this architecture.
 
 ---
 
-## 7. Central Node Reference Profile
+## 8. Central Node Reference Profile
 
 The Mac mini M4 is not a universal contributor requirement and is not included in the HomeEdge replication cost.
-
-The central-node reference is:
 
 ```text
 Raspberry Pi 4 Model B or equivalent
@@ -314,60 +324,42 @@ Operating-system direction: Alpine Linux or equivalent [UNVALIDATED]
 Container-runtime direction: Docker [UNVALIDATED]
 ```
 
-Raspberry Pi 4 is a reference profile, not vendor lock-in. A replacement is acceptable when it satisfies the minimum profile and the later validated runtime requirements.
+Raspberry Pi 4 is a reference profile, not vendor lock-in.
 
 | Central-node line | Qty | Price | Status | Notes |
 |---|---:|---:|---|---|
-| Raspberry Pi 4 Model B or equivalent SBC / mini-PC | 1 | TBD | `CENTRAL_REQUIRED` | Project Owner may use an existing Raspberry Pi 4; replication price must still be recorded separately. |
+| Raspberry Pi 4 Model B or equivalent SBC / mini-PC | 1 | TBD | `CENTRAL_REQUIRED` | Existing ownership does not replace the replication price. |
 | Storage, minimum 32 GB | 1 | TBD | `CENTRAL_REQUIRED` | microSD or compatible storage; endurance requirement remains `[UNVALIDATED]`. |
 | Adequate power supply | 1 | TBD | `CENTRAL_REQUIRED` | Must match the selected device. |
 | Enclosure | 1 | TBD | `CENTRAL_REQUIRED` | Cooling requirement depends on selected hardware and measured load. |
-| Network cable or Wi-Fi provisioning materials | As needed | TBD | `CENTRAL_REQUIRED` when not already available | Do not assume every contributor already owns the required cable or adapter. |
+| Network cable or Wi-Fi provisioning materials | As needed | TBD | `CENTRAL_REQUIRED` when not already available | Do not assume universal ownership. |
 | Alpine Linux or equivalent | 1 installation | €0 licence acquisition | Target `[UNVALIDATED]` | Installation and support cost are not proven zero. |
-| Docker | 1 installation | €0 licence acquisition for the selected open-source path | Target `[UNVALIDATED]` | Runtime, images, update policy, persistence, and rollback are not implemented by IHAP-17. |
+| Docker open-source runtime path | 1 installation | €0 licence acquisition | Target `[UNVALIDATED]` | Images, updates, persistence, and rollback are not implemented by IHAP-17. |
 
 ```text
 CENTRAL_NODE_KNOWN_SUBTOTAL = INCOMPLETE
 ```
 
-A separate architecture task or ADR is required before Alpine Linux, Docker, service topology, persistence, update strategy, or central-node reliability becomes accepted technical truth.
+A separate architecture task or ADR is required before the central-node software and deployment topology becomes accepted technical truth.
 
 ---
 
-## 8. Shared Tooling and Consumables
+## 9. Shared Tooling and Consumables
 
 Bulk purchases and reusable tools must not be multiplied by the number of edge nodes.
 
-Current recorded shared inventory includes:
-
-- jumper wires;
-- heat-shrink tubing;
-- resistor kit;
-- assorted LED kit;
-- optional mounting clips.
-
-The following may also be required but are not yet priced in this snapshot:
-
-- soldering iron and solder;
-- multimeter;
-- wire stripper and cutters;
-- USB data cable;
-- USB-to-serial adapter when required;
-- terminal blocks, JST connectors, headers, switches, screws, inserts, tape, or other fasteners;
-- enclosure fabrication tools.
-
 ```text
-SHARED_TOOLING_RECORDED_PRODUCT_SUBTOTAL = €18.56
+SHARED_TOOLING_RECORDED_PRODUCT_SUBTOTAL = €28.57
 SHARED_TOOLING_COMPLETE_TOTAL = INCOMPLETE
 ```
 
-The €18.56 subtotal includes INV-002, INV-003, INV-004, INV-012, INV-013, and INV-015. It is an acquisition subtotal, not a claim that all listed items are mandatory tooling.
+The €28.57 subtotal includes jumper wires, heat-shrink tubing, tarp clips, resistor kit, LED kit, heat-set insert kit, and PH2.0 connector kit. It is an acquisition subtotal, not a claim that all listed items are mandatory.
+
+Tools not yet priced include soldering equipment, multimeter, cutters, wire stripper, USB data cable, optional USB-to-serial adapter, terminal tools, fasteners, and enclosure-fabrication tools.
 
 ---
 
-## 9. Cloud, Paid Tool, and Recurring Cost Policy
-
-Current policy:
+## 10. Cloud, Paid Tool, and Recurring Cost Policy
 
 | Cost area | Current decision |
 |---|---|
@@ -384,25 +376,25 @@ A zero licence price must not be described as zero total cost. Setup, maintenanc
 
 ---
 
-## 10. Replication Summary
+## 11. Replication Summary
 
 | Measure | Current value | Completeness |
 |---|---:|---|
-| Owner-reported inventory product acquisition subtotal | €54.41 | Complete for the rows supplied on 2026-07-14; shipping excluded |
-| Known active-MVP edge subtotal | €5.8730 | Partial |
-| Known physical edge-build subtotal | €6.9530 | Partial |
-| Complete edge-node replication total | TBD | Incomplete: LD2410C, MC-38, 18650 cell, cabling allocation, passives, enclosure, and mounting unresolved |
+| Owner-reported product acquisition subtotal | €89.49 | Complete for all rows currently supplied |
+| Shipping total | €0.00 | Project Owner confirmed free shipping for all currently recorded components |
+| Known active-MVP edge subtotal | €10.9820 | Partial |
+| Known physical edge-build subtotal | €12.0620 | Partial |
+| Complete edge-node replication total | TBD | Incomplete: 18650 cell, wiring allocation, passives, enclosure, and mounting unresolved |
 | Central-node replication total | TBD | Incomplete: device, storage, power supply, enclosure, and networking unresolved |
-| Recorded shared inventory subtotal | €18.56 | Partial acquisition view only |
-| Shipping total | TBD | Must remain separate by order |
+| Recorded shared inventory subtotal | €28.57 | Partial acquisition view only |
 | Initial platform replication total | TBD | Incomplete |
 | Additional edge-node total | TBD | Incomplete |
 
-The policy is useful before all numbers are known because it makes missing evidence explicit. A complete platform total may be published only after all `EDGE_REQUIRED`, `CENTRAL_REQUIRED`, required shared-tooling, tax, and shipping records are resolved.
+A complete platform total may be published only after all `EDGE_REQUIRED`, `CENTRAL_REQUIRED`, required shared-tooling, and any applicable tax records are resolved.
 
 ---
 
-## 11. Review and Refresh Policy
+## 12. Review and Refresh Policy
 
 Review this document when:
 
@@ -433,7 +425,7 @@ Project Owner approval remains required before a BOM configuration, architecture
 
 ---
 
-## 12. Technical Reference Register
+## 13. Technical Reference Register
 
 These references support component identity or target-platform feasibility. They are not supplier price evidence.
 
@@ -444,11 +436,11 @@ These references support component identity or target-platform feasibility. They
 | Raspberry Pi 4 | [Raspberry Pi 4 product page](https://www.raspberrypi.com/products/raspberry-pi-4-model-b/) | Reference central-node hardware family and RAM variants. |
 | Docker Engine | [Docker Engine installation documentation](https://docs.docker.com/engine/install/) | Target container-runtime documentation; not implementation evidence. |
 
-Exact primary documentation for the purchased DHT11 module, LD2410C, MC-38, TP4056 board, 18650 cell, OLED board, and other supplier-specific modules must be attached after their exact listings or manufacturer variants are identified.
+Exact primary documentation for the purchased DHT11 module, LD2410C board, MC-38 contact, TP4056 board, 18650 cell, OLED board, BME280 board, and other supplier-specific modules must be attached after their exact listings or manufacturer variants are identified.
 
 ---
 
-## 13. Related Sources
+## 14. Related Sources
 
 - `README.md`;
 - `docs/README.md`;
