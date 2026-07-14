@@ -105,7 +105,7 @@ Unproven claims must keep `[UNVALIDATED]`.
 
 | ADR | Title | Status | Jira | PR | Notes |
 |---|---|---|---|---|---|
-| [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Proposed | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | Pending | Proposes the ESP32-C3 family, a qualification profile for the purchased SuperMini-compatible board, ESP32-C3-DevKitC-02 fallback, OLED-aware GPIO budget and replacement conditions. Exact purchased-board identity remains `[UNVALIDATED]`. |
+| [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Proposed | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Proposes the ESP32-C3 family, a qualification profile for the purchased SuperMini-compatible board, ESP32-C3-DevKitC-02 fallback, OLED-aware GPIO budget and replacement conditions. Exact purchased-board identity remains `[UNVALIDATED]`. |
 
 ---
 
