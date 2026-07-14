@@ -3,8 +3,8 @@
 **Status:** Proposed  
 **Date:** 2026-07-14  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-44  
-**PR:** Pending  
+**Jira:** [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44)  
+**PR:** [#23](https://github.com/pianic2/homeedge-ai-platform/pull/23)  
 **Supersedes:** None  
 **Superseded by:** None
 
@@ -19,570 +19,575 @@ AI_AGENT_METADATA:
   source_of_truth: github_versioned_repository_documentation
   jira_role: workflow_state_blockers_and_evidence_links
   confluence_role: optional_stakeholder_summary_and_navigation_only
-  exact_purchased_board_status: unvalidated
   preferred_chip_family: esp32_c3
-  preferred_board_candidate: purchased_esp32_c3_supermini_compatible_board
+  purchased_board_status: conditional_unvalidated
   documented_fallback: esp32_c3_devkitc_02
+  minimum_usable_flash_mb: 2
+  preferred_flash_mb: 4
+  minimum_application_gpio: 8
   oled_in_mvp: true
-  oled_profile: 0.96_inch_128x64_i2c
   raw_audio_allowed: false
   bluetooth_required: false
+  quantitative_power_validation_issue: IHAP-49
   firmware_changes_allowed: false
   runtime_changes_allowed: false
   unvalidated_claim_marker: "[UNVALIDATED]"
 
 HIDDEN_ANTI_REGRESSION_RULES:
   - This ADR remains Proposed until explicit Project Owner approval.
-  - The ESP32-C3 chip family and the exact physical development board are separate decision levels.
+  - ESP32-C3 family selection, board conformance profile and purchased physical SKU are separate decision levels.
   - Ownership and historical purchase price do not approve a board.
-  - The exact purchased SuperMini-compatible board remains [UNVALIDATED] until its listing, PCB revision, regulator, LED, dimensions, complete pinout, and power behavior are identified.
-  - The 0.96-inch 128x64 OLED is included in the MVP by Project Owner decision, but its controller, module voltage range, onboard pull-ups, regulator, and exact listing remain [UNVALIDATED].
+  - The purchased SuperMini-compatible board remains conditional until its physical revision and conformance are verified.
+  - The project-supplied catalog image is not proof that it describes the tested specimen or the original order.
   - Bluetooth availability does not make Bluetooth an MVP requirement.
   - GY-MAX4466 impact may be quantified but audio acquisition and audio-derived runtime behavior are not authorized.
-  - Deep-sleep and RF-current figures for the chip must not be presented as measured board or complete-node consumption.
-  - No production-ready, commercial-ready, security-grade, certified, safety-critical, alarm-grade, antifurto, access-control, intrusion-detection, reliability, or battery-autonomy claim is authorized.
+  - Chip current figures must not be presented as measured board or complete-node consumption.
+  - Quantitative rail, regulator and current validation belongs to IHAP-49.
+  - No production-ready, commercial-ready, security-grade, certified, safety-critical, alarm-grade, antifurto, access-control, intrusion-detection, reliability or battery-autonomy claim is authorized.
 -->
 
 ---
 
 ## 1. Context
 
-HomeEdge MVP requires one generic room/door edge node that can support:
+HomeEdge MVP uses one generic room/door edge node supporting:
 
 - temperature and humidity telemetry;
 - local non-identifying presence state;
 - door open/closed telemetry;
-- a local 0.96-inch 128×64 OLED display selected by the Project Owner;
-- Wi-Fi transport toward the target HTTP/JSON ingestion direction `[UNVALIDATED]`;
+- one local 0.96-inch 128×64 OLED;
+- 2.4 GHz Wi-Fi toward the target HTTP/JSON ingestion direction `[UNVALIDATED]`;
 - reproducible flashing, recovery and diagnostics.
 
-The edge compute board determines the available GPIO and peripheral budget, voltage domains, radio and debug surfaces, preliminary current envelope, enclosure footprint, replication cost and firmware portability. The board therefore requires a durable architecture decision rather than an inventory-only BOM classification.
+The compute platform determines GPIO and peripheral capacity, electrical boundaries, radio and debug surfaces, enclosure impact, replacement cost and firmware portability. The decision must not be based solely on the fact that a low-cost board is already owned.
 
-The current Project Owner inventory contains boards sold or described as ESP32-C3 SuperMini-compatible development boards. Historical cost evidence in the IHAP-17 draft records three units at €8.75 total, or €2.9167 per unit, plus two inventory-owned units recorded at zero historical cost. These prices are acquisition evidence only; they are not a current replication price or evidence that the same hardware revision can be purchased again.
+This ADR distinguishes three levels:
 
-A previous Project Owner prototype supplied runtime evidence for one physical specimen:
+1. **chip family** — the MCU architecture and maintained SDK;
+2. **board conformance profile** — capabilities any acceptable board must provide;
+3. **physical board revision** — the exact purchased or replacement PCB qualified against the profile.
 
-- `esptool` identified an ESP32-C3 QFN32 revision v0.4;
-- embedded XMC flash was detected as 4 MB;
-- USB mode was identified as USB Serial/JTAG;
-- GPIO0 and GPIO1 operated as an I2C bus with an OLED at address `0x3C`;
-- GPIO2 operated with DHT11;
-- GPIO3 operated as a status LED output;
-- GPIO4 operated as ADC impact evidence;
-- GPIO5 received LD2410C UART telemetry;
-- GPIO6 received MC-38 door-contact state.
-
-The runtime log contained a device MAC address and is not copied into this ADR. The observations qualify only the tested specimen and wiring. They do not identify the commercial listing, PCB revision, regulator, complete exposed pinout, current capability, or another board sold under the same SuperMini name.
-
-The decision must distinguish four evidence layers:
-
-1. ESP32-C3 chip-family capabilities published by Espressif;
-2. board-level capabilities documented for a specific development board;
-3. characteristics observed on the purchased specimen;
-4. characteristics not yet physically or commercially verified.
+The commercial label **ESP32-C3 SuperMini** is not an Espressif board standard. Boards sold under that name may differ between sellers or production batches.
 
 ### 1.1 Protected scope
 
 This ADR does not:
 
 - implement or change firmware;
-- authorize Bluetooth as a required transport or provisioning mechanism;
+- authorize Bluetooth as an MVP transport or provisioning requirement;
 - authorize audio collection or processing;
-- select the final environmental, presence, door, power, interconnect, or enclosure subsystem;
+- select the final environmental, presence, door, power, interconnect or enclosure subsystem;
 - calculate battery autonomy;
+- validate rail voltage, current draw or regulator capacity;
 - approve IHAP-17 BOM lines;
 - claim production, commercial, security, safety, alarm, access-control or certification maturity.
 
-### 1.2 Primary requirements
+### 1.2 Evidence layers
 
-The platform must provide:
-
-- 2.4 GHz Wi-Fi;
-- an officially maintained C/C++ SDK and reproducible Linux/CI toolchain;
-- at least 4 MB flash as the proposed minimum profile;
-- stable flashing, console and recovery paths;
-- I2C for the OLED and a possible I2C environmental sensor;
-- UART for LD2410C, with full duplex reserved until IHAP-46 decides whether RX-only is sufficient;
-- a digital interrupt-capable input for MC-38;
-- an additional digital GPIO when DHT11 or DHT22 is selected;
-- at least two spare application GPIOs, one ADC-capable;
-- 3.3 V GPIO logic and no direct 5 V signal exposure;
-- a documented or physically verified power path and regulator;
-- a replaceable board profile that does not depend solely on a seller marketing name.
-
-### 1.3 Evidence state
-
-| Evidence | State | Source class | Reliability | Remaining gap |
-|---|---|---|---|---|
-| ESP32-C3 Wi-Fi, BLE, RISC-V CPU and official ESP-IDF support | Manufacturer declared | Espressif ESP-IDF and datasheet | High | No board-level gap resolved |
-| ESP-IDF stable support at v6.0.2 | Manufacturer declared, checked 2026-07-14 | Espressif documentation | High | Future updates require normal maintenance |
-| 22 theoretical GPIO for relevant ESP32-C3 variants | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Flash, USB, strapping and board circuits reduce usable GPIO |
-| GPIO2, GPIO8 and GPIO9 are strapping pins | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Exact board pull circuits remain unknown |
-| GPIO18 and GPIO19 are USB Serial/JTAG pins by default | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Exact board USB wiring remains to be inspected |
-| Recommended chip supply is 3.0–3.6 V | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Board 5 V input and LDO remain unidentified |
-| RF TX peak up to 335 mA in listed chip test condition | Manufacturer declared | ESP32-C3 datasheet v2.4 | High for stated conditions | Not complete board/node consumption |
-| Chip deep-sleep figure of 5 µA | Manufacturer declared | ESP32-C3 datasheet v2.4 | High for the chip | Not board, OLED, radar or regulator consumption |
-| Tested specimen: ESP32-C3 rev. 0.4, 4 MB XMC embedded flash, native USB Serial/JTAG | Observed | Project Owner runtime log | High for one specimen | Not committed as durable repository evidence; commercial identity absent |
-| OLED `0x3C` on GPIO0/GPIO1 operated in prototype | Observed | Project Owner firmware/log evidence | Medium-high for the tested pair | Controller, voltage, pull-ups and exact listing absent |
-| GPIO0–GPIO6 operated in one prototype | Observed | Project Owner firmware/log evidence | Medium-high | Power-cycle, recovery and full MVP configuration not validated |
-| Exact SuperMini seller, listing and PCB revision | Not available | None | None | Required before exact-board acceptance |
-| Exact SuperMini regulator, onboard LED and dimensions | Not available | None | None | Physical inspection required |
-| GPIO7, GPIO10, GPIO20 and GPIO21 exposed on purchased board | `[UNVALIDATED]` | Common board patterns are not accepted as evidence | None | Physical pinout verification required |
-| Current replication price of purchased SuperMini revision | Not available | Exact listing absent | None | Dated listing and stock evidence required |
-| Current normalized prices for official alternative boards | Partial | Manufacturer or retailer snapshots | Medium | Use dated landed-price snapshots before final cost ranking |
+| Layer | Meaning | Decision use |
+|---|---|---|
+| Chip-family evidence | Espressif datasheets and ESP-IDF documentation | May justify the ESP32-C3 family |
+| Official-board evidence | Manufacturer guide, schematic, layout and pinout | May justify a documented control/fallback board |
+| Specimen evidence | Runtime logs, firmware and direct observation of one board | Qualifies only the tested specimen and wiring |
+| Commercial identity | Seller, listing, order, PCB fingerprint and revision | Required before claiming a reproducible purchased-board SKU |
+| Integrated-node evidence | Tests with representative peripherals and USB PC power | Required for functional stability; quantitative power remains IHAP-49 |
 
 ---
 
-## 2. Decision
+## 2. Evidence Register
+
+| Evidence | State | Source class | Reliability | Remaining gap |
+|---|---|---|---|---|
+| ESP32-C3 Wi-Fi, BLE, RISC-V CPU and maintained ESP-IDF support | Manufacturer declared | Espressif | High | Does not prove a specific board |
+| Stable ESP-IDF documentation checked at v6.0.2 | Manufacturer declared, checked 2026-07-14 | Espressif | High | Normal future maintenance applies |
+| ESP32-C3 variants expose different GPIO totals depending on package and embedded flash | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Exact purchased part must be identified |
+| GPIO2, GPIO8 and GPIO9 are strapping pins | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | External loads during reset require verification |
+| GPIO18/GPIO19 provide USB Serial/JTAG by default | Manufacturer declared | ESP32-C3 datasheet v2.4 | High | Exact board USB routing remains board-specific |
+| One specimen identified as ESP32-C3 QFN32 rev. v0.4 with 4 MB XMC embedded flash and USB Serial/JTAG | Observed | Project Owner runtime log | High for one specimen | Does not identify seller, PCB revision or other units |
+| The same specimen was flashed and hard-reset successfully over USB | Observed | Project Owner runtime log | High for one execution | Long-run and representative-peripheral stability not proven |
+| Firmware used a 2 MB flash configuration while physical flash was detected as 4 MB | Observed | Runtime log | High | Firmware partition correction is separate work |
+| Historical prototype used OLED GPIO0/1, DHT11 GPIO2, LED GPIO3, ADC GPIO4, LD2410C RX GPIO5 and MC-38 GPIO6 | Observed | Project Owner firmware | Medium-high for that prototype | Not an approved final mapping |
+| Project-supplied catalog depicts a USB-C board approximately 27.5 × 23 mm with GPIO0,4–10,20,21 and RX/TX labels for GPIO5/6 | Catalog-style declaration, provenance not established | Project-supplied image | Medium-low | Not linked to original seller/order or tested specimen |
+| Catalog pinout conflicts with the prototype use of GPIO1, GPIO2 and GPIO3 | Verified inconsistency | Comparison of project evidence | High | Indicates different revision, inaccurate catalog or mismatched evidence |
+| Catalog image states specifications may vary between production batches | Catalog-style declaration | Project-supplied image | Medium | Reinforces variant-control risk |
+| Historical acquisition: 3 boards for €8.75, €2.9167/unit; 2 additional units at €0 | Project Owner inventory E2 | IHAP-17 Draft PR #22 | Medium | Not a current replication price |
+| Exact seller, order listing and purchased PCB revision | Not available | None | None | Required for exact-SKU reproducibility |
+| Regulator identity, LED mapping and complete power path | Not available | None | None | Physical inspection; quantitative validation in IHAP-49 |
+| Current replication price and stock for the same revision | Not available | None | None | Dated market evidence required |
+| Comparable current landed prices for alternatives | Not normalized | None | None | Cost remains non-decisive until sourced |
+
+The catalog/runtime mismatch is material. The catalog image must not be treated as the pinout of the tested board until a physical comparison confirms that relationship.
+
+---
+
+## 3. Platform Requirements
+
+### 3.1 Mandatory
+
+| Requirement | Minimum profile |
+|---|---|
+| MCU family | ESP32-C3 supported by the selected ESP-IDF baseline |
+| Wi-Fi | Integrated 2.4 GHz 802.11 b/g/n |
+| SDK | Officially maintained C/C++ SDK with reproducible Linux/CI tooling |
+| Flash | At least 2 MB usable flash and identified physical capacity; 4 MB is preferred, not yet an MVP necessity |
+| GPIO logic | 3.3 V; no direct 5 V signal exposure |
+| Application GPIO | At least 8 usable board-level pins after flash, USB, boot, debug and onboard-load constraints |
+| I2C | One stable bus for OLED and an optional shared environmental sensor |
+| UART | One full-duplex UART reserved for LD2410C until IHAP-46 narrows the requirement |
+| Digital input | One interrupt-capable input for MC-38 |
+| ADC | At least one spare ADC-capable pin; audio remains unauthorized |
+| Flash/recovery | Repeatable flashing, console, hard reset and bootloader recovery |
+| Power input | USB-PC-powered reference operation; board input path must be identified |
+| Functional stability | No observed brownout/reset loop with the representative MVP configuration under USB PC power |
+| Identity | PCB fingerprint and board-level pinout documented for any exact physical reference |
+| Replaceability | Compliance with Section 9 |
+
+### 3.2 Preferred
+
+- 4 MB physical flash for configuration headroom;
+- native USB Serial/JTAG;
+- accessible BOOT and RESET controls;
+- public schematic and board files;
+- documented regulator and LED circuits;
+- compact board dimensions;
+- at least one additional ADC-capable spare pin;
+- dated availability from more than one source or a strong equivalence path.
+
+### 3.3 Outside this ADR
+
+- battery operation and autonomy;
+- TP4056, cell, holder and regulator selection;
+- quantitative board current or rail measurements;
+- final GPIO wiring specification;
+- enclosure approval;
+- Bluetooth runtime use;
+- audio or derived-noise functionality;
+- OTA design;
+- production or certification claims.
+
+---
+
+## 4. Proposed Decision
 
 ```text
 We propose ESP32-C3 as the HomeEdge MVP edge-compute chip family.
 
-We propose an ESP32-C3 board profile with at least 4 MB flash, a reproducible
-flashing/recovery path, 3.3 V GPIO, and at least eight application GPIOs that
-satisfy the OLED, sensor, UART, interrupt and margin budget.
+We propose a board conformance profile with:
+- at least 2 MB usable flash, with 4 MB preferred;
+- 3.3 V GPIO;
+- repeatable flashing and recovery;
+- at least eight safe application GPIOs;
+- one I2C bus;
+- one full-duplex UART;
+- one interrupt-capable digital input;
+- one spare ADC-capable pin;
+- functional stability from a PC USB supply.
 
-The purchased ESP32-C3 SuperMini-compatible board is the preferred compact
-physical candidate only after exact-board qualification. Until that evidence
-exists, its board-level selection remains [UNVALIDATED].
+The purchased ESP32-C3 SuperMini-compatible board remains the preferred compact
+candidate only after physical conformance evidence. Its exact commercial-board
+selection remains [UNVALIDATED].
 
-ESP32-C3-DevKitC-02 is the documented qualification and fallback reference if
-the purchased board cannot be identified, replicated or shown to meet the
-profile.
+ESP32-C3-DevKitC-02 is the documented official control and fallback if the
+purchased board cannot be identified, reproduced or shown to satisfy the profile.
 ```
 
-This proposal becomes authoritative only if the Project Owner changes this ADR from `Proposed` to `Accepted`.
+This proposal becomes authoritative only if the Project Owner changes the ADR status beyond `Proposed`.
 
-### 2.1 Required board profile
+### 4.1 Why ESP32-C3
 
-| Requirement | Mandatory profile |
-|---|---|
-| SoC family | ESP32-C3 supported by the selected ESP-IDF baseline |
-| Flash | At least 4 MB; exact chip/package must be identified |
-| Wi-Fi | Integrated 2.4 GHz 802.11 b/g/n |
-| Bluetooth | May be present; not an MVP runtime requirement |
-| GPIO logic | 3.3 V; no direct 5 V input |
-| Application GPIO | At least 8 usable pins after flash, USB, boot, debug and onboard loads |
-| I2C | One stable bus for OLED and optional BME280 sharing |
-| UART | One full-duplex UART reserved for LD2410C until IHAP-46 narrows it |
-| ADC | At least one spare ADC-capable GPIO; audio remains unauthorized |
-| Digital input | One interrupt-capable pin for MC-38 |
-| Flashing/recovery | Documented USB or USB-UART flashing plus repeatable boot recovery |
-| Power | Identified 5 V/USB input path and 3.3 V regulator or equivalent evidence |
-| Board identity | Seller/SKU, PCB fingerprint, pinout, LED, buttons, dimensions and revision recorded |
-| Replaceability | Meets the equivalence rules in Section 8 |
+ESP32-C3 is preferred because it:
 
-### 2.2 OLED decision boundary
+- satisfies current sensor, display, radio and debug requirements without a Linux OS;
+- preserves the project ESP-IDF and C direction;
+- provides Wi-Fi and optional BLE without making BLE an MVP requirement;
+- avoids the porting cost of a different SDK ecosystem;
+- avoids the additional compute, GPIO and complexity of ESP32-S3;
+- has an official documented development board available as a qualification control.
 
-The Project Owner has included the AOICRIE-listed 0.96-inch white 128×64 OLED in the physical and active MVP node profile. Historical acquisition evidence is five modules for €7.71, or €1.5420 per unit.
+### 4.2 OLED boundary
 
-The following remain `[UNVALIDATED]` until physical/listing evidence exists:
+The OLED remains an active MVP hardware requirement. The following remain `[UNVALIDATED]` for the purchased modules:
 
-- SSD1306 versus SH1106 or another controller;
-- I2C-only versus a different module variant;
-- address `0x3C` as a property of every purchased unit;
-- accepted supply-voltage range;
+- exact controller;
+- address across every unit;
+- accepted supply range;
 - onboard regulator or level shifting;
-- onboard pull-up values and pull-up voltage;
-- exact dimensions and mounting-hole positions;
-- representative and worst-case current.
+- pull-up values and pull-up voltage;
+- dimensions and mounting holes;
+- representative current.
 
-The OLED makes I2C mandatory even if IHAP-45 selects DHT11 or DHT22. If BME280 is selected, the environmental sensor may share the I2C bus only after address, pull-up and voltage compatibility are verified.
+The OLED makes I2C mandatory. BME280 may share the bus only after IHAP-45 verifies address, pull-ups and voltage compatibility.
 
 ---
 
-## 3. GPIO and Peripheral Budget
+## 5. GPIO and Peripheral Budget
 
-### 3.1 Functional budget
+### 5.1 Functional budget
 
-| Function | Component | Protocol | GPIO required | Voltage constraint | Notes / conflicts | Evidence state |
+| Function | Component | Protocol | GPIO | Voltage constraint | Notes | Evidence state |
 |---|---|---|---:|---|---|---|
-| Local display | OLED 0.96-inch 128×64 | I2C | 2 shared | Module supply and pull-ups `[UNVALIDATED]`; MCU logic 3.3 V | Mandatory bus; observed at `0x3C` on one specimen | Project Owner included; prototype observed |
-| Environmental option A | BME280 module | I2C | 0 additional | Module-level voltage and pull-ups must be verified | Shares OLED SDA/SCL when compatible | Pending IHAP-45 |
-| Environmental option B | DHT11 or DHT22 | Proprietary digital | 1 | Pull-up must terminate at 3.3 V | Uses an additional GPIO because OLED already consumes I2C bus | Pending IHAP-45 |
-| Presence telemetry | LD2410C | UART sensor TX to MCU RX | 1 | UART logic level must be verified | Minimum passive telemetry path | Prototype observed on GPIO5 |
-| Presence configuration | LD2410C | UART MCU TX to sensor RX | +1 | UART logic level must be verified | Reserved to avoid making Bluetooth mandatory | Pending IHAP-46 |
-| Door state | MC-38 | Digital input / interrupt | 1 | Pull strategy at 3.3 V | Must not rely on a conflicting strapping level | Prototype observed on GPIO6 |
-| Wi-Fi | ESP32-C3 radio | Internal | 0 | Affects current, rail stability and RF keep-out | Required |
-| Bluetooth | ESP32-C3 radio | Internal | 0 | No GPIO allocation | Available but not required |
-| USB flash/debug | USB Serial/JTAG | USB | GPIO18/GPIO19 reserved by default | Board USB/VBUS circuit is board-specific | Observed on tested specimen |
-| Recovery UART | UART0 | UART | GPIO20/GPIO21 preferred reserve when exposed | 3.3 V | Optional if native USB recovery is proven; useful fallback | Purchased board exposure `[UNVALIDATED]` |
-| Onboard LED | Board-specific | Digital | 0 or 1 board-loaded GPIO | Board-specific | GPIO and polarity unknown; may conflict with boot or budget | `[UNVALIDATED]` |
-| Audio impact only | GY-MAX4466 | ADC | 1 | Output must stay inside selected ADC range | Quantified only; runtime audio is not authorized | OUT OF MVP runtime |
-| Minimum margin | None | Digital / ADC | 2 | 3.3 V | At least one spare must be ADC-capable | Required profile |
+| Local display | OLED 0.96-inch 128×64 | I2C | 2 shared | Module details `[UNVALIDATED]`; MCU logic 3.3 V | Mandatory bus | Prototype observed |
+| Environment option A | BME280 | I2C | 0 additional | Module pull-ups/level shifting to verify | Shares OLED bus | Pending IHAP-45 |
+| Environment option B | DHT11/DHT22 | Digital | 1 | Pull-up to 3.3 V | Adds one GPIO | Pending IHAP-45 |
+| Presence telemetry | LD2410C | UART RX | 1 | Module UART level to verify | Prototype used RX-only | Prototype observed |
+| Presence configuration | LD2410C | UART TX | +1 | Module UART level to verify | Reserved so Bluetooth is not mandatory | Pending IHAP-46 |
+| Door state | MC-38 | Digital input/interrupt | 1 | Pull network at 3.3 V | Avoid uncontrolled boot strap interaction | Prototype observed |
+| USB flash/debug | SoC/board | USB Serial/JTAG | GPIO18/19 reserved when used | USB board-specific | Observed on one specimen | Specimen verified |
+| Recovery console | SoC/board | UART0 | GPIO20/21 conditioned | 3.3 V | Keep available when practical | Board-specific |
+| Onboard LED | Board-specific | Digital | 0 or 1 loaded GPIO | Board-specific | Must not consume a required pin silently | `[UNVALIDATED]` |
+| Audio impact only | GY-MAX4466 | ADC | 1 optional | Must remain in ADC range | Does not authorize audio | OUT OF MVP runtime |
+| Margin | None | Digital/ADC | 2 | 3.3 V | At least one ADC-capable | Required |
 
-### 3.2 Scenario totals
+### 5.2 Scenario totals
 
-| Scenario | Functional application GPIO | Required spare GPIO | Minimum board-level usable GPIO |
+| Scenario | Functional GPIO | Required margin | Minimum usable GPIO |
 |---|---:|---:|---:|
 | OLED + BME280 + LD2410C full duplex + MC-38 | 5 | 2 | 7 |
 | OLED + DHT11/DHT22 + LD2410C full duplex + MC-38 | 6 | 2 | 8 |
-| Previous scenario plus one ADC audio-impact reservation | +1 | Consumes ADC spare | 9 worst-case impact; not the mandatory active-MVP requirement |
+| Previous scenario plus MAX4466 impact reservation | +1 | Consumes ADC spare | 9, not an active-MVP requirement |
 
-The mandatory profile is therefore **eight board-level application GPIOs**, including:
+The mandatory profile is **eight safe application GPIOs**:
 
-- two I2C-capable GPIOs;
-- two UART-capable GPIOs;
-- one interrupt-capable digital input;
-- one additional digital GPIO for a DHT-class option;
-- two spare GPIOs, at least one ADC-capable.
+- 2 I2C;
+- 2 UART;
+- 1 door input;
+- 1 DHT-class optional input;
+- 2 spare pins, at least one ADC-capable.
 
-ESP32-C3 peripherals can be routed through the GPIO matrix, but a theoretical route does not override flash, USB, strapping, debugging or board-circuit constraints.
+### 5.3 Candidate mapping status
 
-### 3.3 Preliminary candidate mapping
+This table is compatibility analysis, not an approved wiring specification.
 
-This is an allocation model for compatibility review, not an approved wiring specification.
-
-| GPIO | Candidate role | Classification | Rationale / limitation |
+| GPIO | Candidate role | Status | Constraint |
 |---:|---|---|---|
-| GPIO0 | I2C SDA for OLED and possible BME280 | Candidate | ADC-capable; prototype observed |
-| GPIO1 | I2C SCL for OLED and possible BME280 | Candidate | ADC-capable; prototype observed |
-| GPIO2 | DHT data in previous prototype | Conditional / strapping | Prototype worked, but ESP32-C3 boot guidance requires caution and normally recommends the correct startup level; do not freeze this mapping before power-cycle evidence |
-| GPIO3 | DHT alternative or digital spare | Candidate | Prototype observed as status LED output; external board LED relationship unknown |
-| GPIO4 | ADC spare | Candidate | ADC1_CH4; audio use remains unauthorized |
-| GPIO5 | LD2410C TX to MCU RX | Candidate | Prototype observed at 256000 baud |
-| GPIO6 | MCU TX to LD2410C RX or MC-38 alternative | Candidate | Prototype observed as MC-38 input; full-duplex radar path not yet tested |
-| GPIO7 | MC-38 candidate | `[UNVALIDATED]` | Must be physically exposed and tested on purchased board |
-| GPIO8 | No application allocation by default | Avoid / strapping | Boot/ROM-message strapping; often board-loaded by LED on documented DevKitC-02 |
-| GPIO9 | BOOT / download mode | Reserved | Strapping and recovery path |
-| GPIO10 | Digital spare | `[UNVALIDATED]` | Purchased-board exposure must be verified |
-| GPIO11–GPIO17 | No application allocation | Reserved / unavailable depending on chip variant | Flash/power restrictions vary by ESP32-C3 part number |
-| GPIO18/GPIO19 | Native USB Serial/JTAG | Reserved | Default USB D-/D+ path |
-| GPIO20/GPIO21 | UART0 recovery reserve | `[UNVALIDATED]` on purchased board | Documented on official DevKitC-02; purchased-board exposure unknown |
+| 0 | I2C SDA | Candidate | Prototype observed; ADC-capable |
+| 1 | I2C SCL | Specimen-observed only | Catalog image does not show GPIO1; exact board revision unresolved |
+| 2 | Historical DHT data | Avoid for final mapping when possible | Strapping pin; prototype success is not reset-matrix proof |
+| 3 | DHT alternative or spare | Specimen-observed only | Catalog image does not show GPIO3 |
+| 4 | ADC spare | Candidate | Audio runtime unauthorized |
+| 5 | LD2410C TX → MCU RX | Candidate | Prototype observed at 256000 baud |
+| 6 | LD2410C RX path or door alternative | Candidate | Prototype observed as MC-38 input |
+| 7 | Door or spare candidate | Catalog-declared only | Physical exposure on purchased specimen not verified |
+| 8 | No default application allocation | Avoid/conditional | Strapping; official DevKitC-02 also loads RGB LED |
+| 9 | BOOT/download | Reserved | Strapping and recovery |
+| 10 | Spare candidate | Catalog-declared only | Physical verification required |
+| 11–17 | No application allocation | Reserved/unavailable by variant | Embedded flash/package constraints |
+| 18/19 | Native USB | Reserved when used | USB D-/D+ |
+| 20/21 | UART0/recovery | Conditioned | Runtime log showed console UART use; catalog declares exposure |
 
-The previous prototype used GPIO2 for DHT11 and operated. That is evidence of one successful configuration, not sufficient power-cycle and recovery evidence for a final reference mapping.
+The catalog conflict means GPIO1, GPIO2 and GPIO3 cannot be assumed to exist on every board sold as SuperMini. Final wiring belongs to IHAP-50 after exact-board qualification.
 
 ---
 
-## 4. Electrical and Power Constraints
+## 6. Electrical and Power Constraints
 
-### 4.1 Chip-level constraints
+### 6.1 Chip-level facts
 
-According to the ESP32-C3 Series Datasheet v2.4:
+The ESP32-C3 datasheet establishes:
 
-- recommended ESP32-C3 power-domain input is 3.0–3.6 V, nominally 3.3 V;
-- GPIO inputs must not be treated as 5 V tolerant;
-- GPIO2, GPIO8 and GPIO9 are strapping pins;
-- GPIO18 and GPIO19 default to USB Serial/JTAG;
-- GPIO4–GPIO7 are associated with JTAG functions and GPIO20/GPIO21 with UART0, requiring deliberate allocation;
-- some variants allocate GPIO to in-package flash and expose fewer general-purpose pins;
-- Wi-Fi TX peak reaches 335 mA under the listed 802.11b 1 Mbps, 21 dBm chip test condition;
-- the advertised 5 µA deep-sleep figure is a chip-level figure.
+- a nominal 3.3 V power domain;
+- no basis for treating GPIO as 5 V tolerant;
+- GPIO2, GPIO8 and GPIO9 as strapping pins;
+- GPIO18 and GPIO19 as default USB Serial/JTAG pins;
+- GPIO20 and GPIO21 as UART0-capable pins;
+- package-dependent GPIO availability;
+- RF transmit current up to 335 mA under one listed chip test condition;
+- a 5 µA deep-sleep figure for the chip under listed conditions.
 
-These values do not prove the purchased board regulator capacity, USB path, brownout margin, complete-node peak, sleep current or battery autonomy.
+These chip-level inputs do not prove complete board current, regulator capacity, rail stability, OLED/radar current, complete-node sleep or battery autonomy.
 
-### 4.2 Board-level unknowns
+### 6.2 IHAP-44 functional validation boundary
 
-Before the purchased SuperMini-compatible board may be accepted, execution evidence must identify:
+IHAP-44 may use evidence for:
 
-- exact ESP32-C3 part marking or reliable `esptool` identity for each reference batch;
-- PCB front and back fingerprint;
-- USB connector type and wiring;
-- native USB versus an added USB-UART bridge;
-- 5 V input path;
-- regulator part number and rated/thermal capability;
-- power LED and user LED GPIO or rail loading;
-- BOOT and RESET circuits;
-- exposed 3.3 V and 5 V pins;
-- dimensions and antenna keep-out;
-- board current in representative idle, Wi-Fi transmit and reset conditions.
+- USB flashing;
+- hard reset;
+- bootloader recovery;
+- serial console;
+- representative peripherals attached;
+- Wi-Fi functional operation when available;
+- absence of observed brownout or reset loops on PC USB.
 
-Until measured, IHAP-49 must use a conservative preliminary compute-board current assumption and maintain board/node consumption as `[UNVALIDATED]`.
+IHAP-44 does not require multimeter rail measurements, current logging, regulator load testing, thermal testing or autonomy calculation. Those measurements and the complete power architecture belong to IHAP-49.
 
-### 4.3 Preliminary current inputs for IHAP-49
+### 6.3 Inputs to IHAP-49
 
-| Item | Preliminary assumption | Evidence meaning |
+| Item | Preliminary input | Meaning |
 |---|---|---|
-| ESP32-C3 chip Wi-Fi peak | Up to 335 mA under one specified RF TX condition | Datasheet ceiling input; not measured board consumption |
-| ESP32-C3 chip deep sleep | 5 µA | Chip-only reference; not usable as complete-node autonomy input |
-| Board regulator quiescent current | `[UNVALIDATED]` | Regulator not identified |
-| Board power/user LED current | `[UNVALIDATED]` | LED circuit not identified |
-| OLED current | `[UNVALIDATED]` | Must be measured with representative screen content |
-| LD2410C current | Deferred to IHAP-46/IHAP-49 | Must use exact module evidence |
-| Environmental sensor current | Deferred to IHAP-45/IHAP-49 | Depends on selected sensor/module |
-| MC-38 current | Passive contact; pull-network current `[UNVALIDATED]` | Circuit determined in IHAP-47/IHAP-50 |
-| Complete-node peak and steady state | `[UNVALIDATED]` | Requires integrated bench measurement |
+| ESP32-C3 Wi-Fi peak | Up to 335 mA in one datasheet RF condition | Conservative chip input, not board measurement |
+| Physical flash | 4 MB observed on one specimen | Does not determine power |
+| Board regulator | `[UNVALIDATED]` | Identity and capacity unknown |
+| Board LEDs | `[UNVALIDATED]` | Mapping and current unknown |
+| OLED | `[UNVALIDATED]` | Exact module and current unknown |
+| LD2410C | Deferred to IHAP-46/IHAP-49 | Exact interface/current needed |
+| Environmental sensor | Deferred to IHAP-45/IHAP-49 | Depends on selection |
+| MC-38 | Passive contact | Pull-network current depends on circuit |
+| Complete node | `[UNVALIDATED]` | Requires integrated measurement |
 
-No battery-autonomy result may be derived from this table.
+No battery result may be derived from this table.
 
 ---
 
-## 5. Alternatives Considered
+## 7. Alternatives Considered
 
-### 5.1 Evaluation method
+### 7.1 Evaluation gates
 
-A candidate must first pass these hard gates:
+No aggregate score is used. Numerical weighting would create false precision while board identity, current prices and power evidence are incomplete.
 
 | Gate | Requirement |
 |---|---|
-| G1 | Integrated 2.4 GHz Wi-Fi |
-| G2 | 3.3 V GPIO compatibility and a documentable power path |
-| G3 | At least eight board-level application GPIOs satisfying I2C, UART, digital interrupt, optional DHT and ADC margin |
-| G4 | Officially maintained SDK/toolchain suitable for C/C++ and CI |
-| G5 | Reproducible flashing and recovery |
-| G6 | Identifiable board/SKU or an enforceable equivalence profile |
+| G1 — Functional fit | Wi-Fi and sufficient board-level GPIO/peripherals |
+| G2 — Electrical fit | 3.3 V logic and documentable input/power path |
+| G3 — Toolchain | Maintained official C/C++ SDK and reproducible flashing |
+| G4 — Reproducibility | Identifiable board or enforceable conformance profile |
+| G5 — Scope efficiency | No disproportionate OS, compute or porting overhead |
+| G6 — Cost evidence | Historical and current replication prices kept separate |
 
-Cost cannot compensate for failure of a mandatory gate.
+Cost cannot compensate for failure of a mandatory technical gate.
 
-The following weighted criteria are retained for a later evidence-complete score:
+### 7.2 Comparison matrix
 
-| Criterion group | Weight |
-|---|---:|
-| GPIO, peripherals and electrical compatibility | 25% |
-| Reproducibility, documentation and variant control | 25% |
-| Toolchain, maintainability and firmware portability | 15% |
-| Power characteristics and evidence quality | 15% |
-| Dimensions and enclosure impact | 10% |
-| Replication cost and availability | 10% |
-
-No weighted total is published in this Proposed ADR because the exact SuperMini SKU and normalized current prices are incomplete. A numerical ranking would create false precision.
-
-### 5.2 Comparison matrix
-
-| Platform | Mandatory interfaces | Radio | Flash/debug | Documentation and variant control | Power / size | Cost evidence | Outcome |
+| Platform | G1 | G2 | G3 | G4 | G5 | Cost evidence | Outcome |
 |---|---|---|---|---|---|---|---|
-| Purchased ESP32-C3 SuperMini-compatible board | Likely sufficient; GPIO0–GPIO6 observed; complete 8-pin safe budget not yet proven | Wi-Fi + BLE at chip level | 4 MB XMC embedded flash and native USB Serial/JTAG observed on one specimen | Weak until seller, listing, PCB, regulator and full pinout are identified | Compact direction; exact dimensions and board consumption absent | Historical €2.9167/unit; current replication price absent | Preferred compact candidate, conditional `[UNVALIDATED]` |
-| ESP32-C3-DevKitC-02 | GPIO0–GPIO10 and GPIO18–GPIO21 are documented; UART, I2C and ADC profile sufficient with strapping care | Wi-Fi + BLE | 4 MB module flash; USB-to-UART bridge; BOOT and RESET documented | Strong: official user guide, schematic, PCB layout and dimensions | Larger and Micro-USB; 5 V-to-3.3 V LDO documented | Current landed price not yet normalized | Documented fallback and qualification control |
-| ESP32 DevKit V1 / ESP-WROOM-32 class | GPIO and peripheral capacity sufficient | Wi-Fi + Bluetooth Classic/BLE depending on exact module | USB-UART common; clone details vary | Official DevKitC exists, but “DevKit V1” clone identity is highly variable | Larger; extra resources not required | Project has one historical unit but no normalized comparable price | Rejected for current MVP unless ESP32-C3 becomes infeasible |
-| ESP32-S3 development board | Far exceeds GPIO/peripheral requirement: 45 theoretical GPIO, 3 UART, 2 I2C, up to 20 ADC channels | Wi-Fi + BLE | USB OTG and USB Serial/JTAG available | Strong for official boards | More compute, interfaces and potential power/enclosure complexity than required | Current normalized price absent | Rejected as overengineering for current scope |
-| Raspberry Pi Pico W | 26 GPIO, 3 ADC inputs, 2 UART and 2 I2C satisfy interface budget | 2.4 GHz Wi-Fi + Bluetooth 5.2 | Drag-and-drop USB programming; separate debug-probe path for full debug | Very strong official documentation, design files and production statement through at least January 2036 | 51 × 21 mm; different power and enclosure profile | Official target price $6 at check date; local landed price not normalized | Rejected because changing SDK/ecosystem provides no required MVP benefit |
-| ESP8266EX / ESP8266 board | Possible basic Wi-Fi telemetry but weaker GPIO/ADC and board constraints | Wi-Fi only | Legacy tooling and board variability | Espressif marked ESP8266EX Not Recommended for New Designs in datasheet v7.1 | No decisive advantage for this architecture | Low price cannot override lifecycle gate | Rejected legacy candidate |
+| Purchased ESP32-C3 SuperMini-compatible board | Conditional: one prototype works, eight-safe-pin profile not proven | Conditional: USB works; regulator/path incomplete | Pass at chip/toolchain level | Fail for exact SKU today | Pass | Historical €2.9167/unit E2; current price absent | Preferred compact candidate, conditional `[UNVALIDATED]` |
+| ESP32-C3-DevKitC-02 | Pass with strapping care | Pass from official documentation | Pass | Pass | Conditional only for larger size | Current landed EUR price not normalized | Official control and fallback |
+| ESP32 DevKit V1 / ESP-WROOM-32 class | Pass | Conditional by clone; official DevKitC documented | Pass | Conditional: “DevKit V1” is generic | Conditional: extra resources and size | Comparable current price absent | Not preferred; fallback only if C3 infeasible |
+| ESP32-S3 development board | Pass with large margin | Pass on official board | Pass | Pass on official SKU | Fail/conditional: disproportionate for MVP | Comparable current price absent | Rejected as overengineering |
+| Raspberry Pi Pico W | Pass | Pass | Pass, different SDK | Pass | Conditional: porting without required benefit | Official launch price is not a current landed EUR price | Rejected for current architecture |
+| ESP8266 | Conditional with reduced margin | Conditional by board | Legacy | Weak | No decisive benefit | Low price cannot override lifecycle/tooling risk | Rejected legacy candidate |
 
-### 5.3 Why not a Linux SBC at every room node
+### 7.3 Alternative rationale
 
-A Linux SBC is excluded as disproportionate because the node requires deterministic sensor I/O, local display output and Wi-Fi event production, not a general-purpose operating system. A per-room SBC would add storage, boot, patching, process supervision, filesystem integrity, power, enclosure and replication-cost responsibilities that belong to the central-node decision or future scope.
+**ESP32-C3-DevKitC-02** is the strongest control because Espressif documents its module, flash, USB-UART bridge, BOOT, RESET, power LED, LDO, pinout, schematic, PCB layout and dimensions.
+
+**ESP32 classic** has sufficient peripherals but adds Bluetooth Classic and broader resources not required by the node. Generic “DevKit V1” boards also reproduce the variant-control problem.
+
+**ESP32-S3** provides more compute and I/O than required. No approved camera, LCD, USB-host, vector-processing or large-GPIO workload justifies that complexity.
+
+**Raspberry Pi Pico W** is well documented and electrically capable, but moving from ESP-IDF to the Pico SDK creates firmware, build and maintenance porting without an MVP requirement ESP32-C3 cannot meet.
+
+**ESP8266** is unsuitable for a new baseline because it has lower margin, a legacy ecosystem and no architectural advantage over ESP32-C3.
+
+A Linux SBC at each room node is disproportionate: it adds OS boot, storage, patching, filesystem, process supervision, power and enclosure concerns to a node requiring deterministic sensor I/O, local display and Wi-Fi telemetry.
 
 ---
 
-## 6. Consequences
+## 8. Consequences
 
 ### Positive
 
-- Preserves the current ESP-IDF and C direction.
-- Uses a proportionate Wi-Fi MCU rather than a larger MCU or Linux SBC.
-- Supports the mandatory OLED, environmental sensor options, LD2410C and MC-38 with a measurable GPIO profile.
-- Reserves full-duplex UART so Bluetooth is not silently converted into a requirement.
-- Separates stable chip-family architecture from replaceable board implementation.
-- Provides a documented official fallback when a generic compact board cannot be reproduced.
-- Makes GPIO, USB, boot, power and replacement constraints explicit before IHAP-45 through IHAP-50 finalize their decisions.
+- Preserves ESP-IDF and C.
+- Keeps the compute family proportionate.
+- Defines an explicit board-level GPIO profile.
+- Preserves a full-duplex LD2410C UART without making Bluetooth mandatory.
+- Separates stable MCU architecture from replaceable PCB implementation.
+- Provides an official fallback for qualification and debugging.
+- Supplies explicit inputs to IHAP-45 through IHAP-50.
 
 ### Negative / Trade-offs
 
-- The purchased board cannot yet be approved as the exact reference board.
-- Physical identification and bench evidence are still required.
-- Eight safe application GPIOs leave limited margin compared with ESP32-S3 or larger boards.
-- The compact board may force tighter interconnect and enclosure constraints.
-- Native USB, strapping pins and onboard LEDs can create board-specific recovery conflicts.
-- A generic SuperMini listing may silently change PCB, regulator, flash package or LED mapping.
-- The official DevKitC-02 fallback is larger and likely more expensive after landed cost is normalized.
+- The purchased board cannot yet be accepted as the exact reproducible reference.
+- Physical and commercial identity evidence is incomplete.
+- Eight safe GPIO leave limited margin compared with ESP32-S3.
+- Compact boards increase wiring and enclosure sensitivity.
+- Native USB, strapping and onboard loads may create revision-specific constraints.
+- Current price ranking remains incomplete.
 
 ### Neutral / Operational
 
-- Bluetooth remains available in silicon but is not enabled or required by this decision.
-- Secure-boot and flash-encryption hardware capabilities are not security claims and are not configured by this ADR.
-- GPIO mapping remains provisional until sensor and interconnect tasks complete.
-- The OLED inclusion creates I2C, power and enclosure requirements but does not require a separate compute ADR.
-- The firmware flash-size mismatch previously observed—4 MB physical flash with a 2 MB image header—belongs to future firmware configuration work and does not alter this hardware decision.
+- BLE may exist in silicon but is not authorized as an MVP runtime requirement.
+- Hardware security features are not configuration or security claims.
+- The final pin assignment remains downstream.
+- The physical 4 MB/configured 2 MB mismatch is a future firmware-configuration concern, not a hardware rejection.
+- Quantitative power evidence remains owned by IHAP-49.
 
 ---
 
-## 7. Qualification Gates and Rejection Conditions
+## 9. Qualification, Replacement and Rejection
 
-### 7.1 Purchased-board qualification
+### 9.1 Purchased-board qualification
 
-The purchased SuperMini-compatible board may become the exact reference only when all of the following evidence exists:
+The purchased board may become the exact reference only after:
 
 ```text
-[ ] Seller, listing URL, order date and advertised variant are recorded.
-[ ] Front and back PCB photographs identify a repeatable fingerprint.
-[ ] ESP32-C3 part/revision and 4 MB-or-greater flash are verified.
-[ ] Complete exposed pinout is verified against the physical PCB.
-[ ] At least eight application GPIOs meet the budget without unsafe boot conflicts.
-[ ] GPIO7/GPIO10 or equivalent margin pins are physically exposed and tested.
-[ ] USB flashing, console and recovery work with representative peripherals attached.
-[ ] Regulator, input path, 3.3 V rail and onboard LED circuits are identified.
-[ ] Board dimensions, header spacing and antenna keep-out are recorded.
-[ ] Representative idle, reset and Wi-Fi peak board-current evidence is recorded.
-[ ] A dated current replication listing is available for the same or provably equivalent revision.
-[ ] The OLED and selected sensor bus do not create incompatible pull-up or voltage conditions.
+[ ] Seller/order/listing evidence is recovered, or the board is explicitly classified as locally qualified but not universally reproducible.
+[ ] Front and back photographs establish a repeatable PCB fingerprint.
+[ ] At least two owned specimens are compared for revision consistency.
+[ ] Chip revision and physical flash are recorded without exposing unique identifiers.
+[ ] Physical pin labels are reconciled with the catalog and prototype.
+[ ] At least eight safe application GPIO satisfy the budget.
+[ ] USB flash, hard reset and recovery work with representative peripherals.
+[ ] PC USB operation shows no observed brownout or reset loop.
+[ ] Regulator, LED, BOOT and RESET circuits are identified where markings permit.
+[ ] Dimensions, header spacing and antenna keep-out are recorded.
+[ ] A dated current listing exists for the same revision, or equivalence is proven through this profile.
+[ ] OLED and selected sensor bus voltage/pull-up compatibility is verified.
 ```
 
-### 7.2 Conditions that reject the purchased board
+Regulator load capacity, rail voltage and quantitative current measurements are not IHAP-44 qualification gates; they remain `[UNVALIDATED]` for IHAP-49.
 
-The board is rejected as the definitive reference when any of these conditions remains material:
+### 9.2 Equivalent board replacement
 
-- exact revision cannot be distinguished or repurchased;
-- fewer than eight safe application GPIOs are available;
-- required pins depend on uncontrolled strapping levels;
-- the board exposes 5 V signals to ESP32-C3 inputs without suitable interfacing;
-- regulator/rail evidence cannot support the integrated node current envelope;
-- USB or recovery becomes unreliable with representative wiring;
-- onboard LED or boot circuits consume required pins without a stable workaround;
-- replacement units under the same listing materially change pinout or circuitry;
-- landed replication cost approaches a documented official board without compensating compactness benefit;
-- enclosure or interconnect becomes revision-specific and cannot be captured by an equivalence profile.
-
-When rejected at board level, the ESP32-C3 family remains the proposed platform and ESP32-C3-DevKitC-02 becomes the default documented fallback candidate. A different chip family still requires a superseding ADR.
-
----
-
-## 8. Replacement and Supersession Policy
-
-### 8.1 Board-level equivalent replacement
-
-A replacement board may be treated as equivalent without a new platform ADR only when it:
+A replacement does not require a new platform ADR when it:
 
 - uses an ESP32-C3 variant supported by the selected ESP-IDF baseline;
-- provides at least 4 MB flash;
-- provides at least eight safe application GPIOs with the required I2C, UART, digital-input and ADC profile;
-- preserves 3.3 V GPIO and compatible 5 V/USB power input behavior;
+- provides at least 2 MB usable flash; 4 MB remains preferred;
+- provides at least eight safe application GPIO with required I2C, UART, digital input and ADC margin;
+- preserves 3.3 V GPIO;
+- supports PC USB power for reference validation;
 - provides repeatable flashing, console and recovery;
-- has documented boot/strapping, onboard LED and debug behavior;
-- stays inside the current assumptions passed to IHAP-49;
-- has enclosure and connector effects handled by IHAP-50 and IHAP-51;
-- does not require a different firmware architecture or broaden MVP scope;
-- has a dated source and identifiable hardware revision.
+- documents or verifies boot, strapping, LED and debug behavior;
+- stays within IHAP-49 power assumptions;
+- has wiring/enclosure effects handled by IHAP-50/IHAP-51;
+- does not change firmware architecture or MVP scope;
+- has an identifiable revision and dated source.
 
-A board replacement may require wiring or enclosure revisions even when it does not require a new platform ADR.
+A board change may require wiring or enclosure updates even when it does not supersede this ADR.
 
-### 8.2 Platform-level change
+### 9.3 Rejection conditions
 
-A move to ESP32 classic, ESP32-S3, RP2040/RP2350, ESP8266, Linux SBC or another MCU family must supersede this ADR because it changes toolchain, porting, power, debug, replacement and maintenance assumptions.
+Reject the purchased board as the definitive reference when:
+
+- its revision cannot be distinguished and no enforceable profile can be verified;
+- fewer than eight safe application GPIO are available;
+- core functions depend on uncontrolled strapping states;
+- GPIO are exposed to 5 V without appropriate interfacing;
+- USB flash or recovery is unreliable with representative wiring;
+- owned units materially differ in pinout or circuitry;
+- the board cannot operate functionally from PC USB without observed reset/brownout problems;
+- replacement units cannot be qualified through the equivalence profile;
+- wiring or enclosure becomes irreducibly seller-revision-specific.
+
+Board-level rejection does not reject the ESP32-C3 family. ESP32-C3-DevKitC-02 becomes the default fallback. A move to another MCU family requires a superseding ADR.
 
 ---
 
-## 9. Inputs to Dependent Tasks
+## 10. Inputs to Dependent Tasks
 
-| Task | Input produced by this ADR |
+| Task | Input produced |
 |---|---|
-| IHAP-45 — Environmental Sensor | I2C is mandatory for OLED; BME280 can share the bus only after voltage/address/pull-up validation; DHT adds one GPIO; environmental option must fit the eight-pin budget |
-| IHAP-46 — Presence Sensor | Reserve one full-duplex UART; sensor UART levels and 5 V supply must be verified; Bluetooth is not a required configuration path; current feeds IHAP-49 |
-| IHAP-47 — Door State Sensor | Reserve one interrupt-capable 3.3 V input; avoid uncontrolled strapping behavior; pull/debounce/cable circuit remains downstream |
-| IHAP-48 — Audio Disposition | One ADC pin exists only as an impact/margin item; no audio runtime is authorized; physical removal remains the preferred minimal privacy posture for that task to decide |
-| IHAP-49 — Power Subsystem | Use 335 mA only as a chip RF peak input, not board/node peak; regulator, OLED, radar and integrated consumption remain `[UNVALIDATED]`; do not estimate autonomy yet |
-| IHAP-50 — Interconnect | Produce final wiring from the accepted board pinout; OLED requires VCC, GND, SDA and SCL; distinguish native USB/recovery access from application wiring |
-| IHAP-51 — Enclosure | Preserve antenna keep-out, USB/BOOT/RESET access and visible OLED aperture; exact dimensions depend on qualified board and OLED modules |
-| IHAP-17 — Cost/BOM | Keep board and OLED prices as historical snapshots; do not mark definitive hardware or replication totals until Project Owner acceptance and current price evidence |
+| IHAP-45 | I2C is mandatory for OLED; BME280 may share it only after voltage/address/pull-up validation; DHT adds one GPIO |
+| IHAP-46 | Reserve full-duplex UART; verify module logic and supply; Bluetooth is not required |
+| IHAP-47 | Reserve one interrupt-capable 3.3 V input; avoid uncontrolled strapping; circuit remains downstream |
+| IHAP-48 | ADC exists only as an impact/margin item; no audio runtime is authorized |
+| IHAP-49 | Use chip current only as a preliminary ceiling input; quantify regulator, rail, OLED, radar and complete-node current there |
+| IHAP-50 | Freeze wiring only after exact-board pinout; preserve USB, BOOT and RESET access |
+| IHAP-51 | Preserve antenna keep-out, connector access and OLED aperture; exact dimensions remain board-dependent |
+| IHAP-17 | Historical board cost remains E2; no definitive BOM or replication price before Project Owner decision |
 
 ---
 
-## 10. Related Risks and Treatments
+## 11. Related Risks and Treatments
 
 | Risk | Treatment | Effect | Remaining exposure |
 |---|---|---|---|
-| [R-001 — Device Identity Spoofing](../risks/records/R-001-device-identity-spoofing.md) | None created by this ADR | Leaves unresolved | Board family contains security hardware, but device identity and registry behavior remain target/runtime work `[UNVALIDATED]` |
-| [R-004 — Presence and Door State Misinterpretation](../risks/records/R-004-presence-door-state-misinterpretation.md) | Existing claim/scope controls | Leaves unresolved | Compute capacity does not authorize tracking, alarm, access-control or protection semantics |
-| [R-005 — Target Boundary Overclaim](../risks/records/R-005-target-boundary-overclaim.md) | Preserve Proposed and `[UNVALIDATED]` wording | Partially mitigates | Hardware feasibility does not prove firmware, HTTP/JSON, backend or mobile runtime |
-| [R-010 — Risk-Driven Scope Creep](../risks/records/R-010-risk-driven-scope-creep.md) | Hard non-scope and equivalence gates | Partially mitigates | Future security, audio, Bluetooth or power work still requires separate approved scope |
+| None directly modified by this ADR | None | None | Generic source-of-truth, claim, scope and cost controls remain applicable through their canonical policies |
 
-No current Risk Record specifically covers generic-board variant drift, unidentified regulators, GPIO/boot incompatibility or electrical reproducibility. This ADR records the evidence gap but does not create a new risk or treatment task automatically.
+No existing Risk Record treatment is changed by selecting a proposed compute family. Therefore no Risk Record is modified and no inverse ADR link is required. A new hardware-variant risk must not be created automatically without a separate task and Project Owner scope decision.
 
 ---
 
-## 11. Follow-up Work
+## 12. Follow-up Work
 
 | Item | Tracking |
 |---|---|
-| Recover exact SuperMini order/listing and seller evidence | IHAP-44 before Project Owner exact-board decision |
-| Photograph and fingerprint all purchased boards | IHAP-44 evidence checkpoint |
-| Verify exposed GPIO, regulator, LED, buttons, dimensions and recovery | IHAP-44 bench evidence |
-| Capture current dated replication prices and stock for the exact board and fallback | IHAP-44 / IHAP-17 after architecture decision |
-| Decide environmental interface and exact sensor | IHAP-45 |
-| Decide LD2410C interface, levels, power and Bluetooth disposition | IHAP-46 |
-| Decide MC-38 circuit and final input pin | IHAP-47 |
-| Decide GY-MAX4466 physical disposition | IHAP-48 |
-| Produce complete measured current and power architecture | IHAP-49 |
-| Freeze final wiring and per-node quantities | IHAP-50 |
-| Freeze enclosure aperture, board mounting and antenna keep-out | IHAP-51 |
-| Correct firmware flash-size configuration if the qualified board remains 4 MB | Future firmware implementation task; not introduced here |
+| Project Owner family/board strategy decision | IHAP-44 |
+| Recover exact seller/order/listing evidence | IHAP-44 evidence checkpoint |
+| Photograph and compare at least two owned boards | IHAP-44 evidence checkpoint |
+| Verify physical pinout and functional USB/recovery stability | IHAP-44 evidence checkpoint |
+| Quantitative rail, regulator and current validation | IHAP-49 |
+| Environmental sensor selection | IHAP-45 |
+| LD2410C interface and power decision | IHAP-46 |
+| MC-38 circuit decision | IHAP-47 |
+| GY-MAX4466 physical disposition | IHAP-48 |
+| Final wiring and assembly | IHAP-50 |
+| Enclosure and mounting | IHAP-51 |
+| Current market-price propagation | IHAP-17 after approved hardware decision |
+| Flash partition correction if required | Separate future firmware task |
 
 ---
 
-## 12. Evidence Links
+## 13. Evidence Links
 
 | Evidence | Link |
 |---|---|
 | Jira issue | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) |
-| Parent hardware decision gate | [IHAP-43](https://niccolopiazzi01.atlassian.net/browse/IHAP-43) |
-| Pull request | Pending |
-| Cost/BOM draft baseline | [IHAP-17](https://niccolopiazzi01.atlassian.net/browse/IHAP-17) and Draft PR #22 |
+| Parent task | [IHAP-43](https://niccolopiazzi01.atlassian.net/browse/IHAP-43) |
+| Pull request | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) |
+| Cost/BOM draft | [IHAP-17](https://niccolopiazzi01.atlassian.net/browse/IHAP-17), [Draft PR #22](https://github.com/pianic2/homeedge-ai-platform/pull/22) |
 | Product boundary | [`docs/product/product-vision.md`](../product/product-vision.md) |
-| Cost governance | [`docs/governance/cost-governance-and-bom-policy.md`](../governance/cost-governance-and-bom-policy.md) on the IHAP-17 draft branch until merged |
 | ADR policy | [`docs/adr/README.md`](README.md) |
 | ESP32-C3 datasheet v2.4 | https://www.espressif.com/documentation/esp32-c3_datasheet_en.pdf |
-| ESP32-C3 stable ESP-IDF v6.0.2 documentation | https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/index.html |
+| ESP32-C3 stable ESP-IDF documentation | https://docs.espressif.com/projects/esp-idf/en/stable/esp32c3/get-started/index.html |
 | ESP32-C3-DevKitC-02 official guide | https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32c3/esp32-c3-devkitc-02/user_guide.html |
-| ESP32-S3 datasheet v2.2 | https://www.espressif.com/documentation/esp32-s3_datasheet_en.pdf |
-| ESP8266EX datasheet v7.1 / NRND | https://www.espressif.com/documentation/0a-esp8266ex_datasheet_en.pdf |
-| Raspberry Pi Pico family official product page | https://www.raspberrypi.com/products/raspberry-pi-pico/ |
-| Runtime specimen evidence | Project Owner supplied log and firmware during IHAP-44 planning; sensitive identifiers omitted; durable repository artifact still missing |
-| Related Risk Records | `docs/risks/records/R-001-*`, `R-004-*`, `R-005-*`, `R-010-*` |
-| Related treatments | None introduced by IHAP-44 |
+| ESP32 DevKitC official guide | https://docs.espressif.com/projects/esp-dev-kits/en/latest/esp32/esp32-devkitc/user_guide.html |
+| ESP32-S3 datasheet | https://www.espressif.com/documentation/esp32-s3_datasheet_en.pdf |
+| ESP8266EX datasheet | https://www.espressif.com/documentation/0a-esp8266ex_datasheet_en.pdf |
+| Raspberry Pi Pico documentation | https://www.raspberrypi.com/documentation/microcontrollers/pico-series.html |
+| Runtime specimen evidence | Project Owner supplied log; unique device identifiers intentionally omitted |
+| Prototype firmware evidence | Project Owner supplied historical firmware; not introduced into this repository by IHAP-44 |
+| Board/OLED catalog image | Project Owner supplied image; provenance and correspondence to purchased specimen remain `[UNVALIDATED]` |
+| Related Risk Records | None directly modified |
+| Related treatments | None |
 | Related ADRs | None |
 
 ---
 
-## 13. Review Notes
+## 14. Review Notes
 
-### 13.1 Architecture Regression Reviewer
+### Architecture Regression Reviewer
 
-- ESP32-C3 family and exact board implementation are separated.
-- OLED inclusion is bounded as local display hardware, not a new data or automation feature.
-- Bluetooth, audio, Linux-per-node and larger MCU capabilities are not silently added.
-- No runtime or maturity claim is introduced.
+- **PASS:** ESP32-C3 family, board profile and exact SKU are separated.
+- **PASS:** no Bluetooth, audio, Linux-per-node or larger-MCU feature is introduced.
+- **PASS:** status remains `Proposed`.
 
-### 13.2 Hardware Compatibility Reviewer
+### Hardware Compatibility Reviewer
 
-- The decision uses board-level usable GPIO rather than theoretical chip GPIO.
-- Flash, USB, strapping, JTAG, UART0 and onboard loads are explicit.
-- The previous GPIO2 DHT mapping remains conditional because GPIO2 is a strapping pin.
-- Voltage, regulator and integrated current evidence remain blocking for exact-board approval.
+- **MAJOR:** catalog pinout and prototype pinout conflict; exact purchased revision remains unresolved.
+- **MAJOR:** eight-safe-GPIO profile is not yet proven on the purchased board.
+- **PASS:** GPIO2 remains a conditional historical mapping because it is a strapping pin.
+- **PASS:** quantitative rail/current evidence is correctly deferred to IHAP-49.
 
-### 13.3 Testing & Evidence Reviewer
+### Testing & Evidence Reviewer
 
-- Runtime evidence is explicitly specimen-specific.
-- Missing seller, PCB, regulator, complete pinout and price evidence remain `[UNVALIDATED]`.
-- No autonomy, reliability or full-node consumption claim is made.
-- The exact purchased board must not become Accepted solely from the current evidence package.
+- **MAJOR:** runtime evidence qualifies one specimen only.
+- **MAJOR:** at least two owned boards must be compared before claiming lot consistency.
+- **PASS:** successful flash/reset and specimen identity are recorded without copying the MAC.
+- **PASS:** unproven board and power claims remain `[UNVALIDATED]`.
 
-### 13.4 Cost Governance Reviewer
+### Cost Governance Reviewer
 
-- Historical acquisition price is separated from current replication price.
-- Zero-price inventory does not become a universal price.
-- No weighted cost ranking is published while comparable landed prices are incomplete.
-- IHAP-17 is linked but not modified or approved.
+- **MAJOR:** no current reproducible price exists for the purchased revision.
+- **PASS:** €2.9167 is historical E2 acquisition evidence only.
+- **PASS:** no arbitrary score or unsupported current-price ranking is published.
+- **PASS:** IHAP-17 is linked but not modified.
 
-### 13.5 Source of Truth Guardian
+### Source of Truth Guardian
 
-- One ADR contains the platform decision, matrix, GPIO budget, electrical constraints and replacement policy.
-- No duplicate GPIO, USB, power or OLED ADR is created.
-- Jira remains workflow/evidence coordination; Confluence remains unchanged.
+- **PASS:** one ADR contains decision, GPIO budget, comparison and replacement policy.
+- **PASS:** PR #23 is linked directly; the unmerged cost policy path is not referenced as if present on `main`.
+- **PASS:** no duplicate ADR, Risk Record or Confluence technical copy is created.
 
-### 13.6 Security & Privacy Reviewer
+### Security & Privacy Reviewer
 
-- Radio and debug surfaces are disclosed without security certification claims.
-- Raw audio remains blocked.
-- Presence and door state remain telemetry-only.
-- Bluetooth availability is not treated as authorization or requirement.
+- **PASS:** unique device identifiers are not reproduced.
+- **PASS:** audio remains blocked.
+- **PASS:** presence and door state remain telemetry-only.
+- **PASS:** no security or maturity claim is introduced.
 
-### 13.7 Final checklist
+### Review result
 
 ```text
-[x] One stable architectural decision scope.
-[x] ADR necessity is explicit.
-[x] OLED 0.96-inch 128×64 inclusion is reflected in the compute requirements.
-[x] At least six realistic platform alternatives are addressed.
-[x] GPIO and peripheral budget is board-level and scenario-based.
-[x] Electrical constraints separate chip data from board/node evidence.
-[x] Preliminary current assumptions are explicitly non-measured.
-[x] Replacement and rejection conditions are explicit.
-[x] Related risks are linked without claiming closure or acceptance.
-[x] GitHub remains the technical source of truth.
-[x] Jira remains the task, blocker and evidence-link surface.
-[x] Confluence is not duplicated or modified.
-[x] IHAP-17 is not modified.
-[x] MVP boundary is not silently expanded.
-[x] [UNVALIDATED] is preserved on unproven claims.
-[x] No production-ready, commercial-ready, security-grade, certified, safety-critical, alarm-grade, antifurto, access-control, intrusion-detection or protection claim is introduced.
-[x] Project Owner decision is required before any status beyond Proposed.
+BLOCKER for keeping ADR Proposed: none.
+
+BLOCKER for exact purchased-board acceptance:
+- commercial identity and PCB correspondence unresolved;
+- catalog/prototype pinout conflict unresolved;
+- eight-safe-GPIO conformance not proven;
+- current replication availability absent.
+
+Project Owner decision required:
+1. accept the ESP32-C3 family/profile proposal while keeping SuperMini conditional;
+2. select ESP32-C3-DevKitC-02 as the immediate exact reference;
+3. request changes or suspend the decision.
 ```
