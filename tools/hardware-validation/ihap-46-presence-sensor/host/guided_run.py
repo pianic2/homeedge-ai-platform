@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import copy
-import json
 from pathlib import Path
 import signal
 import subprocess
@@ -16,6 +15,7 @@ from typing import Any, Mapping, Sequence
 import ihap46
 
 DEFAULT_ACTIONS = Path("config/operator-actions.json")
+DEFAULT_ENVIRONMENT = Path("config/default-environment.json")
 SENSOR_CHOICES = tuple(ihap46.SENSOR_PATHS)
 
 
@@ -63,6 +63,54 @@ def load_actions(path: Path, plan: Mapping[str, Any]) -> dict[str, Any]:
     return payload
 
 
+def load_environment(path: Path) -> dict[str, Any]:
+    payload = ihap46.load_json(path)
+    if not isinstance(payload, dict):
+        raise ihap46.HarnessError("Environment profile root must be an object")
+    if payload.get("schema_version") != ihap46.SCHEMA_VERSION:
+        raise ihap46.HarnessError(
+            f"Environment schema_version must be {ihap46.SCHEMA_VERSION}"
+        )
+    profile_id = payload.get("profile_id")
+    defaults = payload.get("defaults")
+    positions = payload.get("reference_test_positions")
+    if not isinstance(profile_id, str) or not profile_id.strip():
+        raise ihap46.HarnessError("Environment profile_id must be a non-empty string")
+    if not isinstance(defaults, dict):
+        raise ihap46.HarnessError("Environment profile must contain defaults")
+    if not isinstance(positions, dict):
+        raise ihap46.HarnessError(
+            "Environment profile must contain reference_test_positions"
+        )
+
+    required_text = (
+        "room_id",
+        "room_shape",
+        "door_location",
+        "mount_position",
+        "mount_orientation",
+        "room_notes",
+    )
+    required_numbers = ("room_width_m", "room_depth_m", "mount_height_cm")
+    invalid: list[str] = []
+    for field in required_text:
+        value = defaults.get(field)
+        if not isinstance(value, str) or not value.strip():
+            invalid.append(f"defaults.{field}")
+    for field in required_numbers:
+        value = defaults.get(field)
+        if not isinstance(value, (int, float)) or float(value) <= 0:
+            invalid.append(f"defaults.{field}")
+    for field, value in positions.items():
+        if not isinstance(field, str) or not isinstance(value, str) or not value.strip():
+            invalid.append(f"reference_test_positions.{field}")
+    if invalid:
+        raise ihap46.HarnessError(
+            "Invalid environment fields: " + ", ".join(sorted(invalid))
+        )
+    return payload
+
+
 def select_scenarios(
     plan: Mapping[str, Any], requested: Sequence[str], include_optional: bool
 ) -> list[dict[str, Any]]:
@@ -101,7 +149,7 @@ def filter_scenarios_for_sensors(
             )
         else:
             print(
-                f"[SCENARIO] {scenario_id} saltato; canali mancanti: "
+                f"[SCENARIO] {scenario_id} skipped; missing channels: "
                 + ", ".join(missing)
             )
     return selected
@@ -147,49 +195,124 @@ def scenario_card(
         "\n"
         + "=" * 76
         + f"\nTEST: {scenario['id']} — {scenario['title']}\n"
-        + f"Ripetizione: {repetition}/{scenario['repetitions']}\n"
-        + f"Durata registrata: {format_duration(float(scenario['duration_s']))}\n"
-        + f"Stato reale atteso: {scenario['ground_truth']}\n"
-        + f"Porta: {scenario['door_state']}\n\n"
-        + f"Perché eseguiamo questo test\n  {action['purpose']}\n\n"
-        + f"Preparazione prima di iniziare\n{setup}\n\n"
-        + f"Azioni durante la registrazione\n{during}\n\n"
-        + f"Il tentativo non è valido se\n{invalid}\n"
+        + f"Repetition: {repetition}/{scenario['repetitions']}\n"
+        + f"Recorded duration: {format_duration(float(scenario['duration_s']))}\n"
+        + f"Expected ground truth: {scenario['ground_truth']}\n"
+        + f"Door state: {scenario['door_state']}\n\n"
+        + f"Test purpose\n  {action['purpose']}\n\n"
+        + f"Setup before recording\n{setup}\n\n"
+        + f"Actions during recording\n{during}\n\n"
+        + f"Invalidate this attempt if\n{invalid}\n"
         + "=" * 76
     )
 
 
-def collect_operator_metadata(args: argparse.Namespace) -> dict[str, Any]:
-    def ask(label: str, current: str | None) -> str:
+def effective_environment(
+    environment: Mapping[str, Any], args: argparse.Namespace
+) -> dict[str, Any]:
+    defaults = dict(environment["defaults"])
+    overrides = {
+        "room_id": args.room_id,
+        "room_width_m": args.room_width_m,
+        "room_depth_m": args.room_depth_m,
+        "door_location": args.door_location,
+        "mount_height_cm": args.mount_height_cm,
+        "mount_orientation": args.mount_orientation,
+        "mount_position": args.mount_position,
+        "room_notes": args.room_notes,
+    }
+    for field, value in overrides.items():
+        if value is not None:
+            defaults[field] = value
+    return {
+        "schema_version": environment["schema_version"],
+        "issue": environment.get("issue", "IHAP-46"),
+        "profile_id": environment["profile_id"],
+        "description": environment.get("description"),
+        "values": defaults,
+        "reference_test_positions": copy.deepcopy(
+            environment["reference_test_positions"]
+        ),
+        "override_rule": environment.get("override_rule"),
+    }
+
+
+def environment_summary(environment: Mapping[str, Any]) -> str:
+    values = environment["values"]
+    positions = environment["reference_test_positions"]
+    position_lines = "\n".join(
+        f"  - {name}: {description}" for name, description in positions.items()
+    )
+    return (
+        "\nREFERENCE PHYSICAL SETUP\n"
+        f"  Profile: {environment['profile_id']}\n"
+        f"  Room: {values['room_width_m']:.2f} m x "
+        f"{values['room_depth_m']:.2f} m ({values['room_shape']})\n"
+        f"  Door: {values['door_location']}\n"
+        f"  Sensor height: {values['mount_height_cm'] / 100:.2f} m\n"
+        f"  Sensor position: {values['mount_position']}\n"
+        f"  Sensor orientation: {values['mount_orientation']}\n"
+        "  Reference points:\n"
+        f"{position_lines}\n"
+    )
+
+
+def collect_operator_metadata(
+    args: argparse.Namespace, environment: Mapping[str, Any]
+) -> dict[str, Any]:
+    values = environment["values"]
+
+    def ask_required(label: str, current: str | None) -> str:
         value = current or input(f"{label}: ").strip()
         if not value:
             raise ihap46.HarnessError(f"Required operator metadata missing: {label}")
         return value
 
-    if args.mount_height_cm is None:
-        raw = input("Altezza del sensore dal pavimento, in cm: ").strip()
+    def ask_default(label: str, current: Any) -> str:
+        raw = input(f"{label} [{current}]: ").strip()
+        return raw or str(current)
+
+    def ask_float_default(label: str, current: float) -> float:
+        raw = input(f"{label} [{current}]: ").strip()
+        if not raw:
+            return float(current)
         try:
-            height = float(raw)
+            value = float(raw)
         except ValueError as exc:
-            raise ihap46.HarnessError("Mount height must be numeric") from exc
-    else:
-        height = args.mount_height_cm
-    if height <= 0:
-        raise ihap46.HarnessError("Mount height must be greater than zero")
+            raise ihap46.HarnessError(f"{label} must be numeric") from exc
+        if value <= 0:
+            raise ihap46.HarnessError(f"{label} must be greater than zero")
+        return value
+
+    room_width_m = ask_float_default("Room width in metres", values["room_width_m"])
+    room_depth_m = ask_float_default("Room depth in metres", values["room_depth_m"])
+    mount_height_cm = ask_float_default(
+        "Sensor height above floor in centimetres", values["mount_height_cm"]
+    )
 
     return {
-        "operator": ask("Nome operatore", args.operator),
-        "sensor_specimen_id": ask("ID del sensore fisico", args.sensor_id),
-        "board_specimen_id": ask("ID della board ESP32-C3", args.board_id),
-        "room_id": ask("Identificativo della stanza", args.room_id),
-        "mount_height_cm": height,
-        "mount_orientation": ask(
-            "Orientamento del sensore (es. parete nord verso sud)",
-            args.mount_orientation,
+        "operator": ask_required("Operator name", args.operator),
+        "sensor_specimen_id": ask_required(
+            "Physical sensor specimen ID", args.sensor_id
         ),
-        "mount_position": ask("Posizione del sensore nella stanza", args.mount_position),
-        "room_notes": args.room_notes
-        or input("Note su stanza, porte, pareti e oggetti mobili: ").strip(),
+        "board_specimen_id": ask_required(
+            "ESP32-C3 board specimen ID", args.board_id
+        ),
+        "environment_profile_id": environment["profile_id"],
+        "room_id": ask_default("Room ID", values["room_id"]),
+        "room_shape": values["room_shape"],
+        "room_width_m": room_width_m,
+        "room_depth_m": room_depth_m,
+        "door_location": ask_default("Door location", values["door_location"]),
+        "mount_height_cm": mount_height_cm,
+        "mount_orientation": ask_default(
+            "Sensor orientation", values["mount_orientation"]
+        ),
+        "mount_position": ask_default("Sensor position", values["mount_position"]),
+        "room_notes": ask_default("Room and adjacent-space notes", values["room_notes"]),
+        "reference_test_positions": copy.deepcopy(
+            environment["reference_test_positions"]
+        ),
     }
 
 
@@ -236,8 +359,8 @@ def preflight(
     sensors: Sequence[str],
 ) -> None:
     print("\nPRE-FLIGHT")
-    print("Non iniziare ancora l'azione dello scenario.")
-    print("Quando il dispositivo è collegato, premi una sola volta RST sulla board.")
+    print("Do not start the scenario action yet.")
+    print("With the device connected, press the ESP32-C3 RST button once.")
     deadline = time.monotonic() + timeout_s
     while time.monotonic() < deadline:
         if process.poll() is not None:
@@ -258,11 +381,12 @@ def preflight(
             for item in samples
         )
         if boot and samples and (uart_ok or "ld2410c_uart" not in sensors):
-            print("[PRE-FLIGHT] PASS — firmware e canali selezionati disponibili")
+            print("[PRE-FLIGHT] PASS — firmware and selected channels are available")
             return
         time.sleep(0.5)
     raise ihap46.HarnessError(
-        "Pre-flight failed; inspect serial.log and verify reset, wiring and selected channels"
+        "Pre-flight failed; inspect serial.log and verify reset, wiring, "
+        "power, UART direction, and selected channels"
     )
 
 
@@ -274,29 +398,31 @@ def run_interval(
     reminder_seconds: float,
 ) -> None:
     print(scenario_card(scenario, action, repetition))
-    input("Completa la preparazione e premi Invio. ")
+    input("Complete the setup, move to the required start position, and press Enter. ")
     for remaining in range(5, 0, -1):
-        print(f"Inizio registrazione tra {remaining}...")
+        print(f"Recording starts in {remaining}...")
         time.sleep(1)
 
     append_marker(run_dir, scenario, repetition, "start", "guided runtime marker")
     duration = float(scenario["duration_s"])
     deadline = time.monotonic() + duration
     next_reminder = 0.0
-    print("[REGISTRAZIONE] IN CORSO")
-    print("[AZIONE] " + " ".join(action["during_capture"]))
+    print("[RECORDING] IN PROGRESS")
+    print("[ACTION] " + " ".join(action["during_capture"]))
     while time.monotonic() < deadline:
         now = time.monotonic()
         if now >= next_reminder:
             print(
-                f"[REGISTRAZIONE] {format_duration(deadline - now)} rimanenti — "
+                f"[RECORDING] {format_duration(deadline - now)} remaining — "
                 + action["during_capture"][0]
             )
             next_reminder = now + reminder_seconds
         time.sleep(min(0.5, max(0.0, deadline - time.monotonic())))
     append_marker(run_dir, scenario, repetition, "end", "guided runtime marker")
-    print("[REGISTRAZIONE] COMPLETATA")
-    note = input("Annota eventuali anomalie oppure premi Invio: ").strip()
+    print("[RECORDING] COMPLETE")
+    note = input(
+        "Record any anomaly or invalidating event, or press Enter for none: "
+    ).strip()
     if note:
         ihap46.append_jsonl(
             run_dir / "marks.jsonl",
@@ -326,10 +452,13 @@ def stop_collector(process: subprocess.Popen[Any]) -> None:
 
 
 def print_dry_run(
-    scenarios: Sequence[Mapping[str, Any]], actions: Mapping[str, Any]
+    scenarios: Sequence[Mapping[str, Any]],
+    actions: Mapping[str, Any],
+    environment: Mapping[str, Any],
 ) -> None:
-    print("IHAP-46 — ANTEPRIMA DELLA PROCEDURA")
-    print("Nessuna porta seriale viene aperta e nessun dato viene registrato.")
+    print("IHAP-46 — PROCEDURE PREVIEW")
+    print("No serial port is opened and no evidence is recorded.")
+    print(environment_summary(environment))
     for scenario in scenarios:
         action = actions["actions"][scenario["id"]]
         for repetition in range(1, int(scenario["repetitions"]) + 1):
@@ -339,6 +468,8 @@ def print_dry_run(
 def command_run(args: argparse.Namespace) -> None:
     plan = ihap46.require_valid_plan(args.plan)
     actions = load_actions(args.actions, plan)
+    environment_source = load_environment(args.environment)
+    environment = effective_environment(environment_source, args)
     sensors = args.sensor or ["ld2410c_uart"]
     scenarios = select_scenarios(plan, args.scenario, args.include_optional)
     scenarios = filter_scenarios_for_sensors(
@@ -349,10 +480,28 @@ def command_run(args: argparse.Namespace) -> None:
     effective_plan = build_effective_plan(plan, scenarios, sensors)
 
     if args.dry_run:
-        print_dry_run(scenarios, actions)
+        print_dry_run(scenarios, actions, environment)
         return
 
-    metadata = collect_operator_metadata(args)
+    print(environment_summary(environment))
+    print(
+        "Press Enter to accept each displayed default, or type a corrected value. "
+        "The effective values are stored with the run."
+    )
+    metadata = collect_operator_metadata(args, environment)
+    environment["values"].update(
+        {
+            "room_id": metadata["room_id"],
+            "room_width_m": metadata["room_width_m"],
+            "room_depth_m": metadata["room_depth_m"],
+            "door_location": metadata["door_location"],
+            "mount_height_cm": metadata["mount_height_cm"],
+            "mount_orientation": metadata["mount_orientation"],
+            "mount_position": metadata["mount_position"],
+            "room_notes": metadata["room_notes"],
+        }
+    )
+
     pending_dir = args.runs_dir / ".pending"
     pending_dir.mkdir(parents=True, exist_ok=True)
     pending_plan = pending_dir / f"{args.run_id}-effective-test-plan.json"
@@ -380,7 +529,9 @@ def command_run(args: argparse.Namespace) -> None:
     try:
         wait_for_capture_start(run_dir, process)
         effective_plan_path = run_dir / "effective-test-plan.json"
+        effective_environment_path = run_dir / "effective-environment.json"
         ihap46.write_json(effective_plan_path, effective_plan)
+        ihap46.write_json(effective_environment_path, environment)
         run_metadata = ihap46.load_json(run_dir / "run.json")
         run_metadata.update(
             {
@@ -388,6 +539,8 @@ def command_run(args: argparse.Namespace) -> None:
                 "operator_metadata": metadata,
                 "plan_path": str(effective_plan_path),
                 "plan_snapshot": effective_plan,
+                "environment_path": str(effective_environment_path),
+                "environment_snapshot": environment,
                 "operator_actions_snapshot": actions,
                 "scope": "physical laboratory evidence",
             }
@@ -395,9 +548,10 @@ def command_run(args: argparse.Namespace) -> None:
         ihap46.write_json(run_dir / "run.json", run_metadata)
         pending_plan.unlink(missing_ok=True)
 
-        print("\nIHAP-46 — ESECUZIONE GUIDATA")
+        print("\nIHAP-46 — GUIDED PHYSICAL VALIDATION")
         print(f"Run: {args.run_id}")
-        print(f"Canali valutati: {', '.join(sensors)}")
+        print(f"Evaluated channels: {', '.join(sensors)}")
+        print(environment_summary(environment))
         preflight(run_dir, process, args.preflight_seconds, sensors)
         for scenario in scenarios:
             action = actions["actions"][scenario["id"]]
@@ -422,7 +576,7 @@ def command_run(args: argparse.Namespace) -> None:
                 "note": "run aborted by operator",
             },
         )
-        raise ihap46.HarnessError("Run interrotta dall'operatore")
+        raise ihap46.HarnessError("Run aborted by operator")
     finally:
         stop_collector(process)
         pending_plan.unlink(missing_ok=True)
@@ -430,10 +584,10 @@ def command_run(args: argparse.Namespace) -> None:
     results = ihap46.analyze_run(run_dir, run_dir / "effective-test-plan.json")
     ihap46.write_json(run_dir / "results.json", results)
     ihap46.render_report(results, run_dir / "report.html")
-    print("\nRUN COMPLETATA")
-    print(f"Risultati: {run_dir / 'results.json'}")
-    print(f"Report umano: {run_dir / 'report.html'}")
-    print("Non modificare questa run; per una correzione usa un nuovo run-id.")
+    print("\nRUN COMPLETE")
+    print(f"Machine-readable results: {run_dir / 'results.json'}")
+    print(f"Human-readable report: {run_dir / 'report.html'}")
+    print("Do not edit this run. Use a new run ID for any correction or repeat.")
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -444,6 +598,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--run-id")
     parser.add_argument("--plan", type=Path, default=Path("config/test-plan.json"))
     parser.add_argument("--actions", type=Path, default=DEFAULT_ACTIONS)
+    parser.add_argument("--environment", type=Path, default=DEFAULT_ENVIRONMENT)
     parser.add_argument("--runs-dir", type=Path, default=Path("runs"))
     parser.add_argument("--baud", type=int, default=ihap46.DEFAULT_BAUD)
     parser.add_argument("--sensor", action="append", choices=SENSOR_CHOICES)
@@ -457,6 +612,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--sensor-id")
     parser.add_argument("--board-id")
     parser.add_argument("--room-id")
+    parser.add_argument("--room-width-m", type=float)
+    parser.add_argument("--room-depth-m", type=float)
+    parser.add_argument("--door-location")
     parser.add_argument("--mount-height-cm", type=float)
     parser.add_argument("--mount-orientation")
     parser.add_argument("--mount-position")
