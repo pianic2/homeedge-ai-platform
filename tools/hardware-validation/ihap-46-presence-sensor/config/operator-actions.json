@@ -1,0 +1,222 @@
+{
+  "schema_version": "1.0.0",
+  "issue": "IHAP-46",
+  "actions": {
+    "ROOM_EMPTY_BASELINE": {
+      "purpose": "Misurare se il sensore dichiara presenza quando la stanza è realmente vuota.",
+      "setup": [
+        "Chiudi la porta e verifica che nessuna persona sia nella stanza.",
+        "Spegni o immobilizza, quando possibile, ventilatori, tende mobili e altri oggetti che possono muoversi.",
+        "Esci dalla stanza prima di avviare la registrazione."
+      ],
+      "during_capture": [
+        "Mantieni la stanza vuota per tutta la durata del test.",
+        "Non passare davanti alla porta, alle pareti vicine o nel campo diretto del sensore."
+      ],
+      "invalid_if": [
+        "una persona entra nella stanza",
+        "la porta viene aperta",
+        "si verifica movimento non previsto vicino al sensore"
+      ]
+    },
+    "ENTER_ROOM": {
+      "purpose": "Misurare il tempo necessario per rilevare una persona che entra nella stanza.",
+      "setup": [
+        "Lascia la stanza vuota e posizionati fuori dalla porta.",
+        "Tieni la porta nella posizione indicata dal piano di test.",
+        "Individua un punto finale dentro la zona che vuoi coprire."
+      ],
+      "during_capture": [
+        "Al segnale di inizio entra con passo normale.",
+        "Raggiungi il punto finale senza fermarti sulla soglia.",
+        "Rimani nella zona fino al termine della registrazione."
+      ],
+      "invalid_if": [
+        "entri prima dell'inizio registrato",
+        "un'altra persona entra nel campo",
+        "il percorso cambia tra le ripetizioni"
+      ]
+    },
+    "MOVING_LATERAL": {
+      "purpose": "Verificare la continuità della presenza durante un movimento trasversale nella stanza.",
+      "setup": [
+        "Chiudi la porta e posizionati a un'estremità del percorso definito.",
+        "Mantieni invariati sensore, mobili e percorso tra le ripetizioni."
+      ],
+      "during_capture": [
+        "Cammina lateralmente attraverso la zona di prova a passo normale.",
+        "Inverti direzione agli estremi senza uscire dalla stanza."
+      ],
+      "invalid_if": [
+        "esci dal percorso definito",
+        "corri o ti fermi per un periodo prolungato",
+        "un'altra persona entra nel campo"
+      ]
+    },
+    "MOVING_APPROACH": {
+      "purpose": "Verificare il comportamento mentre una persona si avvicina e si allontana dal sensore.",
+      "setup": [
+        "Definisci un punto vicino e un punto lontano dal sensore.",
+        "Posizionati sul punto lontano prima dell'avvio."
+      ],
+      "during_capture": [
+        "Cammina dal punto lontano al punto vicino a passo normale.",
+        "Torna al punto lontano e ripeti il percorso senza uscire dalla stanza."
+      ],
+      "invalid_if": [
+        "superi il punto vicino stabilito",
+        "il percorso viene ostacolato",
+        "un'altra persona entra nel campo"
+      ]
+    },
+    "SEATED_STILL": {
+      "purpose": "Verificare se il sensore mantiene la presenza quando la persona è seduta e sostanzialmente immobile.",
+      "setup": [
+        "Posiziona una sedia nel punto di prova e non spostarla tra le ripetizioni.",
+        "Siediti prima dell'avvio, con porta chiusa e postura normale."
+      ],
+      "during_capture": [
+        "Rimani seduto senza movimenti volontari ampi.",
+        "Respira normalmente e mantieni la postura più stabile possibile."
+      ],
+      "invalid_if": [
+        "ti alzi o sposti la sedia",
+        "compi movimenti ampi ripetuti",
+        "un'altra persona entra nella stanza"
+      ]
+    },
+    "MICRO_MOVEMENT": {
+      "purpose": "Verificare la rilevazione durante piccoli movimenti realistici da lavoro o lettura.",
+      "setup": [
+        "Siediti nello stesso punto usato per il test statico.",
+        "Prepara un'attività leggera e ripetibile, ad esempio digitare o voltare pagine."
+      ],
+      "during_capture": [
+        "Rimani seduto e svolgi soltanto l'attività leggera dichiarata.",
+        "Evita movimenti ampi del busto o delle gambe."
+      ],
+      "invalid_if": [
+        "cambi attività durante la registrazione",
+        "ti alzi dalla sedia",
+        "un'altra persona entra nella stanza"
+      ]
+    },
+    "EXIT_CLEAR": {
+      "purpose": "Misurare il comportamento del sensore quando la persona lascia la stanza.",
+      "setup": [
+        "Posizionati nella zona di prova con il sensore già in stato di presenza.",
+        "Lascia libero il percorso verso la porta."
+      ],
+      "during_capture": [
+        "Al segnale di inizio esci dalla stanza a passo normale.",
+        "Chiudi la porta e non tornare vicino alla stanza fino al termine."
+      ],
+      "invalid_if": [
+        "rimani sulla soglia",
+        "riapri la porta",
+        "un'altra persona entra o passa vicino alla zona controllata"
+      ]
+    },
+    "ADJACENT_DOOR_CLOSED": {
+      "purpose": "Verificare che il movimento fuori dalla stanza non venga interpretato come presenza interna con porta chiusa.",
+      "setup": [
+        "Lascia la stanza vuota e chiudi completamente la porta.",
+        "Definisci il percorso esterno adiacente da ripetere."
+      ],
+      "during_capture": [
+        "Percorri avanti e indietro il tragitto esterno a passo normale.",
+        "Non aprire la porta e non entrare nella stanza."
+      ],
+      "invalid_if": [
+        "la porta si apre",
+        "qualcuno resta nella stanza",
+        "il percorso esterno cambia tra le ripetizioni"
+      ]
+    },
+    "ADJACENT_DOOR_OPEN": {
+      "purpose": "Misurare quanto il sensore estende la rilevazione oltre il confine della stanza quando la porta è aperta.",
+      "setup": [
+        "Lascia la stanza vuota e apri la porta nella stessa posizione per ogni ripetizione.",
+        "Definisci un percorso esterno che non entri nella stanza."
+      ],
+      "during_capture": [
+        "Percorri il tragitto esterno senza oltrepassare la soglia.",
+        "Mantieni invariata l'apertura della porta."
+      ],
+      "invalid_if": [
+        "oltrepassi la soglia",
+        "la porta cambia posizione",
+        "un'altra persona entra nella stanza"
+      ]
+    },
+    "WALL_MOVEMENT": {
+      "purpose": "Verificare eventuali rilevazioni prodotte da movimento dietro una parete adiacente.",
+      "setup": [
+        "Lascia vuota la stanza del sensore e chiudi la porta.",
+        "Individua il percorso dietro la parete più vicina e documentane la posizione."
+      ],
+      "during_capture": [
+        "Cammina avanti e indietro dietro la parete senza entrare nella stanza.",
+        "Mantieni lo stesso percorso e passo tra le ripetizioni."
+      ],
+      "invalid_if": [
+        "la stanza non rimane vuota",
+        "la porta viene aperta",
+        "non è chiaro da quale lato della parete avviene il movimento"
+      ]
+    },
+    "NON_HUMAN_INTERFERENCE": {
+      "purpose": "Verificare se un oggetto mobile non umano genera una falsa presenza.",
+      "setup": [
+        "Lascia la stanza vuota.",
+        "Posiziona e documenta un solo oggetto mobile, ad esempio una tenda mossa da un ventilatore.",
+        "Mantieni invariata la velocità o configurazione dell'oggetto."
+      ],
+      "during_capture": [
+        "Attiva soltanto l'oggetto dichiarato.",
+        "Non entrare nella stanza durante la registrazione."
+      ],
+      "invalid_if": [
+        "entra una persona nella stanza",
+        "si muovono oggetti diversi da quello dichiarato",
+        "la configurazione dell'interferenza cambia durante il test"
+      ]
+    },
+    "REBOOT_PERSISTENCE": {
+      "purpose": "Verificare che la raccolta riprenda dopo reset e che il comportamento osservato resti coerente.",
+      "setup": [
+        "Rimani nella zona di prova in movimento normale.",
+        "Identifica prima dell'avvio quale reset eseguire: ESP32-C3 oppure alimentazione del sensore."
+      ],
+      "during_capture": [
+        "Esegui una sola volta il reset dichiarato quando il runtime lo richiede.",
+        "Continua a muoverti normalmente mentre il collector attende la riconnessione."
+      ],
+      "invalid_if": [
+        "vengono eseguiti reset multipli",
+        "cambia il cablaggio durante la prova",
+        "non viene annotato quale dispositivo è stato resettato"
+      ]
+    },
+    "DIGITAL_UART_CONSISTENCY": {
+      "purpose": "Confrontare l'uscita digitale LD2410C con la presenza derivata dai frame UART.",
+      "setup": [
+        "Abilita entrambi i canali soltanto dopo aver verificato pinout e livelli logici.",
+        "Lascia inizialmente la stanza vuota e definisci un punto interno di presenza."
+      ],
+      "during_capture": [
+        "Alterna un periodo nella zona interna e un periodo fuori dalla stanza.",
+        "Mantieni ogni periodo abbastanza lungo da osservare entrambi i canali."
+      ],
+      "invalid_if": [
+        "uno dei due canali non è collegato o abilitato",
+        "il passaggio tra presente e vuoto non è chiaramente eseguito",
+        "il cablaggio cambia durante la registrazione"
+      ],
+      "required_sensor_channels": [
+        "ld2410c_uart",
+        "ld2410c_out"
+      ]
+    }
+  }
+}
