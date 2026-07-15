@@ -121,7 +121,7 @@ This ADR does not:
 - implement or change firmware;
 - authorize Bluetooth as an MVP transport or provisioning requirement;
 - authorize audio collection or processing;
-- authorize a local OLED/LCD/display as an MVP feature;
+- authorize a local OLED or other display as an MVP feature;
 - select the final environmental, presence, door, power, interconnect or enclosure subsystem;
 - calculate battery autonomy;
 - validate quantitative rail voltage, current draw or regulator capacity;
