@@ -3,6 +3,7 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
+from types import SimpleNamespace
 import sys
 import tempfile
 import unittest
@@ -53,6 +54,27 @@ class GuidedRunTests(unittest.TestCase):
                 },
             ],
         }
+        self.environment = {
+            "schema_version": "1.0.0",
+            "issue": "IHAP-46",
+            "profile_id": "ROOM-5X5-DOOR-CORNER-ABOVE-DOOR",
+            "description": "Reference setup",
+            "defaults": {
+                "room_id": "ROOM-5X5-DOOR-CORNER-01",
+                "room_shape": "square",
+                "room_width_m": 5.0,
+                "room_depth_m": 5.0,
+                "door_location": "near one corner",
+                "mount_height_cm": 200.0,
+                "mount_position": "above the door",
+                "mount_orientation": "antenna side facing into the room",
+                "room_notes": "reference notes",
+            },
+            "reference_test_positions": {
+                "room_center": "2.50 m from each wall"
+            },
+            "override_rule": "May be corrected.",
+        }
 
     def test_default_selection_excludes_optional(self) -> None:
         selected = guided_run.select_scenarios(self.plan, [], False)
@@ -102,6 +124,31 @@ class GuidedRunTests(unittest.TestCase):
             "act", loaded["actions"]["REQUIRED"]["during_capture"][0]
         )
 
+    def test_environment_profile_requires_reference_geometry(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "environment.json"
+            path.write_text(json.dumps(self.environment), encoding="utf-8")
+            loaded = guided_run.load_environment(path)
+        self.assertEqual(5.0, loaded["defaults"]["room_width_m"])
+        self.assertEqual(200.0, loaded["defaults"]["mount_height_cm"])
+
+    def test_environment_defaults_are_overridable(self) -> None:
+        args = SimpleNamespace(
+            room_id=None,
+            room_width_m=4.5,
+            room_depth_m=None,
+            door_location=None,
+            mount_height_cm=210.0,
+            mount_orientation=None,
+            mount_position=None,
+            room_notes="corrected notes",
+        )
+        effective = guided_run.effective_environment(self.environment, args)
+        self.assertEqual(4.5, effective["values"]["room_width_m"])
+        self.assertEqual(5.0, effective["values"]["room_depth_m"])
+        self.assertEqual(210.0, effective["values"]["mount_height_cm"])
+        self.assertEqual("corrected notes", effective["values"]["room_notes"])
+
     def test_sensor_specific_scenario_is_skipped_when_channel_missing(self) -> None:
         actions = {
             "actions": {
@@ -116,7 +163,7 @@ class GuidedRunTests(unittest.TestCase):
         )
         self.assertEqual(["REQUIRED"], [item["id"] for item in selected])
 
-    def test_scenario_card_is_actionable(self) -> None:
+    def test_scenario_card_is_actionable_and_english(self) -> None:
         action = {
             "purpose": "Verify an empty room.",
             "setup": ["Close the door."],
@@ -124,7 +171,8 @@ class GuidedRunTests(unittest.TestCase):
             "invalid_if": ["A person enters."],
         }
         card = guided_run.scenario_card(self.plan["scenarios"][0], action, 1)
-        self.assertIn("Durata registrata: 01:05", card)
+        self.assertIn("Recorded duration: 01:05", card)
+        self.assertIn("Actions during recording", card)
         self.assertIn("Keep the room empty.", card)
         self.assertIn("A person enters.", card)
 
