@@ -20,7 +20,6 @@ AI_AGENT_METADATA:
     - resize
     - compression
     - exif_removal
-    - svg_wrapper
   privacy_review: passed_for_repository_publication
   unvalidated_claim_marker: "[UNVALIDATED]"
 
@@ -34,14 +33,14 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 | Evidence ID | File | View | SHA-256 |
 |---|---|---|---|
-| E-IHAP44-01 | [`esp32-c3-supermini-front.svg`](esp32-c3-supermini-front.svg) | Front/component side | `4c12f25a58b5d27d4952efef6a03552b70df8157bd6864d0c37f7ab752cca30a` |
-| E-IHAP44-02 | [`esp32-c3-supermini-back.svg`](esp32-c3-supermini-back.svg) | Rear/pin-label side | `85132bce3477c97b1b9bc0aeeaad2198cb1461899e7c83b940469af36272c5a9` |
+| E-IHAP44-01 | [`esp32-c3-supermini-front.jpg`](esp32-c3-supermini-front.jpg) | Front/component side | `4236504134822a114149616858adf3e04b5524d340237aa1056aca28f8a1c8ab` |
+| E-IHAP44-02 | [`esp32-c3-supermini-back.jpg`](esp32-c3-supermini-back.jpg) | Rear/pin-label side | `2dc9b89c9455b118a9154c75615f19cc5b2769708f2ebdb20ceb06c5f1d84998` |
 
 ## Published Images
 
 ### E-IHAP44-01 — Front
 
-![Front view of the ESP32-C3 SuperMini-compatible specimen](esp32-c3-supermini-front.svg)
+![Front view of the ESP32-C3 SuperMini-compatible specimen](esp32-c3-supermini-front.jpg)
 
 Visible observations:
 
@@ -54,7 +53,7 @@ Visible observations:
 
 ### E-IHAP44-02 — Rear
 
-![Rear view of the ESP32-C3 SuperMini-compatible specimen](esp32-c3-supermini-back.svg)
+![Rear view of the ESP32-C3 SuperMini-compatible specimen](esp32-c3-supermini-back.jpg)
 
 Visible observations:
 
@@ -70,14 +69,14 @@ The Project Owner supplied the photographs in the project conversation. Reposito
 Applied transformations:
 
 1. cropped unused surrounding background;
-2. converted the source image payload to JPEG and embedded it in a repository-renderable SVG wrapper;
+2. converted the source image payload to JPEG;
 3. resized to a repository-friendly resolution;
 4. applied JPEG compression;
 5. removed EXIF metadata, including any location/device metadata.
 
 No component, label, trace, pin, solder joint or marking was added, removed or reconstructed.
 
-The original source files are not committed. The checksums above refer to the complete sanitized SVG repository files.
+The original source files are not committed. The checksums above refer to the complete sanitized JPEG repository files.
 
 ## Claims Supported
 
