@@ -1,164 +1,299 @@
-# Procedura operativa riproducibile — IHAP-46
+# Reproducible Operator Procedure — IHAP-46
 
-## Obiettivo
+## Objective
 
-Questa procedura permette a una persona diversa dall'autore del test di ripetere la stessa prova sullo stesso sensore o su un esemplare equivalente.
+This procedure enables another operator to repeat the same physical test on the documented LD2410C specimen or on a separately identified comparison specimen.
 
-Una prova è riproducibile quando conserva sia i dati del dispositivo sia il contesto necessario per interpretarli: posizione del sensore, configurazione della stanza, azione umana, durata, ripetizione e anomalie.
+A usable run preserves both device data and the context required to interpret it: specimen identity, room geometry, door position, sensor mounting, operator action, duration, repetition, ground truth, and anomalies.
 
-## 1. Identificare gli oggetti fisici
+## 1. Identify the physical specimens
 
-Prima del flash assegnare un identificativo stabile a:
+Assign stable identifiers before flashing:
 
-- modulo di presenza, ad esempio `LD2410C-OWNED-01`;
-- board, ad esempio `ESP32C3-SM-01`;
-- stanza, ad esempio `ROOM-STUDIO-01`;
-- eventuale PIR di confronto.
+- presence sensor, for example `LD2410C-HLK-V1.1-OWNED-01`;
+- ESP32-C3 board, for example `ESP32C3-SM-OWNED-01`;
+- room, default `ROOM-5X5-DOOR-CORNER-01`;
+- PIR comparison specimen, when used.
 
-Fotografare separatamente fronte e retro del sensore e della board quando l'esemplare non è già documentato. Non includere persone, indirizzi, schermate private o identificativi radio nei file pubblicabili.
+The owned LD2410C photographs are registered in [`docs/evidence/IHAP-46/`](../../../../docs/evidence/IHAP-46/README.md).
 
-## 2. Documentare il montaggio
+The photographs identify one visible `HLK-LD2410C` `V1.1` specimen and the labels `TX RX OUT GND VCC`. They do not validate voltage levels or runtime behavior.
 
-Il sensore deve rimanere fermo durante l'intera run. Registrare:
+## 2. Apply or correct the default environment
 
-- altezza dal pavimento in centimetri;
-- parete o supporto utilizzato;
-- direzione verso cui è orientato;
-- distanza approssimativa da porta e punto di prova;
-- posizione della porta durante ogni scenario;
-- presenza di pareti adiacenti, tende, ventilatori o oggetti mobili.
+The reference profile is [`config/default-environment.json`](../config/default-environment.json).
 
-Quando si confrontano due sensori, ripetere per quanto possibile la stessa geometria. Se il montaggio cambia, usare una nuova run ID.
+Default geometry:
 
-## 3. Verificare il collegamento
+- room shape: square;
+- room width: 5.00 m;
+- room depth: 5.00 m;
+- door: near one corner of the mounting wall;
+- sensor height: 2.00 m above the floor;
+- sensor position: wall-mounted immediately above the door opening;
+- sensor orientation: board parallel to the wall, antenna side facing into the room.
 
-Per la prima acquisizione LD2410C usare soltanto la ricezione UART:
+Reference positions:
+
+- door-inside point: 1.00 m inside the room on the sensor centreline;
+- room centre: 2.50 m from each wall;
+- far point: 0.50 m from the wall opposite the door on the sensor centreline;
+- lateral path: through the room centre, 0.50 m from each side wall at its endpoints;
+- seated point: room centre unless another fixed point is recorded.
+
+Before the run, correct any known deviation:
+
+- exact door width;
+- exact door offset from the nearest corner;
+- ceiling height;
+- furniture layout;
+- adjacent corridor or room geometry;
+- curtains, fans, pets, robots, or other moving objects;
+- sensor offset from the door frame;
+- sensor tilt or rotation.
+
+The effective values are saved in `effective-environment.json`.
+
+## 3. Mount the sensor
+
+Mount the sensor before executing room scenarios.
+
+The reference mounting condition is:
+
+1. attach the module to the wall immediately above the door;
+2. set the sensor centre to 2.00 m above the floor;
+3. keep the board plane parallel to the wall;
+4. face the antenna side into the room;
+5. prevent the board, breadboard, or jumper wires from moving during the run;
+6. route wires so that door movement cannot pull the circuit.
+
+Photograph the installed test assembly if the mounting is not already documented. Remove private or identifying background content before repository publication.
+
+A mounting change requires a new run ID.
+
+## 4. Wire the receive-only breadboard circuit
+
+Disconnect USB power before wiring.
+
+Identify the pin labels from the antenna side of the owned module:
 
 ```text
-LD2410C VCC -> 5 V della board
-LD2410C GND -> GND della board
+TX  RX  OUT  GND  VCC
+```
+
+Connect only:
+
+```text
+LD2410C VCC -> ESP32-C3 5 V
+LD2410C GND -> ESP32-C3 GND
 LD2410C TX  -> ESP32-C3 GPIO5
 ```
 
-Non collegare LD2410C RX, LD2410C OUT o PIR OUT finché pinout e livelli logici dell'esemplare non sono verificati.
+Leave disconnected:
 
-Dopo il flash, il pre-flight deve confermare:
+```text
+LD2410C RX
+LD2410C OUT
+PIR OUT
+```
 
-- avvio del firmware di test;
-- ricezione di campioni;
-- almeno un frame UART LD2410C valido, quando il canale UART è selezionato.
+The first run does not require radar configuration writes or the digital output.
 
-## 4. Usare sempre il runtime guidato
+Before power-on, verify:
 
-Il percorso operativo principale è:
+- VCC is not connected to a GPIO;
+- GND is shared;
+- module TX reaches ESP32-C3 GPIO5;
+- no loose conductor bridges adjacent breadboard rows;
+- the board is powered only through the intended PC USB connection.
+
+## 5. Check out the exact pull request revision
+
+```bash
+git clone https://github.com/pianic2/homeedge-ai-platform.git
+cd homeedge-ai-platform
+git fetch origin pull/25/head:ihap-46-validation
+git switch ihap-46-validation
+git rev-parse HEAD
+cd tools/hardware-validation/ihap-46-presence-sensor
+```
+
+Record the printed commit SHA.
+
+## 6. Build and flash
+
+Use ESP-IDF 6.0.1 for the reference run.
+
+```bash
+cd firmware
+idf.py set-target esp32c3
+idf.py menuconfig
+idf.py build
+idf.py -p /dev/ttyACM0 flash
+cd ..
+```
+
+Do not change the default LD2410C GPIO or UART settings for the first run.
+
+A build error, flash error, boot loop, or unexpected reset is evidence. Preserve the complete terminal output before making a correction.
+
+## 7. Prepare and verify the host tools
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -r host/requirements.txt
+python -m unittest discover -s tests -v
+python host/guided_run.py --dry-run
+```
+
+The preview must display:
+
+- the 5.00 m × 5.00 m default room;
+- door near one corner;
+- 2.00 m wall mounting above the door;
+- antenna side facing into the room;
+- scenario purpose;
+- operator setup;
+- action during recording;
+- duration and repetitions;
+- invalidation conditions.
+
+## 8. Execute the smoke run
 
 ```bash
 python host/guided_run.py \
   --port /dev/ttyACM0 \
-  --run-id <ID-UNIVOCO> \
-  --sensor ld2410c_uart
+  --run-id IHAP46-LD2410C-SMOKE-01 \
+  --sensor ld2410c_uart \
+  --scenario ROOM_EMPTY_BASELINE \
+  --scenario ENTER_ROOM \
+  --scenario SEATED_STILL \
+  --scenario EXIT_CLEAR
 ```
 
-Il runtime:
+Enter stable operator, sensor, and board IDs.
 
-1. acquisisce i dati di contesto;
-2. salva una copia immutabile del piano effettivo;
-3. esegue il pre-flight;
-4. stampa la preparazione dello scenario;
-5. attende la conferma dell'operatore;
-6. mostra un conto alla rovescia;
-7. registra automaticamente inizio e fine;
-8. ricorda a monitor l'azione durante il test;
-9. consente di annotare anomalie;
-10. genera risultati e report.
+Press Enter to accept each physical default. Type a correction when the real setup differs.
 
-Non avviare manualmente il cronometro e non creare marker da un secondo terminale, salvo attività di debug del tool.
+The pre-flight requires:
 
-## 5. Regole durante le prove
+- one parsed harness boot record;
+- sample records;
+- at least one fresh valid LD2410C UART frame.
 
-- Eseguire una sola azione controllata per scenario.
-- Non cambiare montaggio, sensibilità, cablaggio o disposizione della stanza durante una run.
-- Mantenere uguali percorso, velocità e punto finale tra le ripetizioni.
-- Evitare persone non coinvolte nell'area di test.
-- Annotare movimenti involontari, porte aperte per errore, perdita di alimentazione o spostamenti del sensore.
-- Interrompere e ripetere lo scenario quando una condizione d'invalidazione si verifica.
-- Usare un nuovo `run-id` quando cambia un elemento della configurazione.
+Do not start a scenario action before the runtime countdown.
 
-## 6. Azioni richieste per scenario
+## 9. Rules during every scenario
 
-| Scenario | Azione principale dell'operatore | Stato reale della stanza |
+- Execute one controlled action only.
+- Keep mounting, wiring, firmware, furniture, and path unchanged.
+- Reuse the same speed, endpoints, and posture across repetitions.
+- Keep uninvolved people outside the controlled area.
+- Record unintended movement, an opened door, power loss, reset, wire movement, or sensor movement.
+- Treat the attempt as invalid when any listed invalidation condition occurs.
+- Use a new run ID after any material configuration change.
+- Do not edit generated evidence files.
+
+## 10. Required operator actions
+
+| Scenario | Operator action | Ground truth |
 |---|---|---|
-| `ROOM_EMPTY_BASELINE` | Lasciare la stanza vuota e non passare nelle aree adiacenti immediate | Vuota |
-| `ENTER_ROOM` | Entrare a passo normale e raggiungere il punto interno definito | Da vuota a occupata |
-| `MOVING_LATERAL` | Camminare lateralmente tra due punti fissi | Persona in movimento |
-| `MOVING_APPROACH` | Avvicinarsi e allontanarsi lungo lo stesso percorso | Persona in movimento |
-| `SEATED_STILL` | Restare seduti senza movimenti volontari ampi | Persona sostanzialmente immobile |
-| `MICRO_MOVEMENT` | Restare seduti digitando o voltando pagine | Persona con piccoli movimenti |
-| `EXIT_CLEAR` | Uscire, chiudere la porta e restare lontani | Da occupata a vuota |
-| `ADJACENT_DOOR_CLOSED` | Camminare fuori dalla stanza con porta chiusa | Stanza vuota, attività adiacente |
-| `ADJACENT_DOOR_OPEN` | Camminare fuori senza oltrepassare la soglia | Stanza vuota, porta aperta |
-| `WALL_MOVEMENT` | Muoversi dietro la parete adiacente | Stanza vuota, attività oltre parete |
-| `NON_HUMAN_INTERFERENCE` | Attivare un solo oggetto mobile documentato | Stanza vuota |
-| `REBOOT_PERSISTENCE` | Eseguire un reset dichiarato e continuare il movimento previsto | Dipende dal tentativo |
-| `DIGITAL_UART_CONSISTENCY` | Alternare periodi chiaramente occupati e vuoti | Stato alternato |
+| `ROOM_EMPTY_BASELINE` | Leave the room and avoid the doorway and adjacent wall | Empty room |
+| `ENTER_ROOM` | Enter at normal pace and reach the fixed door-inside point | Empty to occupied |
+| `MOVING_LATERAL` | Walk between the fixed lateral endpoints | Moving person |
+| `MOVING_APPROACH` | Walk between the far and near points | Moving person |
+| `SEATED_STILL` | Remain seated without deliberate large movement | Substantially still person |
+| `MICRO_MOVEMENT` | Type or turn pages while seated | Small human movement |
+| `EXIT_CLEAR` | Leave, close the door, and remain away | Occupied to empty |
+| `ADJACENT_DOOR_CLOSED` | Walk along the fixed external path with the door closed | Empty room, adjacent activity |
+| `ADJACENT_DOOR_OPEN` | Walk outside without crossing the threshold | Empty room, open door |
+| `WALL_MOVEMENT` | Walk behind one documented adjacent wall | Empty room, movement beyond wall |
+| `NON_HUMAN_INTERFERENCE` | Activate one documented moving object | Empty room |
+| `REBOOT_PERSISTENCE` | Perform one declared reset while continuing the action | Scenario-specific |
+| `DIGITAL_UART_CONSISTENCY` | Alternate clearly occupied and empty periods | Alternating state |
 
-Le istruzioni dettagliate e le condizioni d'invalidazione vengono lette da `config/operator-actions.json` e mostrate dal runtime prima di ogni ripetizione.
+The runtime reads the detailed instructions from `config/operator-actions.json` and prints them before every repetition.
 
-## 7. Sequenza consigliata
+## 11. Execution order
 
-La prima sessione sul LD2410C dovrebbe procedere per gradi:
+### Stage A — electrical and data path
 
-### Fase A — collegamento e risposta
-
+- build;
+- flash;
+- pre-flight;
 - `ROOM_EMPTY_BASELINE`;
 - `ENTER_ROOM`;
 - `EXIT_CLEAR`.
 
-### Fase B — requisito di presenza
+Stop and inspect evidence after any boot failure, invalid UART frame pattern, repeated disconnect, or unexplained reset.
+
+### Stage B — presence behavior
 
 - `MOVING_LATERAL`;
 - `MOVING_APPROACH`;
 - `SEATED_STILL`;
 - `MICRO_MOVEMENT`.
 
-### Fase C — confini della stanza
+### Stage C — room boundaries
 
 - `ADJACENT_DOOR_CLOSED`;
 - `ADJACENT_DOOR_OPEN`;
-- `WALL_MOVEMENT`, quando applicabile.
+- `WALL_MOVEMENT`, when physically applicable.
 
-### Fase D — robustezza e interfacce
+### Stage D — robustness and interfaces
 
-- `NON_HUMAN_INTERFERENCE`, quando applicabile;
+- `NON_HUMAN_INTERFERENCE`, when physically applicable;
 - `REBOOT_PERSISTENCE`;
-- `DIGITAL_UART_CONSISTENCY`, soltanto dopo la verifica elettrica dell'uscita digitale.
+- `DIGITAL_UART_CONSISTENCY`, only after output-level verification.
 
-## 8. Quando una run è utilizzabile come evidence
+## 12. Evidence acceptance gate
 
-Una run è utilizzabile quando:
+A run is usable as technical evidence only when:
 
-- il pre-flight è passato;
-- gli identificativi fisici sono presenti;
-- montaggio e stanza sono documentati;
-- ogni intervallo ha marker automatici di inizio e fine;
-- le anomalie sono annotate;
-- il piano effettivo è salvato;
-- `results.json` e `report.html` vengono generati senza correzioni manuali dei dati.
+- pre-flight passed;
+- exact specimen IDs are present;
+- room and mounting values are present;
+- the effective environment file exists;
+- every completed interval has automatic start and end markers;
+- anomalies and invalid attempts are recorded;
+- the exact test plan is stored;
+- `results.json` and `report.html` are generated without manual data correction;
+- the firmware commit SHA is recorded.
 
-Una run non dimostra da sola che il sensore sia adatto all'MVP. Le conclusioni richiedono confronto tra scenari, ripetizioni, alternative e confini definiti da IHAP-46.
+A run does not independently establish MVP suitability. The decision requires comparison across scenarios, repetitions, practical limitations, alternatives, and relevant risks.
 
-## 9. Conservazione delle evidence
+## 13. Practical risk observations
 
-I dati grezzi restano in `runs/<RUN-ID>/` e non vengono pubblicati automaticamente.
+Record practical findings without immediately creating new risk records.
 
-Dopo la revisione si prepara un pacchetto sanitizzato che può contenere:
+Examples:
 
-- manifest della run;
-- configurazione del test;
-- foto tecniche prive di metadati sensibili;
-- risultati aggregati;
-- grafici;
-- limiti osservati;
-- collegamento alla commit del firmware e del piano di test.
+- a pin label is easy to misread after mounting;
+- jumper movement causes intermittent frames;
+- reset causes a serial-port change;
+- corridor movement causes internal presence;
+- a seated person is cleared too early;
+- an empty room remains occupied too long;
+- a wall or moving curtain creates false presence;
+- the reference mounting position creates blind areas;
+- firmware or sensor configuration is lost after reboot.
 
-Non pubblicare identificativi radio, dati personali, percorsi domestici dettagliati o log non necessari alla riproduzione tecnica.
+After the run, compare each observation with the existing risk catalogue, especially R-004. Create or modify a risk record only after explicit Project Owner authorization.
+
+## 14. Repository evidence boundary
+
+Raw run data remains local by default.
+
+A reviewed repository evidence package may include:
+
+- run manifest;
+- effective environment;
+- sanitized technical photographs;
+- aggregate results;
+- charts;
+- observed limitations;
+- practical risk candidates;
+- exact firmware and test-plan commit.
+
+Do not publish personal data, radio identifiers, detailed home layout beyond what is technically necessary, or unreviewed raw logs.
