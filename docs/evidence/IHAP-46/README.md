@@ -13,11 +13,12 @@ AI_AGENT_METADATA:
   source: project_owner_supplied_photographs
   original_files_committed: false
   published_files_sanitized: true
+  upload_status: pending_project_owner_binary_commit
   transformations:
     - crop
     - jpeg_reencode
+    - jpeg_compression
     - exif_removal
-    - repository_svg_container
   privacy_review: passed_for_repository_publication
   unvalidated_claim_marker: "[UNVALIDATED]"
 
@@ -29,18 +30,18 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 ## Evidence files
 
-| Evidence ID | File | View | SHA-256 |
-|---|---|---|---|
-| E-IHAP46-01 | [`ld2410c-v1-1-component-side.svg`](ld2410c-v1-1-component-side.svg) | Component/controller side | `8efd6555451c63895e2c14d84b5e235e0f7271b133a158f51525e7bce3618388` |
-| E-IHAP46-02 | [`ld2410c-v1-1-antenna-side.svg`](ld2410c-v1-1-antenna-side.svg) | Antenna and pin-label side | `e24112a7f8fdfd471848eed560db8b1b7b6861b2104f9f73852ceceb12a47705` |
+The normalized JPEG files are prepared for the Project Owner's manual binary commit.
 
-The SVG files are repository-safe containers for the sanitized JPEG raster payloads. They preserve the photographs without reconstructing or generating component detail.
+| Evidence ID | File | View | Dimensions | Size | SHA-256 |
+|---|---|---|---:|---:|---|
+| E-IHAP46-01 | [`ld2410c-v1-1-component-side.jpg`](ld2410c-v1-1-component-side.jpg) | Component/controller side | 725 × 610 | 132,160 bytes | `6be1da4612c8e771b173c7a05cf2a856b2455e670fad4fccfb259a486924a180` |
+| E-IHAP46-02 | [`ld2410c-v1-1-antenna-side.jpg`](ld2410c-v1-1-antenna-side.jpg) | Antenna and pin-label side | 710 × 560 | 97,703 bytes | `12153b876680b6cdcdd98f93f8296add50f797f4d273954b79d3b4b56c325059` |
 
 ## Published images
 
 ### E-IHAP46-01 — Component/controller side
 
-![Component side of the owned HLK-LD2410C V1.1 specimen](ld2410c-v1-1-component-side.svg)
+![Component side of the owned HLK-LD2410C V1.1 specimen](ld2410c-v1-1-component-side.jpg)
 
 Visible observations:
 
@@ -52,7 +53,7 @@ Visible observations:
 
 ### E-IHAP46-02 — Antenna and pin-label side
 
-![Antenna side of the owned HLK-LD2410C V1.1 specimen](ld2410c-v1-1-antenna-side.svg)
+![Antenna side of the owned HLK-LD2410C V1.1 specimen](ld2410c-v1-1-antenna-side.jpg)
 
 Visible observations:
 
@@ -73,11 +74,11 @@ Applied transformations:
 2. decoded and re-encoded the raster as JPEG;
 3. removed EXIF metadata, including device or location metadata;
 4. applied repository-friendly JPEG compression;
-5. embedded the sanitized JPEG payload in a text-based SVG container so the repository connector could store and render the evidence.
+5. retained the original visible component content without reconstruction.
 
 No component, label, trace, pin, solder joint, antenna, package, or marking was added, removed, reconstructed, or enhanced.
 
-The original uploads are not committed. The checksums above refer to the complete published SVG files.
+The original uploads are not committed. The checksums above refer to the complete normalized JPEG files prepared for repository upload.
 
 ## Claims supported
 
