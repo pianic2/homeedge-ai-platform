@@ -1,5 +1,8 @@
 idf_component_register(
     SRCS "main.c"
     INCLUDE_DIRS "."
-    REQUIRES driver esp_timer
+    PRIV_REQUIRES
+	esp_timer
+	esp_driver_i2c
+	esp_driver_gpio
 )

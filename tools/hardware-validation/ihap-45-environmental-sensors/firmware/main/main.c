@@ -379,7 +379,7 @@ static esp_err_t bme280_initialize(void)
 {
     i2c_master_bus_config_t bus_config = {
         .clk_source = I2C_CLK_SRC_DEFAULT,
-        .i2c_port = I2C_PORT_NUM_0,
+        .i2c_port = I2C_NUM_0,
         .scl_io_num = CONFIG_IHAP45_I2C_SCL_GPIO,
         .sda_io_num = CONFIG_IHAP45_I2C_SDA_GPIO,
         .glitch_ignore_cnt = 7,
