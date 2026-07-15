@@ -1,18 +1,10 @@
-# IHAP-46 — Test reale del sensore di presenza
+# IHAP-46 — Presence Sensor Physical Validation
 
-Questo pacchetto serve a eseguire prove fisiche riproducibili sul sensore LD2410C e, quando disponibile, su un sensore PIR di confronto.
+This package executes reproducible physical tests on the owned LD2410C specimen and, when an identified PIR specimen is available, performs a controlled comparison.
 
-L'obiettivo non è osservare semplicemente se il sensore "sembra funzionare". Ogni prova deve dichiarare:
+The test does not rely on an informal observation that the sensor “seems to work.” Every run records the physical specimen, room geometry, mounting position, operator action, duration, ground truth, received data, reset history, and invalidating events.
 
-- quale sensore e quale board sono stati usati;
-- dove e come è stato montato il sensore;
-- quale azione ha eseguito la persona;
-- per quanto tempo è stata eseguita;
-- quale stato reale della stanza era atteso;
-- quali dati sono stati ricevuti;
-- quali anomalie hanno reso il tentativo non valido.
-
-Il runtime guida l'operatore a monitor, registra automaticamente l'inizio e la fine di ogni scenario e genera le evidence della run.
+The guided runtime prints the required action on screen, creates ground-truth markers automatically, and generates the evidence package.
 
 <!--
 AI_AGENT_METADATA:
@@ -23,148 +15,149 @@ AI_AGENT_METADATA:
   runtime_entrypoint: host/guided_run.py
   numerical_test_plan: config/test-plan.json
   operator_action_source: config/operator-actions.json
+  default_environment_source: config/default-environment.json
+  physical_specimen_evidence: ../../../docs/evidence/IHAP-46/README.md
   raw_runs_default_location: runs/
   production_event_boundary: presence_detected_boolean_only
   detailed_radar_fields: laboratory_evidence_only
   decisions_allowed_here: none
 
 HIDDEN_AGENT_RULES:
-  - Do not treat harness creation or a successful run as sensor acceptance.
+  - Do not treat harness creation or one successful run as sensor acceptance.
   - Do not create or accept an ADR from raw observations without Project Owner decision.
   - Do not move detailed radar telemetry into the MVP event contract.
-  - Do not commit raw runs by default; prepare sanitized summaries and evidence manifests separately.
+  - Do not commit raw runs by default; publish only reviewed, sanitized evidence.
+  - New practical risks remain observations until the Project Owner approves risk-record work.
   - IHAP-49 owns quantitative power evidence.
   - IHAP-50 owns final wiring.
-  - IHAP-51 owns enclosure and placement constraints.
+  - IHAP-51 owns enclosure and production placement constraints.
 -->
 
-## Come si svolge una prova
+## Owned LD2410C specimen
 
-Una run completa segue questo ordine:
+The Project Owner supplied component-side and antenna-side photographs of one owned specimen.
 
-1. identificazione del sensore, della board e della stanza;
-2. montaggio del sensore in una posizione misurata e documentata;
-3. compilazione e flash del firmware di test;
-4. anteprima delle azioni che verranno richieste;
-5. pre-flight automatico della connessione e dei dati;
-6. esecuzione guidata degli scenari;
-7. generazione di log, risultati JSON e report HTML;
-8. revisione delle evidence prima di trarre conclusioni.
+The visible markings identify:
 
-La procedura completa e le regole per rendere la prova ripetibile sono descritte in [`docs/operator-test-procedure.md`](docs/operator-test-procedure.md).
+- module label `HLK-LD2410C`;
+- PCB revision `V1.1`;
+- antenna-side pin labels `TX`, `RX`, `OUT`, `GND`, `VCC`.
 
-## Cosa serve
+The sanitized photographs, provenance, checksums, supported observations, and limitations are recorded in [`docs/evidence/IHAP-46/`](../../../docs/evidence/IHAP-46/README.md).
 
-- una board ESP32-C3 compatibile con la baseline IHAP-44;
-- il modulo LD2410C da testare;
-- un computer con ESP-IDF 6.x e Python 3;
-- alimentazione della board tramite USB del computer;
-- una posizione di montaggio stabile;
-- una stanza in cui sia possibile controllare ingresso, uscita e movimento nelle aree adiacenti;
-- un PIR identificato, solo per le prove comparative che lo richiedono.
+The photographs identify the physical labels of this specimen. They do not validate signal voltage, power behavior, UART operation, detection quality, or suitability for the MVP.
 
-Prima di collegare un'uscita del sensore alla board, verificare il pinout e i livelli logici del modulo fisico.
+## Default physical environment
 
-La prima prova LD2410C può usare il collegamento UART già sperimentato:
+The default experiment profile is stored in [`config/default-environment.json`](config/default-environment.json).
+
+It defines:
+
+- square room: **5.00 m × 5.00 m**;
+- door: **near one corner** of the mounting wall;
+- sensor height: **2.00 m above the floor**;
+- sensor position: **attached to the wall immediately above the door opening**;
+- sensor orientation: **board parallel to the wall, antenna side facing into the room**.
+
+The runtime displays these values before the run. Pressing Enter accepts a default. Typing another value records a correction in the evidence.
+
+The profile also defines relative reference points:
+
+- 1.00 m inside the doorway on the sensor centreline;
+- geometric room centre;
+- 0.50 m from the wall opposite the door on the sensor centreline;
+- a lateral path through the room centre;
+- a fixed seated point at the room centre unless corrected.
+
+Exact door width, offset from the nearest corner, ceiling height, furniture layout, adjacent-space geometry, and moving objects remain run-specific and must be corrected in the metadata when known.
+
+## Breadboard wiring for the first validation
+
+Disconnect USB power before changing the wiring.
+
+Use the labels printed on the photographed antenna side to identify the pins. The initial validation uses receive-only UART:
 
 ```text
-LD2410C VCC -> 5 V della board
-LD2410C GND -> GND della board
+LD2410C VCC -> ESP32-C3 5 V
+LD2410C GND -> ESP32-C3 GND
 LD2410C TX  -> ESP32-C3 GPIO5
 ```
 
-Questo collegamento permette alla board di ricevere i dati del radar. L'ingresso RX del radar, l'uscita digitale LD2410C e il PIR restano disabilitati finché non vengono verificati e configurati esplicitamente.
+Do not connect these pins during the first run:
 
-## Preparazione del software
+```text
+ESP32-C3 TX -> LD2410C RX
+LD2410C OUT -> ESP32-C3 GPIO
+PIR OUT     -> ESP32-C3 GPIO
+```
 
-Dalla directory `firmware/`:
+The shared ground is mandatory. The photographed pin labels do not establish logic-level safety. RX, OUT, and PIR paths remain disabled until their levels are verified.
+
+## Clone the pull request
 
 ```bash
+git clone https://github.com/pianic2/homeedge-ai-platform.git
+cd homeedge-ai-platform
+git fetch origin pull/25/head:ihap-46-validation
+git switch ihap-46-validation
+cd tools/hardware-validation/ihap-46-presence-sensor
+```
+
+Confirm the checked-out commit before testing:
+
+```bash
+git status
+git rev-parse HEAD
+```
+
+Record the commit SHA with the run evidence.
+
+## Build and flash the firmware
+
+Use ESP-IDF **6.0.1** for the reference run. A different ESP-IDF 6.x version is a test deviation and must be recorded.
+
+Activate ESP-IDF, then run:
+
+```bash
+cd firmware
 idf.py set-target esp32c3
 idf.py menuconfig
 idf.py build
 idf.py -p /dev/ttyACM0 flash
+cd ..
 ```
 
-Dalla directory principale di questo pacchetto:
+The default firmware configuration reads LD2410C UART on ESP32-C3 GPIO5 at 256000 baud and emits newline-delimited JSON on the USB serial console at 115200 baud.
+
+## Prepare the host runtime
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r host/requirements.txt
+python -m unittest discover -s tests -v
 ```
 
-## Leggere le istruzioni prima della prova
-
-Prima di collegarsi al dispositivo, eseguire l'anteprima:
+Preview the default environment and operator actions without opening the serial port:
 
 ```bash
 python host/guided_run.py --dry-run
 ```
 
-Il comando stampa, per ogni scenario:
-
-- scopo della prova;
-- preparazione della stanza;
-- azione che la persona deve eseguire;
-- durata;
-- numero di ripetizioni;
-- condizioni che invalidano il tentativo.
-
-Per visualizzare un solo scenario:
+Preview only the initial smoke scenarios:
 
 ```bash
 python host/guided_run.py \
   --dry-run \
-  --scenario SEATED_STILL
+  --scenario ROOM_EMPTY_BASELINE \
+  --scenario ENTER_ROOM \
+  --scenario SEATED_STILL \
+  --scenario EXIT_CLEAR
 ```
 
-## Eseguire una run reale
+## Execute the first real smoke run
 
-Per testare inizialmente il canale UART del LD2410C:
-
-```bash
-python host/guided_run.py \
-  --port /dev/ttyACM0 \
-  --run-id IHAP46-LD2410C-01 \
-  --sensor ld2410c_uart
-```
-
-Il programma chiede e registra:
-
-- nome dell'operatore;
-- identificativo del sensore;
-- identificativo della board;
-- identificativo della stanza;
-- altezza di montaggio;
-- orientamento e posizione;
-- note su pareti, porte e oggetti mobili.
-
-Successivamente esegue un pre-flight. Se firmware, campioni o frame UART non sono disponibili, la prova si ferma senza iniziare gli scenari.
-
-Per ogni scenario il monitor mostra una schermata simile:
-
-```text
-TEST: SEATED_STILL — Seated substantially still
-Ripetizione: 1/3
-Durata registrata: 10:00
-
-Preparazione prima di iniziare
-  1. Posiziona una sedia nel punto di prova.
-  2. Siediti con porta chiusa e postura normale.
-
-Azioni durante la registrazione
-  1. Rimani seduto senza movimenti volontari ampi.
-  2. Respira normalmente e mantieni la postura più stabile possibile.
-```
-
-La registrazione inizia solo quando l'operatore conferma che la preparazione è completa. Durante il test il runtime ristampa periodicamente l'azione da eseguire e il tempo rimanente.
-
-L'inizio e la fine dello scenario vengono marcati automaticamente: non è necessario usare un secondo terminale.
-
-## Eseguire solo alcuni scenari
-
-Per una prima verifica breve:
+Mount the sensor in the documented default position before starting the room scenarios.
 
 ```bash
 python host/guided_run.py \
@@ -177,49 +170,120 @@ python host/guided_run.py \
   --scenario EXIT_CLEAR
 ```
 
-Le prove opzionali, come movimento dietro una parete o interferenze non umane, vengono incluse solo con:
+The runtime:
+
+1. displays the default room and mounting profile;
+2. accepts or corrects the effective values;
+3. records operator, sensor, board, and room identifiers;
+4. starts the reset-tolerant serial collector;
+5. requires a valid firmware and UART pre-flight;
+6. prints the exact action for each repetition;
+7. waits for operator readiness;
+8. starts a five-second countdown;
+9. records scenario start and end automatically;
+10. repeats the current action and remaining time on screen;
+11. records anomaly notes;
+12. generates machine-readable results and a human-readable report.
+
+A second terminal is not required.
+
+## Override defaults
+
+Each value can be changed interactively or on the command line:
+
+```bash
+python host/guided_run.py \
+  --port /dev/ttyACM0 \
+  --run-id IHAP46-LD2410C-CORRECTED-01 \
+  --sensor ld2410c_uart \
+  --room-width-m 4.80 \
+  --room-depth-m 5.10 \
+  --door-location "0.40 m from the west corner" \
+  --mount-height-cm 198 \
+  --mount-position "wall-mounted 5 cm above the door frame" \
+  --mount-orientation "board parallel to wall, antenna side facing into room"
+```
+
+A separate environment file can be selected with:
+
+```bash
+--environment path/to/environment.json
+```
+
+Every effective value is saved with the run.
+
+## Execute the complete required matrix
+
+After the smoke run has valid evidence and no blocking electrical or firmware defect:
+
+```bash
+python host/guided_run.py \
+  --port /dev/ttyACM0 \
+  --run-id IHAP46-LD2410C-FULL-01 \
+  --sensor ld2410c_uart
+```
+
+Optional boundary and interference scenarios are added with:
 
 ```bash
 --include-optional
 ```
 
-## Testare altri canali
-
-Dopo aver verificato cablaggio e livelli logici, è possibile aggiungere:
+The digital-output consistency scenario requires both:
 
 ```bash
+--sensor ld2410c_uart
 --sensor ld2410c_out
---sensor pir_out
 ```
 
-Il report valuta soltanto i canali dichiarati nella run. Un PIR non collegato non deve essere incluso tra i canali selezionati.
+Do not enable `ld2410c_out` until the output logic level is verified.
 
-## Evidence prodotte
+## Evidence produced by each run
 
-Ogni run viene salvata in `runs/<RUN-ID>/`:
+Each run is stored under `runs/<RUN-ID>/`:
 
 ```text
-run.json                    configurazione, operatore, stanza e montaggio
-effective-test-plan.json    scenari e soglie realmente usati
-serial.log                  output completo ricevuto dalla board
-records.jsonl               record JSON con timestamp del computer
-marks.jsonl                 inizio, fine e annotazioni degli scenari
-capture-events.jsonl        connessioni, reset e riconnessioni seriali
-results.json                valutazione leggibile dalle macchine
-report.html                 report interattivo leggibile dagli umani
+run.json                    operator, specimens, environment, and snapshots
+effective-environment.json  exact room, door, mounting, and reference points
+effective-test-plan.json    exact scenarios, repetitions, and thresholds
+serial.log                  complete console stream
+records.jsonl               parsed device records with host timestamps
+marks.jsonl                 automatic ground truth and operator annotations
+capture-events.jsonl        serial connection, reset, and reconnection history
+results.json                machine-readable evaluation
+report.html                 self-contained human-readable report
 ```
 
-Non modificare i file di una run completata. Se una configurazione, un'azione o un'annotazione è errata, eseguire una nuova run con un nuovo identificativo.
+Do not edit a completed run. Execute a new run ID after any correction, wiring change, firmware change, mounting change, or invalid attempt.
 
-I log grezzi restano locali per impostazione predefinita. Nel repository verranno pubblicati soltanto manifest, risultati riassunti ed evidence sanitizzate dopo la revisione.
+Raw logs remain local by default. Repository evidence contains reviewed manifests, sanitized images, aggregated results, graphs, limitations, and traceability to the exact commit.
 
-## Verificare gli strumenti senza sensore
+## Practical risk discovery
 
-```bash
-python host/ihap46.py selftest \
-  --output runs/IHAP46-SELFTEST
+Physical validation may expose risks that are not visible from datasheets or static review, including:
 
-python -m unittest discover -s tests -v
-```
+- incorrect or ambiguous physical pin interpretation;
+- unstable breadboard or jumper connections;
+- reset or USB re-enumeration failures;
+- false presence from the corridor, open door, wall, curtain, or fan;
+- missed substantially stationary presence;
+- excessive clear latency after exit;
+- inconsistent UART and digital-output behavior;
+- sensitivity to mounting height, orientation, furniture, or room geometry;
+- configuration loss after reboot;
+- unexplained invalid frames or data gaps.
 
-Questi comandi verificano il software di raccolta e analisi. Non sostituiscono le prove fisiche del dispositivo.
+Record each observation in the run annotations and report. An observation becomes a proposed project risk only after review against the existing risk catalogue and explicit Project Owner authorization.
+
+## Boundaries
+
+This package does not:
+
+- select LD2410C or PIR;
+- accept an ADR;
+- validate quantitative power behavior;
+- freeze production wiring or enclosure design;
+- change the production event contract;
+- authorize identity, tracking, behavioral history, alarm, intrusion-detection, safety, or security-grade claims.
+
+The production semantic remains the local non-identifying boolean `presence_detected` state `[UNVALIDATED]`.
