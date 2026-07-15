@@ -1,67 +1,83 @@
-# IHAP-46 — Presence Sensor Validation Harness
+# IHAP-46 — Test reale del sensore di presenza
 
-Laboratory-only validation package for comparing the owned LD2410C specimen with an identified PIR alternative under the IHAP-46 decision boundary.
+Questo pacchetto serve a eseguire prove fisiche riproducibili sul sensore LD2410C e, quando disponibile, su un sensore PIR di confronto.
 
-This package does **not** select a sensor, modify the MVP firmware, create an ADR, validate power consumption, freeze final wiring, or authorize alarm/security claims. Detailed radar telemetry is captured only as controlled engineering evidence. The only permitted production semantic remains the boolean `presence_detected` state `[UNVALIDATED]`.
+L'obiettivo non è osservare semplicemente se il sensore "sembra funzionare". Ogni prova deve dichiarare:
 
-## Current checkpoint
+- quale sensore e quale board sono stati usati;
+- dove e come è stato montato il sensore;
+- quale azione ha eseguito la persona;
+- per quanto tempo è stata eseguita;
+- quale stato reale della stanza era atteso;
+- quali dati sono stati ricevuti;
+- quali anomalie hanno reso il tentativo non valido.
 
-Implemented:
+Il runtime guida l'operatore a monitor, registra automaticamente l'inizio e la fine di ogni scenario e genera le evidence della run.
 
-- ESP-IDF test firmware for LD2410C UART telemetry;
-- optional LD2410C digital output sampling;
-- optional PIR digital output sampling;
-- reset-tolerant host serial capture;
-- ground-truth scenario markers;
-- JSON results and a self-contained interactive HTML report;
-- configurable scenario matrix;
-- host-side automated tests.
+<!--
+AI_AGENT_METADATA:
+  issue: IHAP-46
+  artifact_role: reproducible_physical_test_harness
+  human_entrypoint: README.md
+  detailed_human_procedure: docs/operator-test-procedure.md
+  runtime_entrypoint: host/guided_run.py
+  numerical_test_plan: config/test-plan.json
+  operator_action_source: config/operator-actions.json
+  raw_runs_default_location: runs/
+  production_event_boundary: presence_detected_boolean_only
+  detailed_radar_fields: laboratory_evidence_only
+  decisions_allowed_here: none
 
-Not performed yet:
+HIDDEN_AGENT_RULES:
+  - Do not treat harness creation or a successful run as sensor acceptance.
+  - Do not create or accept an ADR from raw observations without Project Owner decision.
+  - Do not move detailed radar telemetry into the MVP event contract.
+  - Do not commit raw runs by default; prepare sanitized summaries and evidence manifests separately.
+  - IHAP-49 owns quantitative power evidence.
+  - IHAP-50 owns final wiring.
+  - IHAP-51 owns enclosure and placement constraints.
+-->
 
-- physical execution;
-- exact module/revision qualification;
-- electrical-level acceptance;
-- PIR specimen selection;
-- sensor decision;
-- ADR or BOM update.
+## Come si svolge una prova
 
-## Directory structure
+Una run completa segue questo ordine:
+
+1. identificazione del sensore, della board e della stanza;
+2. montaggio del sensore in una posizione misurata e documentata;
+3. compilazione e flash del firmware di test;
+4. anteprima delle azioni che verranno richieste;
+5. pre-flight automatico della connessione e dei dati;
+6. esecuzione guidata degli scenari;
+7. generazione di log, risultati JSON e report HTML;
+8. revisione delle evidence prima di trarre conclusioni.
+
+La procedura completa e le regole per rendere la prova ripetibile sono descritte in [`docs/operator-test-procedure.md`](docs/operator-test-procedure.md).
+
+## Cosa serve
+
+- una board ESP32-C3 compatibile con la baseline IHAP-44;
+- il modulo LD2410C da testare;
+- un computer con ESP-IDF 6.x e Python 3;
+- alimentazione della board tramite USB del computer;
+- una posizione di montaggio stabile;
+- una stanza in cui sia possibile controllare ingresso, uscita e movimento nelle aree adiacenti;
+- un PIR identificato, solo per le prove comparative che lo richiedono.
+
+Prima di collegare un'uscita del sensore alla board, verificare il pinout e i livelli logici del modulo fisico.
+
+La prima prova LD2410C può usare il collegamento UART già sperimentato:
 
 ```text
-config/test-plan.json       scenario matrix and trial evaluation thresholds
-firmware/                   ESP-IDF laboratory firmware
-host/ihap46.py              capture, mark, report and self-test CLI
-host/requirements.txt       host runtime dependency
-runs/                       generated locally; do not commit raw runs by default
-tests/test_ihap46.py        host-side automated tests
-```
-
-## Electrical stop gate
-
-Before connecting any signal pin, identify the exact module and verify its pinout and output logic levels.
-
-Initial RX-only LD2410C evidence can reuse the historical prototype path:
-
-```text
-LD2410C VCC -> board 5 V rail
-LD2410C GND -> board GND
+LD2410C VCC -> 5 V della board
+LD2410C GND -> GND della board
 LD2410C TX  -> ESP32-C3 GPIO5
 ```
 
-The defaults deliberately keep these paths disabled until explicitly configured:
+Questo collegamento permette alla board di ricevere i dati del radar. L'ingresso RX del radar, l'uscita digitale LD2410C e il PIR restano disabilitati finché non vengono verificati e configurati esplicitamente.
 
-```text
-ESP32-C3 TX -> LD2410C RX
-LD2410C OUT -> ESP32-C3 GPIO
-PIR OUT     -> ESP32-C3 GPIO
-```
+## Preparazione del software
 
-Enable them through `idf.py menuconfig` only after the specimen and logic-level checks. These are temporary laboratory connections; IHAP-50 owns final wiring.
-
-## Firmware build
-
-From `firmware/` with ESP-IDF 6.x activated:
+Dalla directory `firmware/`:
 
 ```bash
 idf.py set-target esp32c3
@@ -70,98 +86,140 @@ idf.py build
 idf.py -p /dev/ttyACM0 flash
 ```
 
-The firmware emits newline-delimited JSON at 115200 baud. LD2410C UART is read at 256000 baud. A boot record is emitted once and sample records are emitted at the configured period.
-
-## Host setup
+Dalla directory principale di questo pacchetto:
 
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r host/requirements.txt
-python host/ihap46.py validate-plan
-python host/ihap46.py list-scenarios
 ```
 
-## Preflight
+## Leggere le istruzioni prima della prova
 
-The collector automatically waits for `/dev/ttyACM0` to reappear after an ESP32-C3 reset instead of aborting the run.
+Prima di collegarsi al dispositivo, eseguire l'anteprima:
 
 ```bash
-python host/ihap46.py preflight \
+python host/guided_run.py --dry-run
+```
+
+Il comando stampa, per ogni scenario:
+
+- scopo della prova;
+- preparazione della stanza;
+- azione che la persona deve eseguire;
+- durata;
+- numero di ripetizioni;
+- condizioni che invalidano il tentativo.
+
+Per visualizzare un solo scenario:
+
+```bash
+python host/guided_run.py \
+  --dry-run \
+  --scenario SEATED_STILL
+```
+
+## Eseguire una run reale
+
+Per testare inizialmente il canale UART del LD2410C:
+
+```bash
+python host/guided_run.py \
   --port /dev/ttyACM0 \
-  --seconds 20
+  --run-id IHAP46-LD2410C-01 \
+  --sensor ld2410c_uart
 ```
 
-Preflight requires:
+Il programma chiede e registra:
 
-- a parsed harness boot record;
-- sample records;
-- at least one fresh, valid LD2410C UART target-data frame.
+- nome dell'operatore;
+- identificativo del sensore;
+- identificativo della board;
+- identificativo della stanza;
+- altezza di montaggio;
+- orientamento e posizione;
+- note su pareti, porte e oggetti mobili.
 
-## Controlled capture
+Successivamente esegue un pre-flight. Se firmware, campioni o frame UART non sono disponibili, la prova si ferma senza iniziare gli scenari.
 
-Terminal 1:
+Per ogni scenario il monitor mostra una schermata simile:
+
+```text
+TEST: SEATED_STILL — Seated substantially still
+Ripetizione: 1/3
+Durata registrata: 10:00
+
+Preparazione prima di iniziare
+  1. Posiziona una sedia nel punto di prova.
+  2. Siediti con porta chiusa e postura normale.
+
+Azioni durante la registrazione
+  1. Rimani seduto senza movimenti volontari ampi.
+  2. Respira normalmente e mantieni la postura più stabile possibile.
+```
+
+La registrazione inizia solo quando l'operatore conferma che la preparazione è completa. Durante il test il runtime ristampa periodicamente l'azione da eseguire e il tempo rimanente.
+
+L'inizio e la fine dello scenario vengono marcati automaticamente: non è necessario usare un secondo terminale.
+
+## Eseguire solo alcuni scenari
+
+Per una prima verifica breve:
 
 ```bash
-python host/ihap46.py capture \
+python host/guided_run.py \
   --port /dev/ttyACM0 \
-  --run-id IHAP46-RUN-01 \
-  --plan config/test-plan.json
-```
-
-Terminal 2, at scenario start:
-
-```bash
-python host/ihap46.py mark \
-  --run-id IHAP46-RUN-01 \
+  --run-id IHAP46-LD2410C-SMOKE-01 \
+  --sensor ld2410c_uart \
   --scenario ROOM_EMPTY_BASELINE \
-  --phase start \
-  --repetition 1 \
-  --note "room empty; door closed"
+  --scenario ENTER_ROOM \
+  --scenario SEATED_STILL \
+  --scenario EXIT_CLEAR
 ```
 
-At scenario end:
+Le prove opzionali, come movimento dietro una parete o interferenze non umane, vengono incluse solo con:
 
 ```bash
-python host/ihap46.py mark \
-  --run-id IHAP46-RUN-01 \
-  --scenario ROOM_EMPTY_BASELINE \
-  --phase end \
-  --repetition 1
+--include-optional
 ```
 
-Stop capture with `Ctrl+C` only after closing the current interval.
+## Testare altri canali
 
-## Report
+Dopo aver verificato cablaggio e livelli logici, è possibile aggiungere:
 
 ```bash
-python host/ihap46.py report \
-  --run-id IHAP46-RUN-01 \
-  --plan config/test-plan.json
+--sensor ld2410c_out
+--sensor pir_out
 ```
 
-Generated under `runs/IHAP46-RUN-01/`:
+Il report valuta soltanto i canali dichiarati nella run. Un PIR non collegato non deve essere incluso tra i canali selezionati.
 
-- `serial.log` — complete decoded console stream;
-- `records.jsonl` — parsed JSON records with host timestamps;
-- `marks.jsonl` — manual ground-truth markers;
-- `capture-events.jsonl` — serial connect/disconnect/reconnect history;
-- `results.json` — machine-readable evaluation;
-- `report.html` — self-contained interactive human-readable report.
+## Evidence prodotte
 
-## Synthetic self-test
+Ogni run viene salvata in `runs/<RUN-ID>/`:
 
-This checks the host pipeline without hardware:
+```text
+run.json                    configurazione, operatore, stanza e montaggio
+effective-test-plan.json    scenari e soglie realmente usati
+serial.log                  output completo ricevuto dalla board
+records.jsonl               record JSON con timestamp del computer
+marks.jsonl                 inizio, fine e annotazioni degli scenari
+capture-events.jsonl        connessioni, reset e riconnessioni seriali
+results.json                valutazione leggibile dalle macchine
+report.html                 report interattivo leggibile dagli umani
+```
+
+Non modificare i file di una run completata. Se una configurazione, un'azione o un'annotazione è errata, eseguire una nuova run con un nuovo identificativo.
+
+I log grezzi restano locali per impostazione predefinita. Nel repository verranno pubblicati soltanto manifest, risultati riassunti ed evidence sanitizzate dopo la revisione.
+
+## Verificare gli strumenti senza sensore
 
 ```bash
 python host/ihap46.py selftest \
   --output runs/IHAP46-SELFTEST
-```
 
-## Automated tests
-
-```bash
 python -m unittest discover -s tests -v
 ```
 
-The thresholds in `config/test-plan.json` are trial criteria for the controlled comparison. They do not establish manufacturer accuracy, security reliability, statistical generalizability, battery feasibility, or final Project Owner acceptance.
+Questi comandi verificano il software di raccolta e analisi. Non sostituiscono le prove fisiche del dispositivo.
