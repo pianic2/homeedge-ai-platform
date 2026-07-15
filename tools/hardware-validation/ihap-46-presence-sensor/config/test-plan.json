@@ -1,0 +1,219 @@
+{
+  "schema_version": "1.0.0",
+  "issue": "IHAP-46",
+  "title": "Presence Sensor Decision — LD2410C vs PIR Alternatives",
+  "decision_state": "test harness only; sensor decision remains UNVALIDATED",
+  "production_data_boundary": {
+    "allowed": ["presence_detected"],
+    "laboratory_only": [
+      "target_state",
+      "moving_distance_cm",
+      "moving_energy",
+      "static_distance_cm",
+      "static_energy",
+      "detection_distance_cm"
+    ]
+  },
+  "acquisition": {
+    "console_baud": 115200,
+    "ld2410c_uart_baud": 256000,
+    "sample_period_ms": 100,
+    "serial_auto_reconnect": true
+  },
+  "scenarios": [
+    {
+      "id": "ROOM_EMPTY_BASELINE",
+      "title": "Room empty baseline",
+      "required": true,
+      "duration_s": 300,
+      "repetitions": 1,
+      "ground_truth": "empty",
+      "door_state": "closed",
+      "instructions": "Leave the test area empty and avoid adjacent movement.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.02},
+        "ld2410c_out": {"max_presence_ratio": 0.02},
+        "pir_out": {"max_presence_ratio": 0.02}
+      }
+    },
+    {
+      "id": "ENTER_ROOM",
+      "title": "Enter the room",
+      "required": true,
+      "duration_s": 30,
+      "repetitions": 10,
+      "ground_truth": "present_moving",
+      "door_state": "open",
+      "instructions": "Enter from outside the room and move into the intended sensing area.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.80, "max_onset_ms": 2000},
+        "ld2410c_out": {"min_presence_ratio": 0.80, "max_onset_ms": 2000},
+        "pir_out": {"min_presence_ratio": 0.60, "max_onset_ms": 2000}
+      }
+    },
+    {
+      "id": "MOVING_LATERAL",
+      "title": "Lateral movement inside room",
+      "required": true,
+      "duration_s": 30,
+      "repetitions": 5,
+      "ground_truth": "present_moving",
+      "door_state": "closed",
+      "instructions": "Walk laterally across the intended room area at normal pace.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.90},
+        "ld2410c_out": {"min_presence_ratio": 0.90},
+        "pir_out": {"min_presence_ratio": 0.75}
+      }
+    },
+    {
+      "id": "MOVING_APPROACH",
+      "title": "Approach and retreat from sensor",
+      "required": true,
+      "duration_s": 30,
+      "repetitions": 5,
+      "ground_truth": "present_moving",
+      "door_state": "closed",
+      "instructions": "Walk toward and away from the sensor without leaving the room area.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.90},
+        "ld2410c_out": {"min_presence_ratio": 0.90},
+        "pir_out": {"min_presence_ratio": 0.60}
+      }
+    },
+    {
+      "id": "SEATED_STILL",
+      "title": "Seated substantially still",
+      "required": true,
+      "duration_s": 600,
+      "repetitions": 3,
+      "ground_truth": "present_stationary",
+      "door_state": "closed",
+      "instructions": "Remain seated in a normal working or reading posture without deliberate large movement.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.90},
+        "ld2410c_out": {"min_presence_ratio": 0.90},
+        "pir_out": {"min_presence_ratio": 0.00}
+      }
+    },
+    {
+      "id": "MICRO_MOVEMENT",
+      "title": "Small natural movement while seated",
+      "required": true,
+      "duration_s": 180,
+      "repetitions": 3,
+      "ground_truth": "present_stationary",
+      "door_state": "closed",
+      "instructions": "Remain seated while making only normal breathing, typing or page-turning movements.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.90},
+        "ld2410c_out": {"min_presence_ratio": 0.90},
+        "pir_out": {"min_presence_ratio": 0.00}
+      }
+    },
+    {
+      "id": "EXIT_CLEAR",
+      "title": "Exit and clear room",
+      "required": true,
+      "duration_s": 90,
+      "repetitions": 5,
+      "ground_truth": "empty",
+      "door_state": "closed",
+      "instructions": "Leave the room, close the door and keep the room empty.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.40},
+        "ld2410c_out": {"max_presence_ratio": 0.40},
+        "pir_out": {"max_presence_ratio": 0.20}
+      }
+    },
+    {
+      "id": "ADJACENT_DOOR_CLOSED",
+      "title": "Adjacent movement with door closed",
+      "required": true,
+      "duration_s": 120,
+      "repetitions": 3,
+      "ground_truth": "adjacent_activity",
+      "door_state": "closed",
+      "instructions": "Keep the room empty while a person walks in the adjacent corridor or area.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.02},
+        "ld2410c_out": {"max_presence_ratio": 0.02},
+        "pir_out": {"max_presence_ratio": 0.02}
+      }
+    },
+    {
+      "id": "ADJACENT_DOOR_OPEN",
+      "title": "Adjacent movement with door open",
+      "required": true,
+      "duration_s": 120,
+      "repetitions": 3,
+      "ground_truth": "adjacent_activity",
+      "door_state": "open",
+      "instructions": "Keep the intended room empty while a person walks outside the room with the door open.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.10},
+        "ld2410c_out": {"max_presence_ratio": 0.10},
+        "pir_out": {"max_presence_ratio": 0.10}
+      }
+    },
+    {
+      "id": "WALL_MOVEMENT",
+      "title": "Movement behind adjacent wall",
+      "required": false,
+      "duration_s": 120,
+      "repetitions": 3,
+      "ground_truth": "adjacent_activity",
+      "door_state": "closed",
+      "instructions": "Keep the room empty and move behind the nearest relevant wall, when the home layout permits.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.02},
+        "ld2410c_out": {"max_presence_ratio": 0.02},
+        "pir_out": {"max_presence_ratio": 0.02}
+      }
+    },
+    {
+      "id": "NON_HUMAN_INTERFERENCE",
+      "title": "Non-human moving object interference",
+      "required": false,
+      "duration_s": 180,
+      "repetitions": 2,
+      "ground_truth": "empty",
+      "door_state": "closed",
+      "instructions": "Run available non-human movement such as a fan-driven curtain while no person is in the room.",
+      "expected": {
+        "ld2410c_uart": {"max_presence_ratio": 0.05},
+        "ld2410c_out": {"max_presence_ratio": 0.05},
+        "pir_out": {"max_presence_ratio": 0.05}
+      }
+    },
+    {
+      "id": "REBOOT_PERSISTENCE",
+      "title": "Reset and configuration persistence",
+      "required": true,
+      "duration_s": 60,
+      "repetitions": 5,
+      "ground_truth": "present_moving",
+      "door_state": "closed",
+      "instructions": "Reset the ESP32-C3 and, when explicitly required, power-cycle the sensor; the host collector must reconnect automatically.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.50},
+        "ld2410c_out": {"min_presence_ratio": 0.50},
+        "pir_out": {"min_presence_ratio": 0.30}
+      }
+    },
+    {
+      "id": "DIGITAL_UART_CONSISTENCY",
+      "title": "LD2410C digital output and UART consistency",
+      "required": true,
+      "duration_s": 180,
+      "repetitions": 2,
+      "ground_truth": "present_moving",
+      "door_state": "closed",
+      "instructions": "Alternate occupied and empty periods while both LD2410C OUT and UART telemetry are captured.",
+      "expected": {
+        "ld2410c_uart": {"min_presence_ratio": 0.50},
+        "ld2410c_out": {"min_presence_ratio": 0.50}
+      }
+    }
+  ]
+}
