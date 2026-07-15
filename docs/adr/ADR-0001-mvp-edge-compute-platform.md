@@ -81,11 +81,11 @@ Unique device identifiers from the runtime log are intentionally omitted.
 
 The front and rear photographs below were supplied by the Project Owner and sanitized for repository publication by cropping, JPEG conversion and EXIF removal. They document one owned specimen only.
 
-![Front view of the owned ESP32-C3 SuperMini-compatible board](../evidence/IHAP-44/esp32-c3-supermini-front.svg)
+![Front view of the owned ESP32-C3 SuperMini-compatible board](../evidence/IHAP-44/esp32-c3-supermini-front.jpg)
 
 *Figure E-IHAP44-01 — Front view. Visible evidence includes USB-C, BOOT and RST buttons, the ESP32-C3 package, the 40 MHz crystal and the PCB antenna area.*
 
-![Rear view of the owned ESP32-C3 SuperMini-compatible board](../evidence/IHAP-44/esp32-c3-supermini-back.svg)
+![Rear view of the owned ESP32-C3 SuperMini-compatible board](../evidence/IHAP-44/esp32-c3-supermini-back.jpg)
 
 *Figure E-IHAP44-02 — Rear view. Visible evidence includes the `ESP32 C3 Super Mini` label, supply pins and exposed GPIO labels.*
 
@@ -257,8 +257,8 @@ These items do not reopen the accepted ESP32-C3 family/profile decision. They co
 | Parent hardware baseline | [IHAP-43](https://niccolopiazzi01.atlassian.net/browse/IHAP-43) |
 | Pull request and review evidence | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) |
 | Physical evidence package | [`docs/evidence/IHAP-44/README.md`](../evidence/IHAP-44/README.md) |
-| Board front photograph | [`esp32-c3-supermini-front.svg`](../evidence/IHAP-44/esp32-c3-supermini-front.svg) |
-| Board rear photograph | [`esp32-c3-supermini-back.svg`](../evidence/IHAP-44/esp32-c3-supermini-back.svg) |
+| Board front photograph | [`esp32-c3-supermini-front.jpg`](../evidence/IHAP-44/esp32-c3-supermini-front.jpg) |
+| Board rear photograph | [`esp32-c3-supermini-back.jpg`](../evidence/IHAP-44/esp32-c3-supermini-back.jpg) |
 | Product boundary | [`docs/product/product-vision.md`](../product/product-vision.md) |
 | ADR policy and index | [`docs/adr/README.md`](README.md) |
 | Canonical ADR template | [`docs/adr/template.md`](template.md) |
