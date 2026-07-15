@@ -21,10 +21,10 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - ADR content lives in GitHub.
   - Jira tracks ADR work state and evidence links only.
   - Confluence may summarize or link ADRs for stakeholder navigation, but must not duplicate long-form ADR content.
-  - ADR status changes to Accepted, Rejected, or Superseded require Project Owner approval.
+  - ADR status changes to Accepted, Rejected or Superseded require Project Owner approval.
   - Do not create ADRs only to increase document count.
   - Preserve [UNVALIDATED] on unproven claims.
-  - Do not introduce production-ready, safety-critical, commercial-ready, certification, or security-grade claims.
+  - Do not introduce production-ready, safety-critical, commercial-ready, certification or security-grade claims.
 -->
 
 ---
@@ -33,7 +33,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 This folder contains Architecture Decision Records for HomeEdge AI Platform.
 
-ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work, and evidence links.
+ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work and evidence links.
 
 They do not approve themselves. ADR acceptance requires Project Owner approval.
 
@@ -72,8 +72,6 @@ Rules:
 
 ## 4. ADR Status Model
 
-Allowed statuses:
-
 | Status | Meaning |
 |---|---|
 | `Proposed` | Draft decision under review. Not accepted yet. |
@@ -81,7 +79,7 @@ Allowed statuses:
 | `Superseded` | Replaced by a later ADR. Keep the historical record. |
 | `Rejected` | Considered and explicitly rejected. Keep the rationale. |
 
-Only the Project Owner can accept, reject, or supersede an ADR.
+Only the Project Owner can accept, reject or supersede an ADR.
 
 ---
 
@@ -105,7 +103,7 @@ Unproven claims must keep `[UNVALIDATED]`.
 
 | ADR | Title | Status | Jira | PR | Notes |
 |---|---|---|---|---|---|
-| _None yet_ | _No ADR has been created yet._ | - | - | - | ADRs should be created only when an architectural decision actually needs traceability. |
+| [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Accepted | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Accepts ESP32-C3 as the MVP family, the purchased SuperMini-compatible board as preferred conditional implementation and ESP32-C3-DevKitC-02 as official control/fallback. Physical pinout is evidenced for one specimen; exact commercial SKU reproducibility and quantitative power remain `[UNVALIDATED]`. A local display is not accepted by this ADR and is decided separately by [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53). |
 
 ---
 
