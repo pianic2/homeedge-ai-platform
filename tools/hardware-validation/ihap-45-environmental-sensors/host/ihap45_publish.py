@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence
 
 import ihap45
+import ihap45_final_gate
 
 PUBLICATION_SCHEMA_VERSION = "1.0.0"
 FORBIDDEN_PUBLISHED_KEYS = {"pressure", "pressure_pa", "pressure_hpa"}
@@ -21,8 +22,7 @@ class PublicationError(RuntimeError):
 
 
 def safe_filename(value: str) -> str:
-    normalized = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip())
-    normalized = normalized.strip("-._")
+    normalized = re.sub(r"[^A-Za-z0-9._-]+", "-", value.strip()).strip("-._")
     if not normalized:
         raise PublicationError("run identifier cannot be converted to a safe filename")
     return normalized
@@ -58,7 +58,6 @@ def write_outputs(output_dir: Path, stem: str, summary: dict[str, Any], markdown
     forbidden = recursively_find_forbidden_keys(summary)
     if forbidden:
         raise PublicationError(f"summary contains forbidden pressure fields: {forbidden}")
-
     output_dir.mkdir(parents=True, exist_ok=True)
     json_path = output_dir / f"{stem}.summary.json"
     markdown_path = output_dir / f"{stem}.summary.md"
@@ -87,8 +86,7 @@ def sanitize_stability(run_dir: Path) -> dict[str, Any]:
     source = load_object(run_dir / "stability-summary.json")
     metadata = load_object(run_dir / "run-metadata.json")
     run_id = str(source.get("run_id") or metadata.get("run_id") or run_dir.name)
-
-    summary = {
+    return {
         "publication_schema_version": PUBLICATION_SCHEMA_VERSION,
         "evidence_type": "functional_stability_summary",
         "run_id": run_id,
@@ -106,7 +104,6 @@ def sanitize_stability(run_dir: Path) -> dict[str, Any]:
         "measurement_claim": "functional stability only; no quantitative power characterization",
         "source_data_policy": "raw local run retained or reproducible; raw telemetry not published",
     }
-    return summary
 
 
 def stability_markdown(summary: Mapping[str, Any]) -> str:
@@ -181,17 +178,18 @@ def first_boot_metadata(records: Sequence[dict[str, Any]]) -> dict[str, Any] | N
 
 
 def sanitize_environmental(run_dir: Path, plan_path: Path) -> dict[str, Any]:
+    # Publication is an acceptance action, so it must execute the same strict gate
+    # that checks reboot count, BME280 identity and serial-log brownouts.
+    gate = ihap45_final_gate.evaluate_final_gate(run_dir, plan_path)
     validation = ihap45.validate_run(run_dir, plan_path)
     analysis, _rows = ihap45.compute_analysis(run_dir, plan_path)
     plan = load_object(plan_path)
     records = ihap45.read_jsonl(ihap45.run_paths(run_dir)["samples"])
 
-    boot_count = sum(record.get("record_type") == "harness_boot" for record in records)
-    publication_errors = list(validation.errors)
-    if boot_count != 1:
-        publication_errors.append(f"expected exactly one harness_boot record; observed {boot_count}")
+    publication_errors = list(gate.errors)
+    publication_warnings = list(dict.fromkeys([*validation.warnings, *gate.warnings]))
+    status = "passed" if gate.passed and not publication_errors else "failed"
 
-    status = "passed" if not publication_errors else "failed"
     sanitized_per_sensor: dict[str, Any] = {}
     for sensor_id, metrics in analysis.get("per_sensor", {}).items():
         sanitized_per_sensor[str(sensor_id)] = {
@@ -207,7 +205,7 @@ def sanitize_environmental(run_dir: Path, plan_path: Path) -> dict[str, Any]:
             "reference_metrics": metrics.get("reference_metrics"),
         }
 
-    summary = {
+    return {
         "publication_schema_version": PUBLICATION_SCHEMA_VERSION,
         "evidence_type": "environmental_comparison_summary",
         "run_id": analysis.get("run_id") or run_dir.name,
@@ -220,10 +218,11 @@ def sanitize_environmental(run_dir: Path, plan_path: Path) -> dict[str, Any]:
         "qualified_bme280": first_successful_probe(records),
         "validation": {
             "errors": publication_errors,
-            "warnings": list(validation.warnings),
+            "warnings": publication_warnings,
             "sample_records": validation.summary.get("sample_records"),
-            "boot_records": validation.summary.get("boot_records"),
-            "probe_records": validation.summary.get("probe_records"),
+            "boot_records": gate.summary.get("boot_records"),
+            "probe_records": gate.summary.get("probe_records"),
+            "brownout_events": gate.summary.get("brownout_events"),
             "phase_durations_seconds": validation.summary.get("phase_durations_seconds"),
             "per_sensor": validation.summary.get("per_sensor"),
             "reference_observations": validation.summary.get("reference_observations"),
@@ -241,7 +240,6 @@ def sanitize_environmental(run_dir: Path, plan_path: Path) -> dict[str, Any]:
         ],
         "source_data_policy": "raw local run retained or reproducible; allow-listed aggregate summary only",
     }
-    return summary
 
 
 def environmental_markdown(summary: Mapping[str, Any]) -> str:
@@ -271,12 +269,10 @@ def environmental_markdown(summary: Mapping[str, Any]) -> str:
     if not sensor_rows:
         sensor_rows.append("| none | n/a | n/a | n/a | n/a | n/a | n/a | n/a |")
 
-    phase_rows: list[str] = []
-    for phase, seconds in (validation.get("phase_durations_seconds") or {}).items():
-        phase_rows.append(f"| `{phase}` | {format_number(seconds, 1)} |")
-    if not phase_rows:
-        phase_rows.append("| none | n/a |")
-
+    phase_rows = [
+        f"| `{phase}` | {format_number(seconds, 1)} |"
+        for phase, seconds in (validation.get("phase_durations_seconds") or {}).items()
+    ] or ["| none | n/a |"]
     error_lines = "\n".join(f"- {item}" for item in validation.get("errors", [])) or "- none"
     warning_lines = "\n".join(f"- {item}" for item in validation.get("warnings", [])) or "- none"
 
@@ -305,6 +301,7 @@ def environmental_markdown(summary: Mapping[str, Any]) -> str:
 | Sample records | {format_number(validation.get('sample_records'))} |
 | Boot records | {format_number(validation.get('boot_records'))} |
 | Probe records | {format_number(validation.get('probe_records'))} |
+| Brownout events | {format_number(validation.get('brownout_events'))} |
 | Independent reference observations | {format_number(validation.get('reference_observations'))} |
 
 ### Errors
@@ -331,7 +328,7 @@ def environmental_markdown(summary: Mapping[str, Any]) -> str:
 
 No serial log, individual sample, marker stream, reference-observation stream, per-sample CSV, workstation path or embedded interactive telemetry is included. Pairwise aggregates, per-phase aggregates, response estimates and optional aggregate reference metrics remain available in the companion JSON summary.
 
-A `PASSED` summary establishes only that the committed protocol and thresholds were met by the owned specimens in the executed setup. It does not establish universal sensor-family behavior, final enclosure fitness, calibrated accuracy without an independent reference, or power-system characterization.
+A `PASSED` summary establishes only that the committed protocol and strict final gate were met by the owned specimens in the executed setup. It does not establish universal sensor-family behavior, final enclosure fitness, calibrated accuracy without an independent reference, or power-system characterization.
 """
 
 
@@ -364,7 +361,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             stem = f"environmental-{safe_filename(str(summary['run_id']))}"
             markdown = environmental_markdown(summary)
         json_path, markdown_path = write_outputs(output_dir, stem, summary, markdown)
-    except (PublicationError, ihap45.HarnessError, ValueError, TypeError) as exc:
+    except (PublicationError, ihap45.HarnessError, OSError, ValueError, TypeError) as exc:
         print(f"IHAP-45 PUBLICATION ERROR: {exc}", file=sys.stderr)
         return 2
 
