@@ -2,4 +2,6 @@
 __pycache__/
 *.pyc
 firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.old
 runs/
