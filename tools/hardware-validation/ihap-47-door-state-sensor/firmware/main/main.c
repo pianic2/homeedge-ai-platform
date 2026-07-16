@@ -59,6 +59,7 @@ static capture_state_t g_capture = {
 };
 
 static portMUX_TYPE g_capture_lock = portMUX_INITIALIZER_UNLOCKED;
+static esp_timer_handle_t g_sampling_timer = NULL;
 
 static const char *circuit_state_from_level(int level)
 {
@@ -203,6 +204,16 @@ static void start_capture(const char *test_token, const char *specimen_token)
     sample_period_us = g_capture.sample_period_us;
     portEXIT_CRITICAL(&g_capture_lock);
 
+    esp_err_t timer_result = esp_timer_start_periodic(g_sampling_timer, sample_period_us);
+    if (timer_result != ESP_OK)
+    {
+        portENTER_CRITICAL(&g_capture_lock);
+        g_capture.active = false;
+        portEXIT_CRITICAL(&g_capture_lock);
+        emit_error("TIMER_START_FAILED", esp_err_to_name(timer_result));
+        return;
+    }
+
     emit_common_prefix("capture_started");
     printf(",\"test_id\":\"%s\",\"specimen_id\":\"%s\","
            "\"start_uptime_us\":%" PRId64 ",\"gpio\":%d,"
@@ -231,13 +242,23 @@ static void end_capture(void)
     uint32_t sample_period_us;
 
     portENTER_CRITICAL(&g_capture_lock);
-    if (!g_capture.active)
+    bool was_active = g_capture.active;
+    portEXIT_CRITICAL(&g_capture_lock);
+
+    if (!was_active)
     {
-        portEXIT_CRITICAL(&g_capture_lock);
         emit_error("NO_ACTIVE_CAPTURE", "start a capture before calling end");
         return;
     }
 
+    esp_err_t timer_result = esp_timer_stop(g_sampling_timer);
+    if (timer_result != ESP_OK)
+    {
+        emit_error("TIMER_STOP_FAILED", esp_err_to_name(timer_result));
+        return;
+    }
+
+    portENTER_CRITICAL(&g_capture_lock);
     g_capture.active = false;
     transition_count = g_capture.transition_count;
     overflow = g_capture.overflow;
@@ -328,49 +349,29 @@ static void print_help(void)
     fflush(stdout);
 }
 
-static void sampling_task(void *argument)
+static void sampling_timer_callback(void *argument)
 {
     (void)argument;
 
-    while (true)
+    int level = gpio_get_level(DOOR_CONTACT_GPIO);
+    int64_t now_us = esp_timer_get_time();
+
+    portENTER_CRITICAL(&g_capture_lock);
+    if (g_capture.active && level != g_capture.last_level)
     {
-        bool active;
-        uint32_t sample_period_us;
-
-        portENTER_CRITICAL(&g_capture_lock);
-        active = g_capture.active;
-        sample_period_us = g_capture.sample_period_us;
-        portEXIT_CRITICAL(&g_capture_lock);
-
-        if (!active)
+        if (g_capture.transition_count < MAX_TRANSITIONS)
         {
-            vTaskDelay(pdMS_TO_TICKS(10));
-            continue;
+            transition_t *entry = &g_capture.transitions[g_capture.transition_count++];
+            entry->offset_us = now_us - g_capture.start_us;
+            entry->raw_level = level;
         }
-
-        int level = gpio_get_level(DOOR_CONTACT_GPIO);
-        int64_t now_us = esp_timer_get_time();
-
-        portENTER_CRITICAL(&g_capture_lock);
-        if (g_capture.active && level != g_capture.last_level)
+        else
         {
-            if (g_capture.transition_count < MAX_TRANSITIONS)
-            {
-                transition_t *entry = &g_capture.transitions[g_capture.transition_count++];
-                entry->offset_us = now_us - g_capture.start_us;
-                entry->raw_level = level;
-            }
-            else
-            {
-                g_capture.overflow = true;
-            }
-            g_capture.last_level = level;
+            g_capture.overflow = true;
         }
-        portEXIT_CRITICAL(&g_capture_lock);
-
-        esp_rom_delay_us(sample_period_us);
-        taskYIELD();
+        g_capture.last_level = level;
     }
+    portEXIT_CRITICAL(&g_capture_lock);
 }
 
 static void command_task(void *argument)
@@ -471,12 +472,21 @@ void app_main(void)
 
     print_help();
 
-    BaseType_t sampler_created = xTaskCreate(sampling_task, "door_sampler", 4096, NULL, 5, NULL);
+    const esp_timer_create_args_t timer_args = {
+        .callback = sampling_timer_callback,
+        .arg = NULL,
+        .dispatch_method = ESP_TIMER_TASK,
+        .name = "door_sampler",
+        .skip_unhandled_events = true,
+    };
+
+    ESP_ERROR_CHECK(esp_timer_create(&timer_args, &g_sampling_timer));
+
     BaseType_t command_created = xTaskCreate(command_task, "door_commands", 4096, NULL, 6, NULL);
 
-    if (sampler_created != pdPASS || command_created != pdPASS)
+    if (command_created != pdPASS)
     {
-        emit_error("TASK_CREATE_FAILED", "unable to create validation tasks");
+        emit_error("TASK_CREATE_FAILED", "unable to create command task");
         abort();
     }
 }
