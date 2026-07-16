@@ -1,7 +1,7 @@
 # IHAP-45 — Environmental Sensor Comparative Evidence
 
 **Issue:** [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45)  
-**Evidence status:** controlled run completed; normalized publication pending  
+**Evidence status:** normalized controlled run accepted; decision recorded in ADR-0002  
 **Validation harness:** [`tools/hardware-validation/ihap-45-environmental-sensors/`](../../../tools/hardware-validation/ihap-45-environmental-sensors/)
 
 This directory is the durable, public evidence index for the owned DHT11, DHT22 and BME280 comparative qualification.
@@ -12,9 +12,9 @@ The repository publishes:
 
 - the validation protocol and implementation;
 - the visible history of failed trials and corrective actions;
-- aggregate Markdown and JSON summaries;
-- an optional self-contained aggregate-only HTML presentation;
-- explicit limitations and unsupported claims.
+- reviewed aggregate Markdown and JSON summaries;
+- a self-contained aggregate-only HTML presentation;
+- explicit limitations, decision boundaries and unsupported claims.
 
 The repository does not publish:
 
@@ -27,7 +27,7 @@ The repository does not publish:
 
 See [`PUBLICATION-POLICY.md`](PUBLICATION-POLICY.md) for the binding evidence-classification rules.
 
-## Current evidence structure
+## Evidence structure
 
 ```text
 IHAP-45/
@@ -37,8 +37,8 @@ IHAP-45/
 ├── .gitignore
 └── summaries/
     ├── README.md
-    ├── stability-<run-id>.summary.json
-    ├── stability-<run-id>.summary.md
+    ├── stability-*.summary.json
+    ├── stability-*.summary.md
     ├── environmental-IHAP45-RUN-01.summary.json
     ├── environmental-IHAP45-RUN-01.summary.md
     └── environmental-IHAP45-RUN-01.summary.html
@@ -46,26 +46,33 @@ IHAP-45/
 
 Only files produced after normalization, regeneration and Project Owner review are admissible.
 
-## Controlled run state
+## Accepted controlled run
 
-`IHAP45-RUN-01` completed every required phase and its first generated summary reported:
+The original `IHAP45-RUN-01` completed every required phase but its first publication exposed pre-reset contamination through completeness values above 100%. The original local run was preserved and a derived run retained structured and serial evidence from the first captured `harness_boot` onward.
+
+The regenerated publication reports:
 
 - plan: `IHAP45-QUALIFICATION-01`;
 - comparison scope: `relative_only`;
 - measurement channels: temperature and relative humidity only;
-- sample records: 5,771;
+- sample records: 5,769;
 - boot records: 1;
 - probe records: 1;
 - validation errors: none;
-- independent reference observations: 0.
+- independent reference observations: 0;
+- DHT11: 1,923/1,923 valid, 100% completeness;
+- DHT22: 1,921/1,923 valid, 100% completeness, two `NO_RESPONSE` errors;
+- BME280: 1,923/1,923 valid, 100% completeness.
 
-The same summary also reported `100.052%` completeness for DHT22 and BME280. Completeness cannot exceed 100%. This exposed a collector-boundary defect: samples emitted by the already-running firmware before the operator reset were retained before the first captured `harness_boot`.
+The evidence is available as:
 
-The original run remains preserved locally. It does not need to be repeated. A derived run must be created with `host/ihap45_normalize_run.py`, retaining only evidence from the first captured boot onward. Validation, analysis and publication are then rerun on the derived directory.
+- [human-readable summary](summaries/environmental-IHAP45-RUN-01.summary.md);
+- [machine-readable aggregate summary](summaries/environmental-IHAP45-RUN-01.summary.json);
+- [aggregate-only visual report](summaries/environmental-IHAP45-RUN-01.summary.html).
 
 ## Qualified owned BME280
 
-The owned purple breakout was directly identified during the run as:
+The owned purple breakout was directly identified as:
 
 ```text
 sensor_id: BME280-OWNED-01
@@ -76,28 +83,20 @@ humidity supported: true
 status: OK
 ```
 
-This identity applies only to the tested specimen and is unaffected by removal of pre-reset samples because the probe follows the retained boot boundary.
+This identity applies only to the tested specimen.
 
-## Claims currently supported
+## Supported decision claims
 
-The evidence already supports:
+The evidence and Project Owner review support:
 
-- successful build, flash and execution of the validation harness on the tested ESP32-C3 setup;
-- direct BME280 identification and humidity support for the owned purple module;
-- completion of all controlled environmental phases;
-- existence of sufficient local evidence to regenerate a normalized comparison without repeating the two-hour test;
-- transparent detection and correction of an evidence-boundary defect.
+- DHT11 as the default standard-indoor profile for cost-optimized domestic room nodes with slow, gradual changes;
+- BME280 as the precision and extended-environment profile for outdoor nodes, controlled rooms, wider excursions or tighter operational thresholds;
+- BME280 as an optional procurement fallback when DHT11 is unavailable and increased cost is acceptable;
+- DHT22 not selected because it added cost, produced two communication failures and did not establish a decisive profile advantage;
+- broad thresholds, filtering and hysteresis for DHT11-based room automation;
+- temperature and relative humidity as the only accepted measurement channels for this decision.
 
-## Claims pending normalized republication
-
-The following aggregate claims remain provisional until regenerated summaries pass review:
-
-- final sample counts and completeness;
-- final whole-run and per-phase means;
-- final pairwise differences;
-- final response-time estimates;
-- accepted relative stability and communication-error rates;
-- final reference and fallback selection.
+The canonical decision is [`ADR-0002`](../../adr/ADR-0002-environmental-sensor-profiles.md).
 
 ## Claims not supported
 
@@ -111,6 +110,4 @@ The evidence does not establish:
 - production, precision, medical, safety or certification maturity;
 - any MVP pressure-channel requirement.
 
-## Decision state
-
-No final sensor selection is encoded in this evidence index. `PO-45-01` and `PO-45-02` remain open until the normalized comparative summaries and aggregate-only HTML are reviewed by the Project Owner.
+Placement and enclosure effects remain active under [`R-011`](../../risks/records/R-011-environmental-sensor-placement-bias.md). The proposed treatment is not implemented or verified by this evidence package.
