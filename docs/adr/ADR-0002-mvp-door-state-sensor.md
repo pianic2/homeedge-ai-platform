@@ -4,7 +4,7 @@
 **Date:** 2026-07-16  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47)  
-**PR:** Pending  
+**PR:** [#26](https://github.com/pianic2/homeedge-ai-platform/pull/26)  
 **Supersedes:** None  
 **Superseded by:** None
 
@@ -223,7 +223,7 @@ No new physical-sensor Risk Record is created automatically. A new record requir
 | Jira issue | [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47) |
 | Parent hardware baseline | [IHAP-43](https://niccolopiazzi01.atlassian.net/browse/IHAP-43) |
 | Compute baseline | [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) |
-| Pull request | Pending |
+| Pull request | [PR #26](https://github.com/pianic2/homeedge-ai-platform/pull/26) |
 | Evidence manifest | [`docs/evidence/IHAP-47/README.md`](../evidence/IHAP-47/README.md) |
 | Reproducible physical protocol | [`docs/evidence/IHAP-47/test-protocol.md`](../evidence/IHAP-47/test-protocol.md) |
 | Validation harness | [`tools/hardware-validation/ihap-47-door-state-sensor/`](../../tools/hardware-validation/ihap-47-door-state-sensor/) |
