@@ -1,0 +1,37 @@
+{
+  "schema_version": "1.0.0",
+  "plan_id": "IHAP45-QUALIFICATION-01",
+  "description": "Parallel relative qualification of owned DHT11, DHT22 and BME/BMP280 modules. Pressure is excluded.",
+  "sample_interval_ms": 5000,
+  "required_sensor_ids": [
+    "DHT11-OWNED-01",
+    "DHT22-OWNED-01",
+    "BME280-OWNED-01"
+  ],
+  "forbidden_fields": [
+    "pressure",
+    "pressure_pa",
+    "pressure_hpa"
+  ],
+  "phases": [
+    {"name": "warmup", "minimum_seconds": 900, "kind": "stabilization"},
+    {"name": "baseline", "minimum_seconds": 600, "kind": "plateau"},
+    {"name": "humidity_ramp_up", "minimum_seconds": 300, "kind": "transition"},
+    {"name": "humidity_high_plateau", "minimum_seconds": 600, "kind": "plateau"},
+    {"name": "humidity_recovery", "minimum_seconds": 600, "kind": "transition"},
+    {"name": "humidity_low_plateau", "minimum_seconds": 600, "kind": "plateau"},
+    {"name": "humidity_final_recovery", "minimum_seconds": 600, "kind": "transition"},
+    {"name": "temperature_ramp_up", "minimum_seconds": 300, "kind": "transition"},
+    {"name": "temperature_high_plateau", "minimum_seconds": 600, "kind": "plateau"},
+    {"name": "temperature_recovery", "minimum_seconds": 600, "kind": "transition"},
+    {"name": "temperature_low_plateau", "minimum_seconds": 600, "kind": "plateau"},
+    {"name": "final_recovery", "minimum_seconds": 600, "kind": "plateau"}
+  ],
+  "validation": {
+    "minimum_valid_samples_per_sensor": 100,
+    "minimum_completeness_percent": 90.0,
+    "maximum_reference_join_seconds": 60,
+    "require_bme280_chip_id": "0x60",
+    "require_pressure_disabled": true
+  }
+}

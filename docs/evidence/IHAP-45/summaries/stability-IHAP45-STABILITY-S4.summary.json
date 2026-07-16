@@ -1,0 +1,18 @@
+{
+  "publication_schema_version": "1.0.0",
+  "evidence_type": "functional_stability_summary",
+  "run_id": "IHAP45-STABILITY-S4",
+  "configuration_label": "S4-all-three-sensors",
+  "status": "passed",
+  "passed": true,
+  "qualification_duration_seconds": 300.0,
+  "completed_window": true,
+  "boot_records": 1,
+  "brownout_events": 0,
+  "usb_disconnects_after_start": 0,
+  "valid_sample_records": 180,
+  "errors": [],
+  "warnings": [],
+  "measurement_claim": "functional stability only; no quantitative power characterization",
+  "source_data_policy": "raw local run retained or reproducible; raw telemetry not published"
+}

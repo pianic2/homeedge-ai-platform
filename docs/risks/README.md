@@ -70,8 +70,9 @@ Do not use this index to accept risk automatically.
 | R-008 | `records/R-008-cost-abuse.md` | Cost / Technical | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | To be reviewed by IHAP-40 | Pending Project Owner |
+| R-011 | `records/R-011-environmental-sensor-placement-bias.md` | Technical / Claims | RT-R011-01 Proposed | Pending Project Owner |
 
-IHAP-39 defines the model only. IHAP-40 must migrate and review these records without inventing evidence, Jira tasks, ADRs, or Project Owner decisions.
+IHAP-39 defines the model only. IHAP-40 owns the earlier record migration and review. R-011 was introduced by IHAP-45 from concrete environmental-sensor evidence and has its own proposed treatment and event-driven review trigger.
 
 ---
 
@@ -104,6 +105,8 @@ Confluence must not duplicate long-form risk or treatment documentation. Stakeho
 A record requires review when it lacks a treatment, monitoring, explicit decision, current source verification, required Jira coordination, or current effectiveness review.
 
 Do not mark a newly identified risk orphan while treatment triage is active. Apply the full rule from `risk-model-baseline.md`.
+
+R-011 is not orphaned: RT-R011-01 is Proposed, IHAP-51/IHAP-50 provide coordination, ADR-0002 contains the inverse link and the next review is event-driven.
 
 ---
 

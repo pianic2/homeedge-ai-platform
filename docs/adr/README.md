@@ -104,6 +104,7 @@ Unproven claims must keep `[UNVALIDATED]`.
 | ADR | Title | Status | Jira | PR | Notes |
 |---|---|---|---|---|---|
 | [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Accepted | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Accepts ESP32-C3 as the MVP family, the purchased SuperMini-compatible board as preferred conditional implementation and ESP32-C3-DevKitC-02 as official control/fallback. Physical pinout is evidenced for one specimen; exact commercial SKU reproducibility and quantitative power remain `[UNVALIDATED]`. A local display is not accepted by this ADR and is decided separately by [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53). |
+| [ADR-0002](ADR-0002-environmental-sensor-profiles.md) | Environmental Sensor Profiles | Accepted | [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45) | [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28) | Selects DHT11 as the standard indoor profile and BME280 as the precision / extended-environment profile. DHT22 is not selected. Absolute accuracy remains `[UNVALIDATED]`; pressure remains outside the MVP measurement contract. |
 
 ---
 
