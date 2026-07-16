@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/pianic2/homeedge-ai-platform/tools/hardware-validation/ihap-47-door-state-sensor/results.schema.json",
+  "title": "IHAP-47 Door State Sensor Sanitized Summary",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "issue",
+    "generated_at_utc",
+    "source_session",
+    "physical_results_validated",
+    "raw_logs_included",
+    "captures",
+    "limitations"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0.0" },
+    "issue": { "const": "IHAP-47" },
+    "generated_at_utc": { "type": "string", "format": "date-time" },
+    "source_session": { "type": "string", "minLength": 1 },
+    "evidence_class": {
+      "enum": [
+        "observed-owned-specimen-pending-review",
+        "observed-owned-specimen-reviewed"
+      ]
+    },
+    "physical_results_validated": { "type": "boolean" },
+    "raw_logs_included": { "const": false },
+    "records_count": { "type": "integer", "minimum": 0 },
+    "operator_observations_count": { "type": "integer", "minimum": 0 },
+    "capture_count": { "type": "integer", "minimum": 0 },
+    "captures_with_buffer_overflow": { "type": "integer", "minimum": 0 },
+    "captures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "test_id",
+          "specimen_id",
+          "transition_count",
+          "buffer_overflow",
+          "transitions"
+        ],
+        "properties": {
+          "test_id": { "type": "string" },
+          "specimen_id": { "type": "string" },
+          "duration_us": { "type": ["integer", "null"], "minimum": 0 },
+          "sample_period_us": { "type": ["integer", "null"], "minimum": 1 },
+          "initial_level": { "type": ["integer", "null"], "enum": [0, 1, null] },
+          "final_level": { "type": ["integer", "null"], "enum": [0, 1, null] },
+          "transition_count": { "type": "integer", "minimum": 0 },
+          "bounce_span_us": { "type": ["number", "null"], "minimum": 0 },
+          "buffer_overflow": { "type": "boolean" },
+          "incomplete": { "type": "boolean" },
+          "transitions": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["offset_us", "raw_level"],
+              "properties": {
+                "offset_us": { "type": "integer", "minimum": 0 },
+                "raw_level": { "type": "integer", "enum": [0, 1] },
+                "circuit_state": { "enum": ["open", "closed"] }
+              },
+              "additionalProperties": true
+            }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "observations": { "type": "object" },
+    "limitations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string" }
+    }
+  },
+  "additionalProperties": true
+}

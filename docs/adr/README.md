@@ -104,6 +104,7 @@ Unproven claims must keep `[UNVALIDATED]`.
 | ADR | Title | Status | Jira | PR | Notes |
 |---|---|---|---|---|---|
 | [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Accepted | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Accepts ESP32-C3 as the MVP family, the purchased SuperMini-compatible board as preferred conditional implementation and ESP32-C3-DevKitC-02 as official control/fallback. Physical pinout is evidenced for one specimen; exact commercial SKU reproducibility and quantitative power remain `[UNVALIDATED]`. A local display is not accepted by this ADR and is decided separately by [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53). |
+| [ADR-0002](ADR-0002-mvp-door-state-sensor.md) | MVP Door State Sensor | Proposed | [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47) | [PR #26](https://github.com/pianic2/homeedge-ai-platform/pull/26) | Proposes passive wired magnetic reed-contact technology. The owned generic MC-38 / DC-38 contact remains a qualification candidate until the physical protocol establishes its electrical behavior, activation envelope, transition behavior and specimen consistency. |
 
 ---
 
