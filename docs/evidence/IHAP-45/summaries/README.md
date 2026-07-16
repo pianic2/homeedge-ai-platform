@@ -30,4 +30,16 @@ The original local `report.html` must not be copied here because its Plotly payl
 
 No raw serial log, individual sample, phase stream, reference stream, per-sample CSV, workstation path or sample-embedding interactive report may be added here.
 
-Current state: the controlled environmental run `IHAP45-RUN-01` passed validation and its reviewed Markdown and JSON summaries are available for publication. The aggregate-only HTML presentation remains to be generated locally from that JSON summary.
+## Current normalization requirement
+
+The first `IHAP45-RUN-01` summaries exposed completeness values above 100%, showing that pre-reset samples had been retained before the first captured `harness_boot`. Those files are provisional and must not be committed as accepted evidence.
+
+Create a derived local run without altering the original:
+
+```bash
+python host/ihap45_normalize_run.py \
+  --source-run-dir runs/IHAP45-RUN-01 \
+  --output-run-dir runs/IHAP45-RUN-01-NORMALIZED
+```
+
+Then run the strict gate, analysis and publishers against `runs/IHAP45-RUN-01-NORMALIZED`. Replace the provisional Markdown and JSON files and generate the aggregate-only HTML from the regenerated JSON.
