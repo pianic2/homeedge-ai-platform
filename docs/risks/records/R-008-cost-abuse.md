@@ -1,105 +1,114 @@
 # R-008 — Cost Abuse and Operational Overhead
 
-**Status:** Draft  
+**Risk ID:** R-008  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Cost / Technical  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40; IHAP-17  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-008
-  canonical_path: docs/risks/records/R-008-cost-abuse.md
-  risk_model: docs/risks/risk-model-baseline.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
-  unvalidated_claim_marker: "[UNVALIDATED]"
+  orphan_status: not_orphan
 -->
-
----
 
 ## 1. Risk Statement
 
-There is a risk that event volume, logs, cloud services, tooling, maintenance load, or future AI providers create uncontrolled cost because runtime volume and deployment behavior are not yet measured.
+There is a risk that MVP hardware replication, event volume, logs, tooling or later hosted execution create uncontrolled cost because assumptions and measurements are incomplete.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+The MVP requires a low-cost reproducible node and may later connect to target ingestion or hosted tooling.
 
-The project targets edge-to-backend telemetry, future cloud/deployment direction, and future AI insight. These areas can create cost even in small projects when logging, data retention, provider usage, or event frequency are not bounded.
+In scope: MVP BOM, contributor replication cost, development tools, event/log assumptions and any later hosted boundary explicitly admitted into scope.  
+Out of scope: AI-provider cost while AI remains outside MVP, purchases in IHAP-40, and runtime enforcement.
 
----
-
-## 3. Affected Assets and Trust Boundary
-
-| Area | Detail |
-|---|---|
-| Asset | Event flow, logs, ingestion target, read model target, cloud target, future AI target. |
-| Trust boundary | Local prototype -> hosted/runtime infrastructure. |
-| Data involved | Event count, log volume, retained telemetry, AI/provider input. |
-| Stakeholder surface | Cost risk can be summarized; raw billing/provider details should be linked or redacted as needed. |
-
----
-
-## 4. Scoring
+## 3. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | Medium | Cloud, logs, and AI are future targets; cost can grow silently if not bounded. |
-| Impact | Medium | Cost overruns can block continuation or force scope reduction. |
-| Residual risk | Pending evidence | No runtime cost measurement or event volume evidence exists yet. |
-| Treatment proposal | Defer | Defer detailed estimates to cost governance; future implementation should add concrete limits. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
+| Category | Cost / Technical | MVP replicability and operational overhead |
+| Likelihood | Medium | Hardware and tooling costs exist; runtime volume is not measured |
+| Impact | Medium | Unbounded cost can block replication or continuation |
+| Residual risk | Pending Evidence | IHAP-17 and runtime measurements are incomplete |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
----
+## 4. Existing Controls
 
-## 5. Existing Controls
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| Cost governance task | IHAP-17 | Partial | Policy is not yet implemented or merged |
+| Runtime and paid services remain `[UNVALIDATED]` | Product Vision and claim policy | Partial | No measured limits exist |
 
-- Current IHAP-16 changes are documentation-only.
-- Runtime, cloud, and AI provider usage remain `[UNVALIDATED]`.
-- IHAP-17 is expected to cover cost governance and BOM policy separately.
+## 5. Risk Treatment
 
----
+### RT-R008-01 — Establish MVP cost assumptions and guardrails
 
-## 6. Evidence Gap
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Cost governance / Project Owner  
+**Jira coordination:** IHAP-17  
+**Related ADRs:** None  
+**Next review trigger:** IHAP-17 completes, the MVP BOM changes, or hosted runtime/log retention is proposed.
 
-Missing evidence:
+Planned actions:
 
-- event frequency estimates;
-- log retention settings;
-- cloud deployment plan;
-- AI provider usage estimate;
-- budget guardrail or kill-switch;
-- cost dashboard or measurement.
+- record dated BOM price snapshots;
+- show MVP replication cost;
+- document free versus paid tooling;
+- define event-rate and log-retention assumptions when runtime is proposed;
+- require explicit approval before paid cloud or tooling commitments.
 
----
+**Remaining exposure:** Actual hosted usage, billing alerts and runtime kill-switches remain `[UNVALIDATED]` until hosted execution exists.
 
-## 7. Mitigation Proposal
+### Source and Evidence Register
 
-Future work should:
+| ID | Source | Verification | Checked on | Limitations |
+|---|---|---|---|---|
+| SRC-01 | IHAP-17 | Verified | 2026-07-12 | Governance task, not runtime evidence |
+| SRC-02 | `docs/product/product-vision.md` | Verified | 2026-07-12 | Defines MVP/FUTURE boundaries only |
 
-- define event-rate assumptions;
-- cap logs and retention;
-- avoid paid providers until explicitly approved;
-- keep AI cost `[UNVALIDATED]` until measured;
-- link cost estimates from the cost governance document when available.
+### Evidence and Effectiveness
 
----
+| Evidence | Expected result | Actual result | Status |
+|---|---|---|---|
+| EV-01 | MVP replication cost and paid-service assumptions are explicit, dated and reviewable | Not executed | `[UNVALIDATED]` |
 
-## 8. Stakeholder Visibility
+**Effectiveness:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-| Item | Rule |
-|---|---|
-| Cost risk summary | Show allowed. |
-| Budget estimate | Show only when sourced. |
-| Provider billing details | Link/redact as needed. |
-| Economic claim | `[UNVALIDATED]` until evidence exists. |
+## 6. Traceability
 
-Stakeholder-safe wording:
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration and scope reduction |
+| Jira treatment task | IHAP-17 | Canonical cost/BOM coordination |
+| Related ADR | None | No architectural decision required now |
+
+## 7. Stakeholder Visibility
 
 ```text
-Cost exposure is tracked as a risk. Runtime cost, event volume, cloud usage, and AI provider cost remain [UNVALIDATED] until measured or estimated through reviewed evidence.
+MVP cost exposure is tracked through dated BOM and tooling assumptions. Hosted runtime cost remains [UNVALIDATED] until a hosted design and measurements exist.
+```
+
+## 8. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Narrowed to MVP cost and reproducibility; AI-provider scope removed | RT-R008-01 Proposed | Pending |
+
+## 9. Review Notes
+
+```text
+[x] Treatment starts as Proposed.
+[x] IHAP-17 is the existing coordination path.
+[x] AI-provider cost was removed while AI remains outside MVP.
+[x] No third treatment task was introduced.
+[x] Orphan check passed through IHAP-17 linkage.
 ```

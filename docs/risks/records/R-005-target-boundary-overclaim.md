@@ -1,107 +1,113 @@
 # R-005 — Target Boundary Overclaim
 
-**Status:** Draft  
+**Risk ID:** R-005  
+**Risk status:** Under Treatment  
+**Current assessment date:** 2026-07-12  
+**Last reviewed:** 2026-07-12  
+**Next review:** Event-driven  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
-**Jira:** IHAP-16  
-**Owner decision:** Pending Project Owner  
-**Decision state:** Pending Project Owner  
-**Risk type:** Compliance / Documentation  
-**Source of truth:** This GitHub risk record until superseded by a later reviewed change.
+**Jira:** IHAP-40  
+**Owner decision:** Pending
 
 <!--
 AI_AGENT_METADATA:
+  issue: IHAP-40
   risk_id: R-005
-  canonical_path: docs/risks/records/R-005-target-boundary-overclaim.md
-  risk_model: docs/risks/risk-model-baseline.md
-  product_boundary: docs/product/product-vision.md
-  source_of_truth_policy: docs/governance/source-of-truth.md
-  risk_acceptance_authority: project_owner
+  document_type: living_risk_record
   runtime_changes_allowed: false
-  adr_created: false
-  unvalidated_claim_marker: "[UNVALIDATED]"
+  orphan_status: not_orphan
 -->
-
----
 
 ## 1. Risk Statement
 
-There is a risk that backend, mobile, cloud, schema, storage, ingestion, registry, read model, or AI target boundaries are presented as implemented runtime without traceable evidence.
+There is a risk that current target backend, mobile, cloud, schema or AI boundaries are presented as implemented MVP runtime without traceable evidence.
 
----
+## 2. Source Trigger and Scope
 
-## 2. Source Trigger
+The repository contains target directories and architecture direction that are not runtime proof.
 
-The repository contains target service boundaries for ingestion, device registry, read model, and AI insight. These paths are architectural direction, not proof of implemented services.
+In scope: maturity wording for current repository and stakeholder surfaces.  
+Out of scope: implementing target services or admitting FUTURE capabilities into the MVP.
 
----
-
-## 3. Affected Assets and Trust Boundary
-
-| Area | Detail |
-|---|---|
-| Asset | `services/ingestion/`, `services/device-registry/`, `services/read-model/`, `services/ai-insight/`, mobile/cloud/schema wording. |
-| Trust boundary | Repository structure -> implementation maturity claim. |
-| Data involved | Not data-specific; maturity and evidence risk. |
-| Stakeholder surface | High risk of misunderstanding if wording is loose. |
-
----
-
-## 4. Scoring
+## 3. Current Assessment
 
 | Field | Value | Rationale |
 |---|---|---|
-| Likelihood | High | Directory names and architecture diagrams are often mistaken for implemented services. |
-| Impact | High | Overclaiming can invalidate stakeholder trust and source-of-truth correctness. |
-| Residual risk | High | Runtime evidence is not yet present for target services. |
-| Treatment proposal | Mitigate | Preserve TARGET and `[UNVALIDATED]` wording until implementation and test evidence exist. |
-| Decision state | Pending Project Owner | No residual risk decision has been made. |
+| Category | Compliance / Documentation | Evidence and maturity risk |
+| Likelihood | High | Directory names and diagrams are easily mistaken for implementation |
+| Impact | High | Overclaiming weakens trust and source-of-truth correctness |
+| Residual risk | High | Runtime evidence is absent for target boundaries |
+| Decision state | Pending Project Owner | No residual-risk decision is inferred |
 
----
+## 4. Existing Controls
 
-## 5. Existing Controls
+| Control | Evidence | Coverage | Limitation |
+|---|---|---|---|
+| TARGET and `[UNVALIDATED]` policy | `docs/governance/source-of-truth.md` | Full as documentation governance | Requires consistent application |
+| Stakeholder claim boundaries | `docs/governance/stakeholder-report-data-rules.md` | Full for reports | Cannot prove runtime implementation |
 
-- README and Product Vision define service directories as target boundaries.
-- `[UNVALIDATED]` policy requires unproven runtime claims to remain marked.
-- Stakeholder report data rules block target-to-runtime upgrades.
+## 5. Risk Treatment
 
----
+### RT-R005-01 — Enforce evidence-backed maturity labels
 
-## 6. Evidence Gap
+**Strategy:** Mitigate  
+**Lifecycle status:** Proposed  
+**Treatment owner:** Governance / documentation review  
+**Jira coordination:** Not required — existing policy and review  
+**Related ADRs:** None  
+**Next review trigger:** Any technical or stakeholder surface describes backend, mobile, cloud, schema or AI capability.
 
-Missing evidence:
+Planned actions:
 
-- service code implementing each boundary;
-- tests/build logs;
-- runtime logs or API responses;
-- schema or event contract evidence;
-- deployment or cloud evidence if later claimed.
+- use `TARGET` for architecture direction;
+- use `FUTURE` for deferred capability;
+- preserve `[UNVALIDATED]` until implementation and test evidence exists;
+- never treat directories or diagrams as runtime proof.
 
----
+**Remaining exposure:** Reviewers may miss an overclaim; runtime status remains evidence-dependent.
 
-## 7. Mitigation Proposal
+### Source and Evidence Register
 
-Every document and stakeholder surface should use the weakest accurate label:
+| ID | Source | Verification | Checked on | Limitations |
+|---|---|---|---|---|
+| SRC-01 | `docs/governance/source-of-truth.md` | Verified | 2026-07-12 | Governance evidence only |
+| SRC-02 | `docs/governance/stakeholder-report-data-rules.md` | Verified | 2026-07-12 | Applies to stakeholder material |
 
-- `TARGET` for service boundaries;
-- `FUTURE` for later capability;
-- `[UNVALIDATED]` for unproven runtime behavior;
-- `DONE` only with linked evidence.
+### Evidence and Effectiveness
 
-No placeholder directory should be treated as runtime proof.
+| Evidence | Expected result | Actual result | Status |
+|---|---|---|---|
+| EV-01 | Every unproven capability uses the weakest accurate maturity label | Not executed for future surfaces | `[UNVALIDATED]` |
 
----
+**Effectiveness:** Pending Evidence  
+**Project Owner decision required:** Yes
 
-## 8. Stakeholder Visibility
+## 6. Traceability
 
-| Item | Rule |
-|---|---|
-| Target architecture summary | Show allowed with TARGET / `[UNVALIDATED]`. |
-| Runtime service claim | Evidence required. |
-| Production-ready wording | Blocked. |
-| AI insight runtime claim | `[UNVALIDATED]` until evidence exists. |
+| Relationship | Link | Rule |
+|---|---|---|
+| Jira review task | IHAP-40 | Record migration only |
+| Jira treatment task | Not required | Existing governance is sufficient |
+| Related ADR | None | No architectural decision is introduced |
 
-Stakeholder-safe wording:
+## 7. Stakeholder Visibility
 
 ```text
-Backend, mobile, cloud, schema, and AI service areas are target boundaries unless implementation and runtime evidence prove otherwise.
+Backend, mobile, cloud, schema and AI areas are target or future boundaries unless linked implementation and runtime evidence prove otherwise.
+```
+
+## 8. Assessment History
+
+| Date | Change | Treatment | Decision |
+|---|---|---|---|
+| 2026-07-12 | Migrated to IHAP-39 treatment model | RT-R005-01 Proposed | Pending |
+
+## 9. Review Notes
+
+```text
+[x] Treatment starts as Proposed.
+[x] Policy controls are not presented as runtime evidence.
+[x] No task or ADR is required.
+[x] Orphan check passed through a governance treatment.
+[x] No target boundary was admitted into the MVP.
 ```
