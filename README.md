@@ -21,6 +21,7 @@ AI_AGENT_METADATA:
   team_working_rules: "docs/governance/team-working-rules.md"
   engineering_assistant_rules: "docs/governance/engineering-assistant-rules.md"
   documentation_strategy: "docs/governance/documentation-strategy.md"
+  cost_governance_and_bom_policy: "docs/governance/cost-governance-and-bom-policy.md"
   docs_landing_page: "docs/README.md"
   templates_index: "docs/templates/README.md"
   risk_assessment_template: "docs/templates/risk-assessment.md"
@@ -70,6 +71,7 @@ AI_AGENT_ROUTING:
   - Read docs/README.md for documentation navigation under docs/.
   - Read docs/governance/source-of-truth.md before modifying docs, governance, Jira evidence, Confluence summaries, canonical paths, or commit convention.
   - Read docs/governance/documentation-strategy.md before creating, moving, splitting, merging, deprecating, or reorganizing repository documentation.
+  - Read docs/governance/cost-governance-and-bom-policy.md before changing hardware BOM records, price snapshots, shipping treatment, replication-cost claims, paid-tool boundaries, or central-node cost requirements.
   - Read docs/templates/README.md before creating, using, moving, or changing reusable project templates.
   - Read docs/risks/risk-model-baseline.md before changing project risk taxonomy, scoring, residual risk treatment, risk evidence, or stakeholder risk visibility.
   - Read docs/risks/README.md and docs/risks/records/ before changing concrete risk records.
@@ -98,6 +100,7 @@ AI_AGENT_ROUTING:
 |---|---|---|
 | Source-of-truth rules | `docs/governance/source-of-truth.md` | Defines GitHub/Jira/Confluence roles, DOC-REGRESSION, anti-divergence, canonical paths, commit convention, and `[UNVALIDATED]` policy. |
 | Documentation strategy | `docs/governance/documentation-strategy.md` | Defines document families, when to create or update docs, anti-stale behavior, and documentation surface policy without duplicating source-of-truth rules. |
+| Cost governance and BOM policy | `docs/governance/cost-governance-and-bom-policy.md` | Defines dated hardware-price snapshots, complete edge/central/shared cost separation, shipping treatment, replication-cost rules, and paid-tool boundaries without executing purchases. |
 | Docs landing page | `docs/README.md` | Provides navigable documentation index for `docs/` without replacing canonical documents or duplicating long-form rules. |
 | Project templates | `docs/templates/README.md` | Indexes reusable project templates and links canonical templates without duplicating their source documents. |
 | Risk documentation | `docs/risks/README.md` | Indexes the risk modeling guide and concrete risk records. |
@@ -238,13 +241,13 @@ Edge Nodes -> Backend Services -> Mobile Dashboard -> AI-ready Insights
 | Backend | Java, Spring Boot, REST APIs `[UNVALIDATED]` |
 | Mobile | TypeScript, React Native, Expo `[UNVALIDATED]` |
 | DevOps | Docker, GitHub Actions, Linux `[UNVALIDATED]` |
-| Docs | Source-of-truth governance, Documentation Strategy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency, stakeholder report data rules |
+| Docs | Source-of-truth governance, Documentation Strategy, Cost Governance and BOM Policy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance, Scrum governance DoR/DoD, AI review agents policy, AI review agent playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, Product Vision, Risk Assessments, stakeholder transparency, stakeholder report data rules |
 
 ---
 
 ## Current Status
 
-This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, stakeholder report data rules, and explicit MVP boundaries.
+This repository is in Sprint 0. The current focus is repository structure, product/governance documentation, source-of-truth rules, anti-regression policy, Documentation Strategy, Cost Governance and BOM Policy, Project Templates, Risk Model Baseline, Risk Records, Shift Left governance baseline, Scrum governance DoR/DoD, AI review-agent policy/playbook, Governance Lane Review Gate, Team Working Rules, Engineering Assistant Rules, ADR index/template, stakeholder report data rules, and explicit MVP boundaries.
 
 Nothing in this repository should be interpreted as production-ready, security-grade, safety-critical, or commercially ready unless a later reviewed source-of-truth document and implementation evidence prove it.
 

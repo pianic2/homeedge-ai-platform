@@ -33,6 +33,7 @@ AI_AGENT_METADATA:
     governance:
       - docs/governance/source-of-truth.md
       - docs/governance/documentation-strategy.md
+      - docs/governance/cost-governance-and-bom-policy.md
       - docs/governance/shift-left-governance-baseline.md
       - docs/governance/scrum-governance-dor-dod.md
       - docs/governance/governance-lane-review-gate.md
@@ -79,6 +80,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Repository overview | `../README.md` |
 | Source-of-truth rules | `governance/source-of-truth.md` |
 | Documentation strategy | `governance/documentation-strategy.md` |
+| Cost governance and BOM | `governance/cost-governance-and-bom-policy.md` |
 | Product Vision / MVP boundary | `product/product-vision.md` |
 | Risk documentation index | `risks/README.md` |
 | Risk model baseline | `risks/risk-model-baseline.md` |
@@ -92,7 +94,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 | Area | Path | Status |
 |---|---|---|
-| Governance | `governance/` | Existing documentation family |
+| Governance | `governance/` | Existing documentation family, including canonical cost and BOM governance |
 | Product | `product/` | Existing documentation family |
 | Risks | `risks/` | Risk modeling guide and concrete risk records |
 | ADRs | `adr/` | Existing documentation family |
