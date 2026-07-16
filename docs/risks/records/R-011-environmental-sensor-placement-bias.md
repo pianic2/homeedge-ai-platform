@@ -7,7 +7,7 @@
 **Next review:** IHAP-51 enclosure/placement validation or material sensor-profile change  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** IHAP-45 / IHAP-51  
-**PR:** Pending  
+**PR:** [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28)  
 **Owner decision:** Pending
 
 <!--
@@ -190,7 +190,7 @@ This review does not accept, defer, or reject residual risk by itself.
 | Relationship | Link | Effect / Rule |
 |---|---|---|
 | Jira treatment task | IHAP-51 / IHAP-50 | Operational coordination only |
-| Pull request | Pending | Adds risk record and proposed treatment; not verification evidence |
+| Pull request | [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28) | Adds risk record and proposed treatment; not verification evidence |
 | Related ADR | `docs/adr/ADR-0002-environmental-sensor-profiles.md` | Partially mitigates inappropriate profile selection; leaves placement exposure unresolved |
 | Related risks | None | Keep distinct from power, wiring and generic claim risks |
 | Related policy or test | `docs/evidence/IHAP-45/`; `tools/hardware-validation/ihap-45-environmental-sensors/` | Comparative evidence and reproducible method |
