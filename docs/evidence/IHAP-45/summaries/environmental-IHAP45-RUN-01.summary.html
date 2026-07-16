@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>IHAP-45 Aggregate Evidence — IHAP45-RUN-01</title>
+<style>
+:root { color-scheme: light dark; --bg:#07111f; --panel:#101e31; --text:#eef6ff; --muted:#a9bed3; --line:#2b4664; --accent:#64d8ff; --ok:#3ddc97; --warn:#ffc857; --bad:#ff6b6b; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:Inter,ui-sans-serif,system-ui,sans-serif; background:radial-gradient(circle at top right,#19375a 0,#07111f 42%); color:var(--text); }
+main { max-width:1320px; margin:auto; padding:32px 22px 72px; }
+.hero,.panel,.card { background:rgba(16,30,49,.94); border:1px solid var(--line); border-radius:20px; box-shadow:0 18px 50px rgba(0,0,0,.24); }
+.hero { padding:32px; display:grid; gap:24px; grid-template-columns:1.5fr .8fr; align-items:center; }
+h1 { margin:.2rem 0 .7rem; font-size:clamp(2rem,5vw,4.8rem); line-height:.95; }
+h2 { margin:0 0 8px; }
+p { color:var(--muted); line-height:1.55; }
+.eyebrow { text-transform:uppercase; letter-spacing:.14em; color:var(--accent); font-weight:800; font-size:.78rem; }
+.status { justify-self:end; padding:18px 24px; border-radius:999px; font-weight:900; letter-spacing:.1em; font-size:1.35rem; }
+.status.pass { color:#042317; background:var(--ok); } .status.fail { color:white; background:var(--bad); }
+.grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:16px; margin:20px 0; }
+.card { padding:20px; } .card strong { display:block; font-size:2rem; margin-top:5px; }
+.panel { padding:24px; margin-top:20px; overflow:hidden; }
+.notice { border-left:6px solid var(--warn); }
+table { width:100%; border-collapse:collapse; min-width:860px; } th,td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:right; } th:first-child,td:first-child { text-align:left; }
+.table-wrap,.chart-wrap { overflow:auto; }
+.sensor-dot { display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:8px; }
+.phase-row { display:grid; grid-template-columns:minmax(210px,1fr) 4fr 90px; gap:12px; align-items:center; margin:12px 0; }
+.bar-track { height:14px; background:#07111f; border-radius:999px; overflow:hidden; } .bar { height:100%; background:linear-gradient(90deg,#64d8ff,#3ddc97); border-radius:999px; }
+.chart-heading { display:flex; justify-content:space-between; gap:20px; align-items:flex-start; flex-wrap:wrap; }
+.legend { display:flex; gap:12px; flex-wrap:wrap; font-size:.78rem; } .legend span { display:flex; align-items:center; gap:6px; } .legend i { width:12px; height:12px; border-radius:50%; }
+svg { width:100%; min-width:760px; height:auto; } .grid-line { stroke:var(--line); stroke-width:1; } .axis-label { fill:var(--muted); font-size:12px; }
+.range,footer { font-size:.85rem; } ul { color:var(--muted); line-height:1.6; } .warning { color:var(--warn); } .error { color:var(--bad); }
+code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; }
+footer { margin-top:28px; color:var(--muted); text-align:center; }
+@media(max-width:760px) { .hero { grid-template-columns:1fr; } .status { justify-self:start; } .phase-row { grid-template-columns:1fr; } }
+</style>
+</head>
+<body><main>
+<section class="hero">
+  <div><div class="eyebrow">IHAP-45 · Aggregate evidence</div><h1>Environmental sensor comparison</h1>
+  <p>Run <code>IHAP45-RUN-01</code> · Plan <code>IHAP45-QUALIFICATION-01</code> · temperature and relative humidity only</p></div>
+  <div class="status pass">PASSED</div>
+</section>
+<section class="grid">
+  <article class="card"><span>Sample records</span><strong>5,769</strong></article>
+  <article class="card"><span>Boot records</span><strong>1</strong></article>
+  <article class="card"><span>BME280 chip</span><strong>0x60</strong></article>
+  <article class="card"><span>BME280 address</span><strong>0x76</strong></article>
+</section>
+<section class="panel notice"><h2>Evidence boundary</h2><p>Relative comparison only. No independent reference was recorded, so absolute accuracy remains unvalidated.</p><p>This page contains aggregate statistics only. It embeds no serial log, timestamped observation, batch record, workstation path or per-sample series.</p></section>
+<section class="panel"><h2>Validation messages</h2><ul><li class="warning">no independent reference observations; absolute accuracy metrics are not available</li></ul></section>
+<section class="panel"><h2>Phase coverage</h2><div class="phase-row"><code>warmup</code><div class="bar-track"><div class="bar" style="width:100.00%"></div></div><strong>25.2 min</strong></div>
+<div class="phase-row"><code>baseline</code><div class="bar-track"><div class="bar" style="width:55.96%"></div></div><strong>14.1 min</strong></div>
+<div class="phase-row"><code>humidity_ramp_up</code><div class="bar-track"><div class="bar" style="width:21.85%"></div></div><strong>5.5 min</strong></div>
+<div class="phase-row"><code>humidity_high_plateau</code><div class="bar-track"><div class="bar" style="width:53.98%"></div></div><strong>13.6 min</strong></div>
+<div class="phase-row"><code>humidity_recovery</code><div class="bar-track"><div class="bar" style="width:42.39%"></div></div><strong>10.7 min</strong></div>
+<div class="phase-row"><code>humidity_low_plateau</code><div class="bar-track"><div class="bar" style="width:69.54%"></div></div><strong>17.5 min</strong></div>
+<div class="phase-row"><code>humidity_final_recovery</code><div class="bar-track"><div class="bar" style="width:47.68%"></div></div><strong>12.0 min</strong></div>
+<div class="phase-row"><code>temperature_ramp_up</code><div class="bar-track"><div class="bar" style="width:23.51%"></div></div><strong>5.9 min</strong></div>
+<div class="phase-row"><code>temperature_high_plateau</code><div class="bar-track"><div class="bar" style="width:41.72%"></div></div><strong>10.5 min</strong></div>
+<div class="phase-row"><code>temperature_recovery</code><div class="bar-track"><div class="bar" style="width:59.61%"></div></div><strong>15.0 min</strong></div>
+<div class="phase-row"><code>temperature_low_plateau</code><div class="bar-track"><div class="bar" style="width:41.72%"></div></div><strong>10.5 min</strong></div>
+<div class="phase-row"><code>final_recovery</code><div class="bar-track"><div class="bar" style="width:74.18%"></div></div><strong>18.7 min</strong></div></section>
+
+<section class="panel">
+  <div class="chart-heading"><div><h2>Temperature by stable phase</h2><p>Per-phase means; aggregate values only.</p></div><div class="legend"><span><i style="background:#1473e6"></i>DHT11-OWNED-01</span><span><i style="background:#e24a8d"></i>DHT22-OWNED-01</span><span><i style="background:#23a36d"></i>BME280-OWNED-01</span></div></div>
+  <div class="chart-wrap"><svg viewBox="0 0 920 310" role="img" aria-label="Temperature by stable phase">
+    <line x1="24" y1="24" x2="24" y2="286" class="grid-line"/>
+    <line x1="24" y1="286" x2="896" y2="286" class="grid-line"/>
+    <polyline points="24.0,235.2 198.4,286.0 372.8,238.1 547.2,24.0 721.6,256.9 896.0,240.4" fill="none" stroke="#1473e6" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="24.0,226.9 198.4,286.0 372.8,226.5 547.2,24.0 721.6,251.6 896.0,229.5" fill="none" stroke="#e24a8d" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="24.0,175.9 198.4,286.0 372.8,174.3 547.2,24.0 721.6,203.9 896.0,177.8" fill="none" stroke="#23a36d" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="24.0" cy="195.2" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — baseline: 30.212 °C</title></circle><circle cx="198.4" cy="234.7" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — humidity_high_plateau: 26.818 °C</title></circle><circle cx="372.8" cy="197.5" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — humidity_low_plateau: 30.022 °C</title></circle><circle cx="547.2" cy="31.0" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — temperature_high_plateau: 44.328 °C</title></circle><circle cx="721.6" cy="212.1" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — temperature_low_plateau: 28.760 °C</title></circle><circle cx="896.0" cy="199.2" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — final_recovery: 29.869 °C</title></circle><circle cx="24.0" cy="181.9" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — baseline: 31.354 °C</title></circle><circle cx="198.4" cy="227.9" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — humidity_high_plateau: 27.403 °C</title></circle><circle cx="372.8" cy="181.6" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — humidity_low_plateau: 31.380 °C</title></circle><circle cx="547.2" cy="24.0" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — temperature_high_plateau: 44.926 °C</title></circle><circle cx="721.6" cy="201.1" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — temperature_low_plateau: 29.705 °C</title></circle><circle cx="896.0" cy="184.0" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — final_recovery: 31.179 °C</title></circle><circle cx="24.0" cy="184.8" r="5" fill="#23a36d"><title>BME280-OWNED-01 — baseline: 31.110 °C</title></circle><circle cx="198.4" cy="286.0" r="5" fill="#23a36d"><title>BME280-OWNED-01 — humidity_high_plateau: 22.413 °C</title></circle><circle cx="372.8" cy="183.3" r="5" fill="#23a36d"><title>BME280-OWNED-01 — humidity_low_plateau: 31.238 °C</title></circle><circle cx="547.2" cy="45.2" r="5" fill="#23a36d"><title>BME280-OWNED-01 — temperature_high_plateau: 43.106 °C</title></circle><circle cx="721.6" cy="210.6" r="5" fill="#23a36d"><title>BME280-OWNED-01 — temperature_low_plateau: 28.894 °C</title></circle><circle cx="896.0" cy="186.5" r="5" fill="#23a36d"><title>BME280-OWNED-01 — final_recovery: 30.962 °C</title></circle><text x="24.0" y="302" text-anchor="middle" class="axis-label">baseline</text><text x="198.4" y="302" text-anchor="middle" class="axis-label">rh_high</text><text x="372.8" y="302" text-anchor="middle" class="axis-label">rh_low</text><text x="547.2" y="302" text-anchor="middle" class="axis-label">temp_high</text><text x="721.6" y="302" text-anchor="middle" class="axis-label">temp_low</text><text x="896.0" y="302" text-anchor="middle" class="axis-label">final_recovery</text>
+  </svg></div>
+  <p class="range">Observed aggregate range: 22.413–44.926 °C</p>
+</section>
+
+
+<section class="panel">
+  <div class="chart-heading"><div><h2>Relative humidity by stable phase</h2><p>Per-phase means; aggregate values only.</p></div><div class="legend"><span><i style="background:#1473e6"></i>DHT11-OWNED-01</span><span><i style="background:#e24a8d"></i>DHT22-OWNED-01</span><span><i style="background:#23a36d"></i>BME280-OWNED-01</span></div></div>
+  <div class="chart-wrap"><svg viewBox="0 0 920 310" role="img" aria-label="Relative humidity by stable phase">
+    <line x1="24" y1="24" x2="24" y2="286" class="grid-line"/>
+    <line x1="24" y1="286" x2="896" y2="286" class="grid-line"/>
+    <polyline points="24.0,86.6 198.4,27.5 372.8,57.6 547.2,286.0 721.6,24.0 896.0,58.8" fill="none" stroke="#1473e6" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="24.0,115.6 198.4,24.0 372.8,86.0 547.2,286.0 721.6,34.8 896.0,87.8" fill="none" stroke="#e24a8d" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><polyline points="24.0,174.5 198.4,24.0 372.8,154.7 547.2,286.0 721.6,104.9 896.0,155.6" fill="none" stroke="#23a36d" stroke-width="4" stroke-linejoin="round" stroke-linecap="round"/><circle cx="24.0" cy="132.8" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — baseline: 47.819 % RH</title></circle><circle cx="198.4" cy="87.5" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — humidity_high_plateau: 55.610 % RH</title></circle><circle cx="372.8" cy="110.5" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — humidity_low_plateau: 51.649 % RH</title></circle><circle cx="547.2" cy="286.0" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — temperature_high_plateau: 21.525 % RH</title></circle><circle cx="721.6" cy="84.7" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — temperature_low_plateau: 56.076 % RH</title></circle><circle cx="896.0" cy="111.4" r="5" fill="#1473e6"><title>DHT11-OWNED-01 — final_recovery: 51.491 % RH</title></circle><circle cx="24.0" cy="119.3" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — baseline: 50.145 % RH</title></circle><circle cx="198.4" cy="58.8" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — humidity_high_plateau: 60.530 % RH</title></circle><circle cx="372.8" cy="99.7" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — humidity_low_plateau: 53.502 % RH</title></circle><circle cx="547.2" cy="231.8" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — temperature_high_plateau: 30.834 % RH</title></circle><circle cx="721.6" cy="65.9" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — temperature_low_plateau: 59.305 % RH</title></circle><circle cx="896.0" cy="100.9" r="5" fill="#e24a8d"><title>DHT22-OWNED-01 — final_recovery: 53.300 % RH</title></circle><circle cx="24.0" cy="158.3" r="5" fill="#23a36d"><title>BME280-OWNED-01 — baseline: 43.453 % RH</title></circle><circle cx="198.4" cy="24.0" r="5" fill="#23a36d"><title>BME280-OWNED-01 — humidity_high_plateau: 66.504 % RH</title></circle><circle cx="372.8" cy="140.6" r="5" fill="#23a36d"><title>BME280-OWNED-01 — humidity_low_plateau: 46.478 % RH</title></circle><circle cx="547.2" cy="257.8" r="5" fill="#23a36d"><title>BME280-OWNED-01 — temperature_high_plateau: 26.370 % RH</title></circle><circle cx="721.6" cy="96.2" r="5" fill="#23a36d"><title>BME280-OWNED-01 — temperature_low_plateau: 54.110 % RH</title></circle><circle cx="896.0" cy="141.5" r="5" fill="#23a36d"><title>BME280-OWNED-01 — final_recovery: 46.340 % RH</title></circle><text x="24.0" y="302" text-anchor="middle" class="axis-label">baseline</text><text x="198.4" y="302" text-anchor="middle" class="axis-label">rh_high</text><text x="372.8" y="302" text-anchor="middle" class="axis-label">rh_low</text><text x="547.2" y="302" text-anchor="middle" class="axis-label">temp_high</text><text x="721.6" y="302" text-anchor="middle" class="axis-label">temp_low</text><text x="896.0" y="302" text-anchor="middle" class="axis-label">final_recovery</text>
+  </svg></div>
+  <p class="range">Observed aggregate range: 21.525–66.504 % RH</p>
+</section>
+
+<section class="panel"><h2>Aggregate sensor results</h2><div class="table-wrap"><table><thead><tr><th>Sensor</th><th>Valid</th><th>Valid %</th><th>Mean °C</th><th>SD °C</th><th>Mean RH %</th><th>SD RH</th><th>Median µs</th><th>Errors</th></tr></thead><tbody><tr><td><span class="sensor-dot" style="background:#1473e6"></span><code>DHT11-OWNED-01</code></td><td>1,923 / 1,923</td><td>100.00%</td><td>30.929</td><td>4.196</td><td>48.689</td><td>8.596</td><td>23,977.0</td><td><code>{}</code></td></tr>
+<tr><td><span class="sensor-dot" style="background:#e24a8d"></span><code>DHT22-OWNED-01</code></td><td>1,921 / 1,923</td><td>99.90%</td><td>32.020</td><td>4.134</td><td>51.756</td><td>7.235</td><td>5,762.0</td><td><code>{&quot;NO_RESPONSE&quot;: 2}</code></td></tr>
+<tr><td><span class="sensor-dot" style="background:#23a36d"></span><code>BME280-OWNED-01</code></td><td>1,923 / 1,923</td><td>100.00%</td><td>31.045</td><td>4.427</td><td>46.523</td><td>8.872</td><td>11,152.0</td><td><code>{}</code></td></tr></tbody></table></div></section>
+<section class="panel"><h2>Pairwise aggregate differences</h2><div class="table-wrap"><table><thead><tr><th>Comparison</th><th>Matched batches</th><th>Mean Δ °C</th><th>Median Δ °C</th><th>Mean Δ RH</th><th>Median Δ RH</th></tr></thead><tbody><tr><td><code>DHT11-OWNED-01__minus__DHT22-OWNED-01</code></td><td>1,921</td><td>-1.104</td><td>-1.200</td><td>-3.044</td><td>-2.300</td></tr>
+<tr><td><code>DHT11-OWNED-01__minus__BME280-OWNED-01</code></td><td>1,923</td><td>-0.116</td><td>-0.898</td><td>2.166</td><td>4.491</td></tr>
+<tr><td><code>DHT22-OWNED-01__minus__BME280-OWNED-01</code></td><td>1,921</td><td>0.986</td><td>0.270</td><td>5.215</td><td>6.654</td></tr></tbody></table></div></section>
+<section class="panel"><h2>Limitations</h2><ul><li>Raw serial and per-sample telemetry are local-only and are not published.</li><li>Absolute accuracy is unvalidated unless comparison_scope is absolute_and_relative and reference metrics exist.</li><li>Results apply to the owned specimens and executed placement, not every unit of each sensor family.</li><li>Pressure is outside scope and must not appear in the published schema.</li><li>Power consumption, rail capacity and autonomy are outside IHAP-45.</li></ul></section>
+<footer>Generated from <code>1.0.0</code> allow-listed aggregate evidence. Review the companion JSON and Markdown summaries for machine-readable provenance.</footer>
+</main></body></html>

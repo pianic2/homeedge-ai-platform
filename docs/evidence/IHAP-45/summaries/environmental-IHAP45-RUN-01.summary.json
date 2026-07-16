@@ -1,0 +1,649 @@
+{
+  "publication_schema_version": "1.0.0",
+  "evidence_type": "environmental_comparison_summary",
+  "run_id": "IHAP45-RUN-01",
+  "plan_id": "IHAP45-QUALIFICATION-01",
+  "status": "passed",
+  "validation_passed": true,
+  "comparison_scope": "relative_only",
+  "measurement_channels": [
+    "temperature_c",
+    "humidity_percent"
+  ],
+  "firmware": {
+    "firmware": "ihap-45-environmental-sensor-harness",
+    "idf_version": "v6.0.1",
+    "sample_interval_ms": 5000,
+    "measurement_channels": [
+      "temperature_c",
+      "humidity_percent"
+    ],
+    "pins": {
+      "dht11_data": 3,
+      "dht22_data": 4,
+      "i2c_sda": 5,
+      "i2c_scl": 6
+    },
+    "i2c_frequency_hz": 100000
+  },
+  "qualified_bme280": {
+    "sensor_id": "BME280-OWNED-01",
+    "i2c_address": "0x76",
+    "chip_id": "0x60",
+    "detected_type": "BME280",
+    "humidity_supported": true,
+    "status": "OK"
+  },
+  "validation": {
+    "errors": [],
+    "warnings": [
+      "no independent reference observations; absolute accuracy metrics are not available"
+    ],
+    "sample_records": 5769,
+    "boot_records": 1,
+    "probe_records": 1,
+    "phase_durations_seconds": {
+      "unclassified": 65.01100000000002,
+      "warmup": 1509.941999999991,
+      "baseline": 845.0039999999997,
+      "humidity_ramp_up": 329.992,
+      "humidity_high_plateau": 815.0359999999982,
+      "humidity_recovery": 640.0080000000002,
+      "humidity_low_plateau": 1050.0119999999972,
+      "humidity_final_recovery": 720.0029999999995,
+      "temperature_ramp_up": 355.00699999999983,
+      "temperature_high_plateau": 630.0139999999994,
+      "temperature_recovery": 900.0129999999992,
+      "temperature_low_plateau": 629.9969999999994,
+      "final_recovery": 1120.0379999999977
+    },
+    "per_sensor": {
+      "BME280-OWNED-01": {
+        "sample_records": 1923,
+        "valid_samples": 1923,
+        "completeness_percent": 100.0,
+        "valid_percent": 100.0,
+        "errors": {}
+      },
+      "DHT11-OWNED-01": {
+        "sample_records": 1923,
+        "valid_samples": 1923,
+        "completeness_percent": 100.0,
+        "valid_percent": 100.0,
+        "errors": {}
+      },
+      "DHT22-OWNED-01": {
+        "sample_records": 1923,
+        "valid_samples": 1921,
+        "completeness_percent": 100.0,
+        "valid_percent": 99.8959958398336,
+        "errors": {
+          "NO_RESPONSE": 2
+        }
+      }
+    },
+    "reference_observations": 0
+  },
+  "results": {
+    "per_sensor": {
+      "DHT11-OWNED-01": {
+        "records": 1923,
+        "valid_records": 1923,
+        "valid_percent": 100.0,
+        "error_counts": {},
+        "temperature_c": {
+          "count": 1923,
+          "mean": 30.928653146125846,
+          "median": 30.0,
+          "stddev": 4.196257884709756,
+          "mad": 0.1999999999999993,
+          "min": 26.2,
+          "max": 45.3
+        },
+        "humidity_percent": {
+          "count": 1923,
+          "mean": 48.68892355694228,
+          "median": 51.0,
+          "stddev": 8.595836481926476,
+          "mad": 2.5,
+          "min": 19.7,
+          "max": 58.8
+        },
+        "read_duration_us": {
+          "count": 1923,
+          "mean": 23969.703068122726,
+          "median": 23977.0,
+          "stddev": 98.51536179618134,
+          "mad": 63.0,
+          "min": 23663.0,
+          "max": 24260.0,
+          "p95": 24130.0
+        },
+        "per_phase": {
+          "baseline": {
+            "temperature_c": {
+              "count": 169,
+              "mean": 30.212426035502958,
+              "median": 30.2,
+              "stddev": 0.0887715542385471,
+              "mad": 0.09999999999999787,
+              "min": 30.0,
+              "max": 30.3
+            },
+            "humidity_percent": {
+              "count": 169,
+              "mean": 47.8189349112426,
+              "median": 47.8,
+              "stddev": 0.13886033330943484,
+              "mad": 0.09999999999999432,
+              "min": 47.6,
+              "max": 48.4
+            }
+          },
+          "final_recovery": {
+            "temperature_c": {
+              "count": 225,
+              "mean": 29.86888888888889,
+              "median": 29.9,
+              "stddev": 0.36463179949964486,
+              "mad": 0.10000000000000142,
+              "min": 28.0,
+              "max": 30.3
+            },
+            "humidity_percent": {
+              "count": 225,
+              "mean": 51.49111111111111,
+              "median": 50.9,
+              "stddev": 1.6434695200982778,
+              "mad": 0.7999999999999972,
+              "min": 49.4,
+              "max": 57.7
+            }
+          },
+          "humidity_high_plateau": {
+            "temperature_c": {
+              "count": 163,
+              "mean": 26.81840490797546,
+              "median": 26.7,
+              "stddev": 0.5452646049015828,
+              "mad": 0.3999999999999986,
+              "min": 26.2,
+              "max": 28.1
+            },
+            "humidity_percent": {
+              "count": 163,
+              "mean": 55.61042944785276,
+              "median": 55.8,
+              "stddev": 1.9560167857889064,
+              "mad": 1.5,
+              "min": 51.7,
+              "max": 58.7
+            }
+          },
+          "humidity_low_plateau": {
+            "temperature_c": {
+              "count": 210,
+              "mean": 30.021904761904764,
+              "median": 30.0,
+              "stddev": 0.13049845725385742,
+              "mad": 0.10000000000000142,
+              "min": 29.8,
+              "max": 30.3
+            },
+            "humidity_percent": {
+              "count": 210,
+              "mean": 51.649047619047614,
+              "median": 51.8,
+              "stddev": 0.5334944362512614,
+              "mad": 0.4000000000000057,
+              "min": 50.8,
+              "max": 52.4
+            }
+          },
+          "temperature_high_plateau": {
+            "temperature_c": {
+              "count": 126,
+              "mean": 44.327777777777776,
+              "median": 44.5,
+              "stddev": 0.7072921759939258,
+              "mad": 0.3999999999999986,
+              "min": 42.6,
+              "max": 45.3
+            },
+            "humidity_percent": {
+              "count": 126,
+              "mean": 21.524603174603175,
+              "median": 21.0,
+              "stddev": 1.9195702230629232,
+              "mad": 1.1000000000000014,
+              "min": 19.7,
+              "max": 26.0
+            }
+          },
+          "temperature_low_plateau": {
+            "temperature_c": {
+              "count": 126,
+              "mean": 28.760317460317463,
+              "median": 28.6,
+              "stddev": 0.641882153056695,
+              "mad": 0.40000000000000213,
+              "min": 28.0,
+              "max": 30.1
+            },
+            "humidity_percent": {
+              "count": 126,
+              "mean": 56.076190476190476,
+              "median": 56.5,
+              "stddev": 1.6971236170145572,
+              "mad": 1.2000000000000028,
+              "min": 52.6,
+              "max": 58.2
+            }
+          }
+        },
+        "response_seconds": {
+          "humidity_ramp_up": 860.014,
+          "temperature_ramp_up": 425.008
+        },
+        "reference_metrics": null
+      },
+      "DHT22-OWNED-01": {
+        "records": 1923,
+        "valid_records": 1921,
+        "valid_percent": 99.8959958398336,
+        "error_counts": {
+          "NO_RESPONSE": 2
+        },
+        "temperature_c": {
+          "count": 1921,
+          "mean": 32.02024986985945,
+          "median": 31.3,
+          "stddev": 4.1338076601198885,
+          "mad": 0.1999999999999993,
+          "min": 26.9,
+          "max": 45.7
+        },
+        "humidity_percent": {
+          "count": 1921,
+          "mean": 51.75627277459657,
+          "median": 52.9,
+          "stddev": 7.2348637582580135,
+          "mad": 2.3999999999999986,
+          "min": 29.8,
+          "max": 62.6
+        },
+        "read_duration_us": {
+          "count": 1923,
+          "mean": 5771.510140405616,
+          "median": 5762.0,
+          "stddev": 143.36051597353713,
+          "mad": 53.0,
+          "min": 2159.0,
+          "max": 6025.0,
+          "p95": 5928.0
+        },
+        "per_phase": {
+          "baseline": {
+            "temperature_c": {
+              "count": 169,
+              "mean": 31.354437869822483,
+              "median": 31.4,
+              "stddev": 0.09126008090542029,
+              "mad": 0.0,
+              "min": 31.1,
+              "max": 31.5
+            },
+            "humidity_percent": {
+              "count": 169,
+              "mean": 50.14497041420118,
+              "median": 50.1,
+              "stddev": 0.2834547168427841,
+              "mad": 0.20000000000000284,
+              "min": 49.7,
+              "max": 51.3
+            }
+          },
+          "final_recovery": {
+            "temperature_c": {
+              "count": 225,
+              "mean": 31.179111111111112,
+              "median": 31.2,
+              "stddev": 0.32645158128064694,
+              "mad": 0.09999999999999787,
+              "min": 29.1,
+              "max": 31.6
+            },
+            "humidity_percent": {
+              "count": 225,
+              "mean": 53.3,
+              "median": 53.0,
+              "stddev": 1.3948246177515344,
+              "mad": 0.7000000000000028,
+              "min": 51.0,
+              "max": 59.9
+            }
+          },
+          "humidity_high_plateau": {
+            "temperature_c": {
+              "count": 163,
+              "mean": 27.403067484662575,
+              "median": 27.3,
+              "stddev": 0.42852363734499754,
+              "mad": 0.3000000000000007,
+              "min": 26.9,
+              "max": 28.4
+            },
+            "humidity_percent": {
+              "count": 163,
+              "mean": 60.53006134969325,
+              "median": 60.9,
+              "stddev": 1.1182070618852389,
+              "mad": 0.7999999999999972,
+              "min": 57.9,
+              "max": 62.6
+            }
+          },
+          "humidity_low_plateau": {
+            "temperature_c": {
+              "count": 210,
+              "mean": 31.380476190476188,
+              "median": 31.3,
+              "stddev": 0.16412669252967105,
+              "mad": 0.10000000000000142,
+              "min": 31.1,
+              "max": 31.7
+            },
+            "humidity_percent": {
+              "count": 210,
+              "mean": 53.50190476190476,
+              "median": 53.849999999999994,
+              "stddev": 0.7382872915455062,
+              "mad": 0.45000000000000284,
+              "min": 52.2,
+              "max": 54.4
+            }
+          },
+          "temperature_high_plateau": {
+            "temperature_c": {
+              "count": 125,
+              "mean": 44.925599999999996,
+              "median": 45.1,
+              "stddev": 0.6949012461749401,
+              "mad": 0.3999999999999986,
+              "min": 41.7,
+              "max": 45.7
+            },
+            "humidity_percent": {
+              "count": 125,
+              "mean": 30.833599999999997,
+              "median": 30.6,
+              "stddev": 0.8889958089817394,
+              "mad": 0.6000000000000014,
+              "min": 29.8,
+              "max": 34.7
+            }
+          },
+          "temperature_low_plateau": {
+            "temperature_c": {
+              "count": 126,
+              "mean": 29.704761904761906,
+              "median": 29.5,
+              "stddev": 0.6767991894625338,
+              "mad": 0.3999999999999986,
+              "min": 28.9,
+              "max": 31.4
+            },
+            "humidity_percent": {
+              "count": 126,
+              "mean": 59.304761904761904,
+              "median": 59.849999999999994,
+              "stddev": 1.6060314887501872,
+              "mad": 0.8000000000000007,
+              "min": 55.3,
+              "max": 61.2
+            }
+          }
+        },
+        "response_seconds": {
+          "humidity_ramp_up": 664.985,
+          "temperature_ramp_up": 355.007
+        },
+        "reference_metrics": null
+      },
+      "BME280-OWNED-01": {
+        "records": 1923,
+        "valid_records": 1923,
+        "valid_percent": 100.0,
+        "error_counts": {},
+        "temperature_c": {
+          "count": 1923,
+          "mean": 31.04475559022361,
+          "median": 31.004,
+          "stddev": 4.426510725560282,
+          "mad": 0.1980000000000004,
+          "min": 21.751,
+          "max": 44.643
+        },
+        "humidity_percent": {
+          "count": 1923,
+          "mean": 46.523219968798756,
+          "median": 46.256,
+          "stddev": 8.871869709979974,
+          "mad": 2.405999999999999,
+          "min": 24.506,
+          "max": 72.304
+        },
+        "read_duration_us": {
+          "count": 1923,
+          "mean": 11141.217888715548,
+          "median": 11152.0,
+          "stddev": 84.49609989407291,
+          "mad": 56.0,
+          "min": 10756.0,
+          "max": 11380.0,
+          "p95": 11284.0
+        },
+        "per_phase": {
+          "baseline": {
+            "temperature_c": {
+              "count": 169,
+              "mean": 31.10976331360947,
+              "median": 31.136,
+              "stddev": 0.08951750735072969,
+              "mad": 0.036000000000001364,
+              "min": 30.903,
+              "max": 31.263
+            },
+            "humidity_percent": {
+              "count": 169,
+              "mean": 43.45302958579882,
+              "median": 43.472,
+              "stddev": 0.3406656723386529,
+              "mad": 0.2010000000000005,
+              "min": 40.315,
+              "max": 44.26
+            }
+          },
+          "final_recovery": {
+            "temperature_c": {
+              "count": 225,
+              "mean": 30.961537777777778,
+              "median": 30.994,
+              "stddev": 0.281275252270232,
+              "mad": 0.06599999999999895,
+              "min": 29.173,
+              "max": 31.344
+            },
+            "humidity_percent": {
+              "count": 225,
+              "mean": 46.33996,
+              "median": 46.035,
+              "stddev": 1.3325481240304766,
+              "mad": 0.7019999999999982,
+              "min": 44.233,
+              "max": 52.688
+            }
+          },
+          "humidity_high_plateau": {
+            "temperature_c": {
+              "count": 163,
+              "mean": 22.41336809815951,
+              "median": 22.08,
+              "stddev": 0.6898770060093572,
+              "mad": 0.28500000000000014,
+              "min": 21.751,
+              "max": 24.277
+            },
+            "humidity_percent": {
+              "count": 163,
+              "mean": 66.50366257668712,
+              "median": 67.352,
+              "stddev": 3.7984130624314822,
+              "mad": 2.5289999999999964,
+              "min": 57.646,
+              "max": 72.304
+            }
+          },
+          "humidity_low_plateau": {
+            "temperature_c": {
+              "count": 210,
+              "mean": 31.237942857142855,
+              "median": 31.192,
+              "stddev": 0.14790568756085856,
+              "mad": 0.09399999999999942,
+              "min": 31.015,
+              "max": 31.583
+            },
+            "humidity_percent": {
+              "count": 210,
+              "mean": 46.477938095238095,
+              "median": 46.7785,
+              "stddev": 0.6026889038382504,
+              "mad": 0.290499999999998,
+              "min": 45.306,
+              "max": 47.138
+            }
+          },
+          "temperature_high_plateau": {
+            "temperature_c": {
+              "count": 126,
+              "mean": 43.105936507936505,
+              "median": 43.5625,
+              "stddev": 1.3647355772956562,
+              "mad": 0.7029999999999994,
+              "min": 37.012,
+              "max": 44.643
+            },
+            "humidity_percent": {
+              "count": 126,
+              "mean": 26.369698412698412,
+              "median": 25.787,
+              "stddev": 1.6938704945530696,
+              "mad": 0.8635000000000002,
+              "min": 24.506,
+              "max": 34.116
+            }
+          },
+          "temperature_low_plateau": {
+            "temperature_c": {
+              "count": 126,
+              "mean": 28.893642857142858,
+              "median": 28.4955,
+              "stddev": 0.8349523527894099,
+              "mad": 0.3755000000000006,
+              "min": 28.026,
+              "max": 31.081
+            },
+            "humidity_percent": {
+              "count": 126,
+              "mean": 54.110190476190475,
+              "median": 55.075500000000005,
+              "stddev": 2.111237152815517,
+              "mad": 1.016499999999997,
+              "min": 48.533,
+              "max": 56.741
+            }
+          }
+        },
+        "response_seconds": {
+          "humidity_ramp_up": 760.03,
+          "temperature_ramp_up": 470.009
+        },
+        "reference_metrics": null
+      }
+    },
+    "pairwise": {
+      "DHT11-OWNED-01__minus__DHT22-OWNED-01": {
+        "matched_batches": 1921,
+        "temperature_delta_c": {
+          "count": 1921,
+          "mean": -1.10385216033316,
+          "median": -1.1999999999999993,
+          "stddev": 0.43020797660207233,
+          "mad": 0.10000000000000142,
+          "min": -3.0,
+          "max": 1.7000000000000028
+        },
+        "humidity_delta_percent": {
+          "count": 1921,
+          "mean": -3.043571056741281,
+          "median": -2.299999999999997,
+          "stddev": 2.3037540810407373,
+          "mad": 0.3999999999999986,
+          "min": -14.3,
+          "max": 3.1000000000000014
+        }
+      },
+      "DHT11-OWNED-01__minus__BME280-OWNED-01": {
+        "matched_batches": 1923,
+        "temperature_delta_c": {
+          "count": 1923,
+          "mean": -0.11610244409776396,
+          "median": -0.8979999999999997,
+          "stddev": 1.7047459770944238,
+          "mad": 0.18799999999999883,
+          "min": -1.8530000000000015,
+          "max": 6.206999999999994
+        },
+        "humidity_delta_percent": {
+          "count": 1923,
+          "mean": 2.165703588143525,
+          "median": 4.491,
+          "stddev": 5.033765912178311,
+          "mad": 0.5009999999999977,
+          "min": -14.004000000000005,
+          "max": 8.767000000000003
+        }
+      },
+      "DHT22-OWNED-01__minus__BME280-OWNED-01": {
+        "matched_batches": 1921,
+        "temperature_delta_c": {
+          "count": 1921,
+          "mean": 0.9859703279541904,
+          "median": 0.2699999999999996,
+          "stddev": 1.4491124232663748,
+          "mad": 0.1109999999999971,
+          "min": -0.2240000000000002,
+          "max": 5.27
+        },
+        "humidity_delta_percent": {
+          "count": 1921,
+          "mean": 5.214764705882353,
+          "median": 6.6540000000000035,
+          "stddev": 3.740712041430015,
+          "mad": 0.4439999999999955,
+          "min": -10.104,
+          "max": 11.219999999999999
+        }
+      }
+    }
+  },
+  "limitations": [
+    "Raw serial and per-sample telemetry are local-only and are not published.",
+    "Absolute accuracy is unvalidated unless comparison_scope is absolute_and_relative and reference metrics exist.",
+    "Results apply to the owned specimens and executed placement, not every unit of each sensor family.",
+    "Pressure is outside scope and must not appear in the published schema.",
+    "Power consumption, rail capacity and autonomy are outside IHAP-45."
+  ],
+  "source_data_policy": "raw local run retained or reproducible; allow-listed aggregate summary only"
+}
