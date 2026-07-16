@@ -4,7 +4,7 @@
 **Date:** 2026-07-16  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** IHAP-45  
-**PR:** Pending  
+**PR:** [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28)  
 **Supersedes:** None  
 **Superseded by:** None
 
@@ -39,13 +39,13 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 The MVP room node needs temperature and relative-humidity observations for ordinary domestic monitoring. The default room use case involves slow, gradual environmental changes and does not require calibrated, medical, safety-critical or precision-control measurements.
 
-IHAP-45 compared the owned DHT11, DHT22 and BME280 specimens in parallel through a controlled 115-minute protocol. The accepted run produced 5,771 structured records, completed every required phase, retained one boot and one successful BME280 probe, and published only aggregate evidence.
+IHAP-45 compared the owned DHT11, DHT22 and BME280 specimens in parallel through a controlled 115-minute protocol. The normalized accepted run produced 5,769 structured samples, completed every required phase, retained one boot and one successful BME280 probe, and published only aggregate evidence.
 
 The owned specimens showed:
 
 - DHT11: 1,923 valid samples from 1,923 records and no observed communication errors;
-- DHT22: 1,922 valid samples from 1,924 records and two `NO_RESPONSE` errors;
-- BME280: 1,924 valid samples from 1,924 records and no observed communication errors;
+- DHT22: 1,921 valid samples from 1,923 records and two `NO_RESPONSE` errors;
+- BME280: 1,923 valid samples from 1,923 records and no observed communication errors;
 - BME280 identity: I2C address `0x76`, chip ID `0x60`, humidity supported;
 - materially different responses under extreme temperature and humidity phases;
 - no independent reference observations, so absolute accuracy remains `[UNVALIDATED]`.
@@ -141,7 +141,7 @@ The MVP measurement contract remains temperature and relative humidity only. Pre
 | Evidence | Link |
 |---|---|
 | Jira issue | [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45) |
-| Pull request | Pending |
+| Pull request | [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28) |
 | Evidence index | [IHAP-45 evidence](../evidence/IHAP-45/README.md) |
 | Environmental summary | [Markdown](../evidence/IHAP-45/summaries/environmental-IHAP45-RUN-01.summary.md) |
 | Machine-readable aggregate summary | [JSON](../evidence/IHAP-45/summaries/environmental-IHAP45-RUN-01.summary.json) |
