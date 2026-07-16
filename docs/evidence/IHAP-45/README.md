@@ -1,7 +1,7 @@
 # IHAP-45 — Environmental Sensor Comparative Evidence
 
 **Issue:** [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45)  
-**Evidence status:** controlled environmental qualification passed; decision pending  
+**Evidence status:** controlled run completed; normalized publication pending  
 **Validation harness:** [`tools/hardware-validation/ihap-45-environmental-sensors/`](../../../tools/hardware-validation/ihap-45-environmental-sensors/)
 
 This directory is the durable, public evidence index for the owned DHT11, DHT22 and BME280 comparative qualification.
@@ -44,11 +44,11 @@ IHAP-45/
     └── environmental-IHAP45-RUN-01.summary.html
 ```
 
-Only files that actually exist after local generation and Project Owner review should be committed.
+Only files produced after normalization, regeneration and Project Owner review are admissible.
 
-## Controlled run outcome
+## Controlled run state
 
-`IHAP45-RUN-01` passed the committed qualification protocol:
+`IHAP45-RUN-01` completed every required phase and its first generated summary reported:
 
 - plan: `IHAP45-QUALIFICATION-01`;
 - comparison scope: `relative_only`;
@@ -59,19 +59,13 @@ Only files that actually exist after local generation and Project Owner review s
 - validation errors: none;
 - independent reference observations: 0.
 
-Validity by owned specimen:
+The same summary also reported `100.052%` completeness for DHT22 and BME280. Completeness cannot exceed 100%. This exposed a collector-boundary defect: samples emitted by the already-running firmware before the operator reset were retained before the first captured `harness_boot`.
 
-| Sensor | Valid samples | Valid rate | Observed communication errors |
-|---|---:|---:|---|
-| `DHT11-OWNED-01` | 1,923 / 1,923 | 100% | none |
-| `DHT22-OWNED-01` | 1,922 / 1,924 | 99.90% | 2 `NO_RESPONSE` |
-| `BME280-OWNED-01` | 1,924 / 1,924 | 100% | none |
-
-Every required phase exceeded its minimum duration.
+The original run remains preserved locally. It does not need to be repeated. A derived run must be created with `host/ihap45_normalize_run.py`, retaining only evidence from the first captured boot onward. Validation, analysis and publication are then rerun on the derived directory.
 
 ## Qualified owned BME280
 
-The owned purple breakout was directly identified during the accepted run as:
+The owned purple breakout was directly identified during the run as:
 
 ```text
 sensor_id: BME280-OWNED-01
@@ -82,18 +76,28 @@ humidity supported: true
 status: OK
 ```
 
-This identity applies only to the tested specimen.
+This identity applies only to the tested specimen and is unaffected by removal of pre-reset samples because the probe follows the retained boot boundary.
 
-## Claims supported
+## Claims currently supported
 
-The accepted evidence supports claims about:
+The evidence already supports:
 
 - successful build, flash and execution of the validation harness on the tested ESP32-C3 setup;
 - direct BME280 identification and humidity support for the owned purple module;
-- parallel acquisition from the three owned sensors;
-- observed sample completeness and communication errors;
-- relative disagreement, stability, read latency and response estimates in the executed placement;
-- completion of the controlled phase protocol without validation errors.
+- completion of all controlled environmental phases;
+- existence of sufficient local evidence to regenerate a normalized comparison without repeating the two-hour test;
+- transparent detection and correction of an evidence-boundary defect.
+
+## Claims pending normalized republication
+
+The following aggregate claims remain provisional until regenerated summaries pass review:
+
+- final sample counts and completeness;
+- final whole-run and per-phase means;
+- final pairwise differences;
+- final response-time estimates;
+- accepted relative stability and communication-error rates;
+- final reference and fallback selection.
 
 ## Claims not supported
 
@@ -109,4 +113,4 @@ The evidence does not establish:
 
 ## Decision state
 
-No final sensor selection is encoded in this evidence index. `PO-45-01` and `PO-45-02` remain open until the Project Owner reviews the sanitized comparative results and explicitly selects the reference and fallback sensor.
+No final sensor selection is encoded in this evidence index. `PO-45-01` and `PO-45-02` remain open until the normalized comparative summaries and aggregate-only HTML are reviewed by the Project Owner.
