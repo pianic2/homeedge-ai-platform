@@ -52,6 +52,7 @@ def load_actions(path: Path, plan: Mapping[str, Any]) -> dict[str, Any]:
             item in SENSOR_CHOICES for item in required
         ):
             invalid.append(f"{scenario_id}.required_sensor_channels")
+
     if missing:
         raise ihap46.HarnessError(
             "Missing operator actions for scenarios: " + ", ".join(sorted(missing))
@@ -71,6 +72,7 @@ def load_environment(path: Path) -> dict[str, Any]:
         raise ihap46.HarnessError(
             f"Environment schema_version must be {ihap46.SCHEMA_VERSION}"
         )
+
     profile_id = payload.get("profile_id")
     defaults = payload.get("defaults")
     positions = payload.get("reference_test_positions")
@@ -104,6 +106,7 @@ def load_environment(path: Path) -> dict[str, Any]:
     for field, value in positions.items():
         if not isinstance(field, str) or not isinstance(value, str) or not value.strip():
             invalid.append(f"reference_test_positions.{field}")
+
     if invalid:
         raise ihap46.HarnessError(
             "Invalid environment fields: " + ", ".join(sorted(invalid))
@@ -156,7 +159,9 @@ def filter_scenarios_for_sensors(
 
 
 def build_effective_plan(
-    plan: Mapping[str, Any], scenarios: Sequence[Mapping[str, Any]], sensors: Sequence[str]
+    plan: Mapping[str, Any],
+    scenarios: Sequence[Mapping[str, Any]],
+    sensors: Sequence[str],
 ) -> dict[str, Any]:
     selected_sensors = set(sensors)
     effective = copy.deepcopy(dict(plan))
@@ -173,6 +178,7 @@ def build_effective_plan(
                 f"Scenario {scenario['id']} has no expectation for selected sensors"
             )
         effective_scenarios.append(scenario)
+
     effective["scenarios"] = effective_scenarios
     effective["selected_sensor_channels"] = list(sensors)
     return effective
@@ -224,6 +230,7 @@ def effective_environment(
     for field, value in overrides.items():
         if value is not None:
             defaults[field] = value
+
     return {
         "schema_version": environment["schema_version"],
         "issue": environment.get("issue", "IHAP-46"),
@@ -309,7 +316,9 @@ def collect_operator_metadata(
             "Sensor orientation", values["mount_orientation"]
         ),
         "mount_position": ask_default("Sensor position", values["mount_position"]),
-        "room_notes": ask_default("Room and adjacent-space notes", values["room_notes"]),
+        "room_notes": ask_default(
+            "Room and adjacent-space notes", values["room_notes"]
+        ),
         "reference_test_positions": copy.deepcopy(
             environment["reference_test_positions"]
         ),
@@ -345,11 +354,76 @@ def wait_for_capture_start(run_dir: Path, process: subprocess.Popen[Any]) -> Non
     deadline = time.monotonic() + 15
     while time.monotonic() < deadline:
         if process.poll() is not None:
-            raise ihap46.HarnessError("Serial collector stopped before creating the run")
+            raise ihap46.HarnessError(
+                "Serial collector stopped before creating the run"
+            )
         if (run_dir / "run.json").exists():
             return
         time.sleep(0.2)
     raise ihap46.HarnessError("Serial collector did not create the run directory")
+
+
+def preflight_snapshot(
+    run_dir: Path, started_at_ms: int, sensors: Sequence[str]
+) -> dict[str, Any]:
+    """Return pre-flight diagnostics using evidence created after the gate starts."""
+
+    records = [
+        item
+        for item in ihap46.iter_jsonl(run_dir / "records.jsonl")
+        if int(item.get("received_at_epoch_ms", 0)) >= started_at_ms
+    ]
+    sources = [item.get("source", {}) for item in records]
+    boot_count = sum(
+        1
+        for item in sources
+        if isinstance(item, Mapping) and item.get("record_type") == "boot"
+    )
+    samples = [
+        item
+        for item in sources
+        if isinstance(item, Mapping) and item.get("record_type") == "sample"
+    ]
+    valid_uart_count = sum(
+        1
+        for item in samples
+        if bool(ihap46.get_nested(item, ("ld2410c", "uart_frame_valid")))
+    )
+
+    events = sorted(
+        (
+            item
+            for item in ihap46.iter_jsonl(run_dir / "capture-events.jsonl")
+            if int(item.get("at_epoch_ms", 0)) >= started_at_ms
+        ),
+        key=lambda item: int(item.get("at_epoch_ms", 0)),
+    )
+    disconnected = False
+    reconnected_after_disconnect = False
+    for event in events:
+        if event.get("event") == "serial_disconnected":
+            disconnected = True
+        elif event.get("event") == "serial_connected" and disconnected:
+            reconnected_after_disconnect = True
+
+    reset_observed = boot_count > 0 or reconnected_after_disconnect
+    selected_channels_ready = bool(samples) and (
+        "ld2410c_uart" not in sensors or valid_uart_count > 0
+    )
+    return {
+        "schema_version": ihap46.SCHEMA_VERSION,
+        "issue": "IHAP-46",
+        "started_at_epoch_ms": started_at_ms,
+        "fresh_record_count": len(records),
+        "fresh_sample_count": len(samples),
+        "fresh_boot_count": boot_count,
+        "fresh_valid_uart_count": valid_uart_count,
+        "serial_disconnect_observed": disconnected,
+        "serial_reconnect_after_disconnect": reconnected_after_disconnect,
+        "reset_observed": reset_observed,
+        "selected_channels_ready": selected_channels_ready,
+        "status": "PASS" if reset_observed and selected_channels_ready else "WAIT",
+    }
 
 
 def preflight(
@@ -361,32 +435,73 @@ def preflight(
     print("\nPRE-FLIGHT")
     print("Do not start the scenario action yet.")
     print("With the device connected, press the ESP32-C3 RST button once.")
+    print(
+        "The reset may be observed either as a boot record or as a USB "
+        "disconnect/reconnect sequence."
+    )
+
+    started_at_ms = ihap46.epoch_ms()
+    ihap46.record_capture_event(
+        run_dir,
+        "guided_preflight_started",
+        selected_channels=list(sensors),
+    )
     deadline = time.monotonic() + timeout_s
+    next_diagnostic = 0.0
+    snapshot: dict[str, Any] = {}
+
     while time.monotonic() < deadline:
         if process.poll() is not None:
             raise ihap46.HarnessError("Serial collector stopped during pre-flight")
-        records = list(ihap46.iter_jsonl(run_dir / "records.jsonl"))
-        sources = [item.get("source", {}) for item in records]
-        boot = any(
-            isinstance(item, Mapping) and item.get("record_type") == "boot"
-            for item in sources
-        )
-        samples = [
-            item
-            for item in sources
-            if isinstance(item, Mapping) and item.get("record_type") == "sample"
-        ]
-        uart_ok = any(
-            bool(ihap46.get_nested(item, ("ld2410c", "uart_frame_valid")))
-            for item in samples
-        )
-        if boot and samples and (uart_ok or "ld2410c_uart" not in sensors):
-            print("[PRE-FLIGHT] PASS — firmware and selected channels are available")
+
+        snapshot = preflight_snapshot(run_dir, started_at_ms, sensors)
+        if snapshot["status"] == "PASS":
+            snapshot["completed_at"] = ihap46.isoformat_utc()
+            ihap46.write_json(run_dir / "preflight.json", snapshot)
+            ihap46.record_capture_event(
+                run_dir,
+                "guided_preflight_passed",
+                boot_records=snapshot["fresh_boot_count"],
+                valid_uart_samples=snapshot["fresh_valid_uart_count"],
+                reconnect=snapshot["serial_reconnect_after_disconnect"],
+            )
+            print(
+                "[PRE-FLIGHT] PASS — fresh samples received and reset/reconnect "
+                "evidence observed"
+            )
             return
-        time.sleep(0.5)
+
+        now = time.monotonic()
+        if now >= next_diagnostic:
+            print(
+                "[PRE-FLIGHT] waiting — "
+                f"samples={snapshot['fresh_sample_count']}, "
+                f"valid_uart={snapshot['fresh_valid_uart_count']}, "
+                f"boot={snapshot['fresh_boot_count']}, "
+                f"reconnect={snapshot['serial_reconnect_after_disconnect']}"
+            )
+            next_diagnostic = now + 2.0
+        time.sleep(0.25)
+
+    snapshot = preflight_snapshot(run_dir, started_at_ms, sensors)
+    snapshot["status"] = "FAIL"
+    snapshot["completed_at"] = ihap46.isoformat_utc()
+    snapshot["failure_reason"] = (
+        "No combination of fresh selected-channel samples and reset evidence "
+        "was observed before timeout."
+    )
+    ihap46.write_json(run_dir / "preflight.json", snapshot)
+    ihap46.record_capture_event(
+        run_dir,
+        "guided_preflight_failed",
+        fresh_samples=snapshot["fresh_sample_count"],
+        valid_uart_samples=snapshot["fresh_valid_uart_count"],
+        boot_records=snapshot["fresh_boot_count"],
+        reconnect=snapshot["serial_reconnect_after_disconnect"],
+    )
     raise ihap46.HarnessError(
-        "Pre-flight failed; inspect serial.log and verify reset, wiring, "
-        "power, UART direction, and selected channels"
+        "Pre-flight failed; inspect preflight.json, serial.log, records.jsonl, "
+        "and capture-events.jsonl"
     )
 
 
@@ -418,6 +533,7 @@ def run_interval(
             )
             next_reminder = now + reminder_seconds
         time.sleep(min(0.5, max(0.0, deadline - time.monotonic())))
+
     append_marker(run_dir, scenario, repetition, "end", "guided runtime marker")
     print("[RECORDING] COMPLETE")
     note = input(
@@ -532,6 +648,7 @@ def command_run(args: argparse.Namespace) -> None:
         effective_environment_path = run_dir / "effective-environment.json"
         ihap46.write_json(effective_plan_path, effective_plan)
         ihap46.write_json(effective_environment_path, environment)
+
         run_metadata = ihap46.load_json(run_dir / "run.json")
         run_metadata.update(
             {
@@ -553,6 +670,7 @@ def command_run(args: argparse.Namespace) -> None:
         print(f"Evaluated channels: {', '.join(sensors)}")
         print(environment_summary(environment))
         preflight(run_dir, process, args.preflight_seconds, sensors)
+
         for scenario in scenarios:
             action = actions["actions"][scenario["id"]]
             for repetition in range(1, int(scenario["repetitions"]) + 1):
@@ -581,7 +699,9 @@ def command_run(args: argparse.Namespace) -> None:
         stop_collector(process)
         pending_plan.unlink(missing_ok=True)
 
-    results = ihap46.analyze_run(run_dir, run_dir / "effective-test-plan.json")
+    results = ihap46.analyze_run(
+        run_dir, run_dir / "effective-test-plan.json"
+    )
     ihap46.write_json(run_dir / "results.json", results)
     ihap46.render_report(results, run_dir / "report.html")
     print("\nRUN COMPLETE")
@@ -630,6 +750,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             parser.error("--port is required unless --dry-run is used")
         if not args.run_id:
             parser.error("--run-id is required unless --dry-run is used")
+
     try:
         command_run(args)
     except ihap46.HarnessError as exc:
