@@ -1,0 +1,41 @@
+menu "IHAP-46 presence validation harness"
+
+config IHAP46_LD2410_RX_GPIO
+    int "ESP32-C3 GPIO connected to LD2410C TX"
+    range -1 21
+    default 5
+    help
+        Historical prototype input used GPIO5. Set -1 to disable UART capture.
+
+config IHAP46_LD2410_TX_GPIO
+    int "ESP32-C3 GPIO connected to LD2410C RX"
+    range -1 21
+    default -1
+    help
+        Keep disabled for RX-only evidence unless command/configuration testing is explicitly required.
+
+config IHAP46_LD2410_OUT_GPIO
+    int "ESP32-C3 GPIO connected to LD2410C OUT"
+    range -1 21
+    default -1
+    help
+        Enable only after the exact module pinout and logic level are verified.
+
+config IHAP46_PIR_OUT_GPIO
+    int "ESP32-C3 GPIO connected to PIR OUT"
+    range -1 21
+    default -1
+    help
+        Set to a safe GPIO when an identified PIR specimen is included in the test.
+
+config IHAP46_SAMPLE_PERIOD_MS
+    int "Sample output period in milliseconds"
+    range 50 5000
+    default 100
+
+config IHAP46_UART_TIMEOUT_MS
+    int "Age after which LD2410C UART presence is stale"
+    range 100 30000
+    default 1500
+
+endmenu

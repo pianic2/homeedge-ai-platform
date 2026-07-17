@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0.0",
+  "issue": "IHAP-46",
+  "profile_id": "ROOM-5X5-DOOR-CORNER-ABOVE-DOOR",
+  "description": "Reference physical setup for the first owned LD2410C room validation.",
+  "defaults": {
+    "room_id": "ROOM-5X5-DOOR-CORNER-01",
+    "room_shape": "square",
+    "room_width_m": 5.0,
+    "room_depth_m": 5.0,
+    "door_location": "near one corner of the sensor mounting wall",
+    "mount_height_cm": 200.0,
+    "mount_position": "wall-mounted immediately above the door opening",
+    "mount_orientation": "board parallel to the wall, antenna side facing into the room",
+    "room_notes": "Reference room is 5.00 m x 5.00 m. The door is near one corner. Record or override the exact door width, offset from the corner, ceiling height, furniture layout, adjacent-space geometry, and any moving objects when known."
+  },
+  "reference_test_positions": {
+    "door_inside_point": "1.00 m inside the room on the sensor centerline",
+    "room_center": "geometric room center, 2.50 m from each wall",
+    "far_point": "0.50 m from the wall opposite the door on the sensor centerline",
+    "lateral_path": "through the room center, from 0.50 m from one side wall to 0.50 m from the opposite side wall",
+    "seated_point": "room center unless the run metadata records another fixed point"
+  },
+  "override_rule": "Every default may be corrected through command-line arguments or interactive prompts. The effective values are stored with the run evidence."
+}
