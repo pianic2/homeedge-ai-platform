@@ -176,6 +176,90 @@ class GuidedRunTests(unittest.TestCase):
         self.assertIn("Keep the room empty.", card)
         self.assertIn("A person enters.", card)
 
+    def test_preflight_accepts_reconnect_with_valid_uart_without_boot(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            ihap46.append_jsonl(
+                run_dir / "records.jsonl",
+                {
+                    "received_at_epoch_ms": 1200,
+                    "source": {
+                        "record_type": "sample",
+                        "ld2410c": {"uart_frame_valid": True},
+                    },
+                },
+            )
+            ihap46.append_jsonl(
+                run_dir / "capture-events.jsonl",
+                {
+                    "at_epoch_ms": 1050,
+                    "event": "serial_disconnected",
+                },
+            )
+            ihap46.append_jsonl(
+                run_dir / "capture-events.jsonl",
+                {
+                    "at_epoch_ms": 1100,
+                    "event": "serial_connected",
+                },
+            )
+            snapshot = guided_run.preflight_snapshot(
+                run_dir, 1000, ["ld2410c_uart"]
+            )
+
+        self.assertEqual("PASS", snapshot["status"])
+        self.assertEqual(0, snapshot["fresh_boot_count"])
+        self.assertEqual(1, snapshot["fresh_valid_uart_count"])
+        self.assertTrue(snapshot["serial_reconnect_after_disconnect"])
+
+    def test_preflight_accepts_boot_with_valid_uart_without_disconnect(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            ihap46.append_jsonl(
+                run_dir / "records.jsonl",
+                {
+                    "received_at_epoch_ms": 1100,
+                    "source": {"record_type": "boot"},
+                },
+            )
+            ihap46.append_jsonl(
+                run_dir / "records.jsonl",
+                {
+                    "received_at_epoch_ms": 1200,
+                    "source": {
+                        "record_type": "sample",
+                        "ld2410c": {"uart_frame_valid": True},
+                    },
+                },
+            )
+            snapshot = guided_run.preflight_snapshot(
+                run_dir, 1000, ["ld2410c_uart"]
+            )
+
+        self.assertEqual("PASS", snapshot["status"])
+        self.assertEqual(1, snapshot["fresh_boot_count"])
+        self.assertFalse(snapshot["serial_reconnect_after_disconnect"])
+
+    def test_preflight_ignores_valid_samples_before_start(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            ihap46.append_jsonl(
+                run_dir / "records.jsonl",
+                {
+                    "received_at_epoch_ms": 900,
+                    "source": {
+                        "record_type": "sample",
+                        "ld2410c": {"uart_frame_valid": True},
+                    },
+                },
+            )
+            snapshot = guided_run.preflight_snapshot(
+                run_dir, 1000, ["ld2410c_uart"]
+            )
+
+        self.assertEqual("WAIT", snapshot["status"])
+        self.assertEqual(0, snapshot["fresh_sample_count"])
+
 
 if __name__ == "__main__":
     unittest.main()
