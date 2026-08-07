@@ -65,7 +65,7 @@ Optional local reachability may be tested with `--wifi-host <local-address>`. Th
 
 ### Gate D — Storage smoke test
 
-The harness writes a bounded temporary file, flushes it to storage, reads it back and removes it.
+The harness writes a bounded temporary file, flushes it to storage, reads it back, compares deterministic write/read hashes and removes it.
 
 Default size: 128 MiB.
 
@@ -74,7 +74,7 @@ Record:
 - bytes written/read;
 - elapsed write/read time;
 - calculated sequential throughput;
-- free space before/after;
+- matching write/read hashes;
 - whether the temporary file was removed.
 
 This is only a functional/performance smoke test. It does not prove microSD endurance.
@@ -148,7 +148,7 @@ From repository root on the central-node candidate:
 
 ```bash
 python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py \
-  --output-dir runs/IHAP-52/pi4b-reference-01 \
+  --output-dir tools/hardware-validation/ihap-52-central-node/runs/pi4b-reference-01 \
   --stress-seconds 300 \
   --storage-mib 128
 ```
@@ -157,7 +157,7 @@ Optional local network check:
 
 ```bash
 python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py \
-  --output-dir runs/IHAP-52/pi4b-reference-01 \
+  --output-dir tools/hardware-validation/ihap-52-central-node/runs/pi4b-reference-01 \
   --wifi-host 192.168.1.2
 ```
 
@@ -166,12 +166,12 @@ python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py 
 ## Expected local outputs
 
 ```text
-runs/IHAP-52/<run-id>/
+tools/hardware-validation/ihap-52-central-node/runs/<run-id>/
 ├── validation.json
 └── validation.md
 ```
 
-These raw outputs must be reviewed before repository publication.
+The harness-local `runs/` directory is ignored by Git. These raw outputs must be reviewed before repository publication.
 
 ## Public evidence promotion
 
