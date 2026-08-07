@@ -48,7 +48,18 @@ Closed corrections:
 - thermal acceptance now relies on observable stability/current-throttling evidence rather than an invented project temperature threshold;
 - storage smoke now verifies deterministic write/read SHA-256 integrity;
 - storage capacity gate is aligned to nominal 32 GB media and allows partition/format overhead;
-- OS identity is captured while the exact Raspberry Pi OS Lite selection is recorded manually because software cannot reliably distinguish every image variant.
+- OS identity is captured while the exact Raspberry Pi OS Lite selection is recorded manually because software cannot reliably distinguish every image variant;
+- **validation reproducibility gap:** the original `central-node-validation-plan.md` described gates and principles but did not provide a complete operator procedure. It has been replaced by a canonical end-to-end runbook covering OS preparation, Imager settings, first boot, updates, prerequisites, repository checkout, immutable run IDs, manual configuration capture, pre-flight commands, canonical harness invocation, exit-code handling, evidence verification, PASS/FAIL gates, post-run checks, failure classification and privacy review.
+
+The runbook now defines that:
+
+- every attempt has a unique run ID;
+- a started run is never overwritten by a retry;
+- physical configuration is recorded before stress begins;
+- the exact branch commit is recorded;
+- mandatory pre-flight failures stop the run;
+- failed attempts remain evidence rather than being overwritten;
+- a future operator can follow the same ordered procedure from blank microSD to reviewed local evidence.
 
 The next mandatory gate is execution on the physical Raspberry Pi 4 reference specimen.
 
@@ -56,8 +67,9 @@ The next mandatory gate is execution on the physical Raspberry Pi 4 reference sp
 
 **Result:** PASS with NOTE
 
-- Internet access is not required by the harness;
-- Wi-Fi secrets/SSID are not intentionally collected;
+- Internet access is not required by the harness itself;
+- Wi-Fi secrets/SSID are not intentionally collected by the harness;
+- operator notes explicitly prohibit credentials and local network identifiers;
 - raw evidence remains local until reviewed;
 - no hardened/security-appliance claim is introduced.
 
@@ -72,7 +84,7 @@ The next mandatory gate is execution on the physical Raspberry Pi 4 reference sp
 
 **Result:** PASS
 
-- GitHub contains ADR/evidence/harness;
+- GitHub contains ADR/evidence/harness/runbook;
 - Jira tracks workflow and Project Owner decisions;
 - Confluence remains link/summary-only;
 - `[UNVALIDATED]` markers remain on unsupported claims.
@@ -100,4 +112,4 @@ Ethernet optional
 fan/heatsinks optional but recommended
 ```
 
-No move to final review or ADR acceptance is justified until the physical run is complete.
+The validation procedure is now an executable, repeatable operator runbook rather than a high-level checklist. No move to final review or ADR acceptance is justified until the physical run is complete.
