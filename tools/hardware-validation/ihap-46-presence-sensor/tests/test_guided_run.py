@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import importlib.util
+import io
 import json
 from pathlib import Path
 from types import SimpleNamespace
 import sys
 import tempfile
 import unittest
+from contextlib import redirect_stdout
+from unittest import mock
 
 ROOT = Path(__file__).resolve().parents[1]
 HOST = ROOT / "host"
@@ -104,12 +107,14 @@ class GuidedRunTests(unittest.TestCase):
             "actions": {
                 "REQUIRED": {
                     "purpose": "purpose",
+                    "start_action": "ACT",
                     "setup": ["setup"],
                     "during_capture": ["act"],
                     "invalid_if": ["invalid"],
                 },
                 "OPTIONAL": {
                     "purpose": "purpose",
+                    "start_action": "ACT",
                     "setup": ["setup"],
                     "during_capture": ["act"],
                     "invalid_if": ["invalid"],
@@ -166,15 +171,101 @@ class GuidedRunTests(unittest.TestCase):
     def test_scenario_card_is_actionable_and_english(self) -> None:
         action = {
             "purpose": "Verify an empty room.",
+            "start_action": "MAINTAIN EMPTY ROOM CONDITIONS",
             "setup": ["Close the door."],
             "during_capture": ["Keep the room empty."],
             "invalid_if": ["A person enters."],
         }
         card = guided_run.scenario_card(self.plan["scenarios"][0], action, 1)
-        self.assertIn("Recorded duration: 01:05", card)
-        self.assertIn("Actions during recording", card)
-        self.assertIn("Keep the room empty.", card)
+        self.assertIn("Duration: 01:05", card)
+        self.assertIn("START ACTION", card)
+        self.assertIn("MAINTAIN EMPTY ROOM CONDITIONS", card)
         self.assertIn("A person enters.", card)
+
+    def test_scenario_card_contains_operator_sections_and_start_action(self) -> None:
+        action = {
+            "purpose": "Measure entry.",
+            "start_action": "ENTER THE ROOM",
+            "setup": ["Stand outside."],
+            "during_capture": ["Reach the endpoint."],
+            "invalid_if": ["You enter early."],
+        }
+        card = guided_run.scenario_card(
+            {
+                **self.plan["scenarios"][0],
+                "id": "ENTER_ROOM",
+                "title": "Enter",
+                "door_state": "open",
+            },
+            action,
+            1,
+        )
+        for section in ("IHAP-46 PHYSICAL VALIDATION", "PURPOSE", "SETUP", "INVALID IF", "START ACTION"):
+            self.assertIn(section, card)
+        self.assertIn(">>> ENTER THE ROOM <<<", card)
+
+    def test_canonical_actions_have_start_instructions_for_every_scenario(self) -> None:
+        plan_path = ROOT / "config" / "test-plan.json"
+        actions_path = ROOT / "config" / "operator-actions.json"
+        plan = ihap46.load_json(plan_path)
+        actions = guided_run.load_actions(actions_path, plan)
+        self.assertEqual(
+            {scenario["id"] for scenario in plan["scenarios"]},
+            set(actions["actions"]),
+        )
+        self.assertTrue(
+            all(
+                isinstance(action.get("start_action"), str)
+                and action["start_action"].strip()
+                for action in actions["actions"].values()
+            )
+        )
+
+    def test_start_signal_event_and_marker_share_timestamp(self) -> None:
+        scenario = {
+            "id": "ENTER_ROOM",
+            "ground_truth": "present_moving",
+            "door_state": "open",
+        }
+        action = {"start_action": "ENTER THE ROOM"}
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            with mock.patch.object(ihap46, "epoch_ms", return_value=1234):
+                guided_run.emit_start_signal(
+                    run_dir, scenario, action, 1, "test marker"
+                )
+            events = list(ihap46.iter_jsonl(run_dir / "capture-events.jsonl"))
+            markers = list(ihap46.iter_jsonl(run_dir / "marks.jsonl"))
+
+        self.assertEqual(["operator_start_signal_emitted"], [event["event"] for event in events])
+        self.assertEqual(1234, events[0]["at_epoch_ms"])
+        self.assertEqual(1234, markers[0]["at_epoch_ms"])
+        self.assertEqual("ENTER THE ROOM", events[0]["action"])
+
+    def test_operator_guidance_flushes_countdown_and_capture_instructions(self) -> None:
+        output = io.StringIO()
+        with mock.patch.object(guided_run.time, "sleep"):
+            with redirect_stdout(output):
+                guided_run.action_countdown()
+                guided_run.print_recording_guidance(
+                    {"during_capture": ["Walk normally.", "Remain in the room."]}
+                )
+        text = output.getvalue()
+        self.assertIn("[ACTION COUNTDOWN]", text)
+        self.assertIn("Do NOT perform the action yet.", text)
+        self.assertIn("5...", text)
+        self.assertIn("[RECORDING ACTIVE]", text)
+        self.assertIn("- Walk normally.", text)
+        self.assertIn("Do not stop until the runner reports REPETITION COMPLETE.", text)
+
+    def test_room_empty_start_action_does_not_instruct_entry(self) -> None:
+        actions = guided_run.load_actions(
+            ROOT / "config" / "operator-actions.json",
+            ihap46.load_json(ROOT / "config" / "test-plan.json"),
+        )
+        action = actions["actions"]["ROOM_EMPTY_BASELINE"]
+        self.assertNotIn("ENTER", action["start_action"])
+        self.assertNotIn("LEAVE", action["start_action"])
 
     def test_preflight_accepts_reconnect_with_valid_uart_without_boot(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

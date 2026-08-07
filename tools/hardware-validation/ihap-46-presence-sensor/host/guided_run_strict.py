@@ -219,9 +219,12 @@ def wait_for_clear_start(
         required_stable_ms=required_stable_ms,
         timeout_ms=int(timeout_seconds * 1_000),
     )
+    print("\n[AUTOMATIC START GATE]", flush=True)
+    print("Stay outside the sensing area.", flush=True)
+    print("Do not enter yet.", flush=True)
     print(
-        "[START GATE] Remain outside the sensing area and substantially still. "
-        f"Waiting for {stable_seconds:.1f} seconds of continuous clear state."
+        f"Waiting for {stable_seconds:.1f} seconds of continuous CLEAR state...",
+        flush=True,
     )
 
     snapshot: dict[str, Any] = {}
@@ -242,17 +245,16 @@ def wait_for_clear_start(
                 stable_clear_ms=snapshot["stable_clear_ms"],
                 latest_states=snapshot["latest_states"],
             )
-            print(
-                "[START GATE] PASS — selected channels are freshly and "
-                "continuously clear"
-            )
+            print("\n[AUTOMATIC START GATE] PASS", flush=True)
+            print("The room is confirmed clear.", flush=True)
+            print("DO NOT ENTER YET. Countdown will start now.", flush=True)
             return snapshot
 
         now = time.monotonic()
         if now >= next_diagnostic:
             states = snapshot.get("latest_states") or "no fresh sample"
             print(
-                "[START GATE] waiting — "
+                "[AUTOMATIC START GATE] waiting — "
                 f"states={states}, "
                 f"stable_clear_ms={snapshot.get('stable_clear_ms', 0)}, "
                 f"sample_age_ms={snapshot.get('latest_sample_age_ms')}"
@@ -260,6 +262,11 @@ def wait_for_clear_start(
             next_diagnostic = now + 2.0
         time.sleep(0.1)
 
+    reason = (
+        "No fresh selected-channel sample reached a stable CLEAR state before "
+        "the gate timeout."
+    )
+    base.print_test_interrupted(reason)
     ihap46.record_capture_event(
         run_dir,
         "onset_clear_gate_failed",
@@ -270,9 +277,7 @@ def wait_for_clear_start(
         stable_clear_ms=snapshot.get("stable_clear_ms", 0),
     )
     raise ihap46.HarnessError(
-        "Onset start gate timed out before the selected channels were stably "
-        "clear. Preserve the run and inspect adjacent-area detection or clear "
-        "latency before repeating."
+        reason
     )
 
 
@@ -301,9 +306,12 @@ def wait_for_occupied_start(
         required_stable_ms=required_stable_ms,
         timeout_ms=int(timeout_seconds * 1_000),
     )
+    print("\n[AUTOMATIC START GATE]", flush=True)
+    print("Remain at the documented occupied position.", flush=True)
+    print("Do not leave yet.", flush=True)
     print(
-        "[START GATE] Remain at the documented occupied point. "
-        f"Waiting for {stable_seconds:.1f} seconds of continuous occupied state."
+        f"Waiting for {stable_seconds:.1f} seconds of continuous OCCUPIED state...",
+        flush=True,
     )
 
     snapshot: dict[str, Any] = {}
@@ -321,16 +329,15 @@ def wait_for_occupied_start(
                 stable_occupied_ms=snapshot["stable_occupied_ms"],
                 latest_states=snapshot["latest_states"],
             )
-            print(
-                "[START GATE] PASS — selected channels are freshly and "
-                "continuously occupied"
-            )
+            print("\n[AUTOMATIC START GATE] PASS", flush=True)
+            print("Presence is confirmed.", flush=True)
+            print("DO NOT LEAVE YET. Countdown will start now.", flush=True)
             return snapshot
 
         now = time.monotonic()
         if now >= next_diagnostic:
             print(
-                "[START GATE] waiting — "
+                "[AUTOMATIC START GATE] waiting — "
                 f"states={snapshot.get('latest_states') or 'no fresh sample'}, "
                 f"stable_occupied_ms={snapshot.get('stable_occupied_ms', 0)}, "
                 f"sample_age_ms={snapshot.get('latest_sample_age_ms')}"
@@ -338,6 +345,11 @@ def wait_for_occupied_start(
             next_diagnostic = now + 2.0
         time.sleep(0.1)
 
+    reason = (
+        "No fresh selected-channel sample reached a stable OCCUPIED state before "
+        "the gate timeout."
+    )
+    base.print_test_interrupted(reason)
     ihap46.record_capture_event(
         run_dir,
         "offset_occupied_gate_failed",
@@ -348,8 +360,7 @@ def wait_for_occupied_start(
         stable_occupied_ms=snapshot.get("stable_occupied_ms", 0),
     )
     raise ihap46.HarnessError(
-        "Offset start gate timed out before the selected channels were stably "
-        "occupied. Preserve the run and inspect the occupied precondition."
+        reason
     )
 
 
@@ -398,10 +409,10 @@ def strict_run_interval(
     repetition: int,
     reminder_seconds: float,
 ) -> None:
-    """Run one interval, enforcing a clear precondition for onset scenarios."""
+    """Run one interval with transition-aware physical start guidance."""
 
     print(base.scenario_card(scenario, action, repetition))
-    input("Complete the setup, move to the required start position, and press Enter. ")
+    base.prompt_operator_setup(action)
 
     onset_channels = selected_transition_sensor_ids(
         run_dir, scenario, "empty_to_occupied"
@@ -425,9 +436,7 @@ def strict_run_interval(
                 offset_channels,
             )
 
-        for remaining in range(5, 0, -1):
-            print(f"Recording starts in {remaining}...")
-            time.sleep(1)
+        base.action_countdown()
 
         countdown_valid = True
         if onset_channels:
@@ -455,35 +464,37 @@ def strict_run_interval(
             ),
         )
         if onset_channels:
-            print(
-                "[START GATE] Presence returned during the countdown. "
-                "The marker was not created; restarting the clear-state gate."
-            )
+            print("\n[COUNTDOWN CANCELLED]", flush=True)
+            print("Presence returned before START.", flush=True)
+            print("DO NOT ENTER.", flush=True)
+            print("No start marker was created.", flush=True)
+            print("The clear-state gate will restart automatically.", flush=True)
         else:
+            print("\n[COUNTDOWN CANCELLED]", flush=True)
+            print("Presence cleared before START.", flush=True)
+            print("DO NOT LEAVE.", flush=True)
+            print("No start marker was created.", flush=True)
             print(
-                "[START GATE] Presence cleared during the countdown. "
-                "The marker was not created; restarting the occupied-state gate."
+                "Return/remain at the occupied start position. "
+                "The occupied-state gate will restart automatically.",
+                flush=True,
             )
 
-    base.append_marker(
-        run_dir,
-        scenario,
-        repetition,
-        "start",
-        "strict guided runtime marker",
+    base.emit_start_signal(
+        run_dir, scenario, action, repetition, "strict guided runtime marker"
     )
     duration = float(scenario["duration_s"])
     deadline = time.monotonic() + duration
     next_reminder = 0.0
-    print("[RECORDING] IN PROGRESS")
-    print("[ACTION] " + " ".join(action["during_capture"]))
+    base.print_recording_guidance(action)
 
     while time.monotonic() < deadline:
         now = time.monotonic()
         if now >= next_reminder:
             print(
                 f"[RECORDING] {base.format_duration(deadline - now)} remaining — "
-                + action["during_capture"][0]
+                + action["during_capture"][0],
+                flush=True,
             )
             next_reminder = now + reminder_seconds
         time.sleep(min(0.5, max(0.0, deadline - time.monotonic())))
@@ -495,7 +506,7 @@ def strict_run_interval(
         "end",
         "strict guided runtime marker",
     )
-    print("[RECORDING] COMPLETE")
+    base.print_repetition_complete(scenario, action, repetition)
     note = input(
         "Record any anomaly or invalidating event, or press Enter for none: "
     ).strip()

@@ -4,6 +4,7 @@
   "actions": {
     "ROOM_EMPTY_BASELINE": {
       "purpose": "Measure whether the sensor reports presence while the room is actually empty.",
+      "start_action": "MAINTAIN EMPTY ROOM CONDITIONS",
       "setup": [
         "Close the door and verify that no person remains in the room.",
         "Stop or immobilize fans, moving curtains, and other movable objects when possible.",
@@ -21,6 +22,7 @@
     },
     "ENTER_ROOM": {
       "purpose": "Measure detection onset when one person enters the room.",
+      "start_action": "ENTER THE ROOM",
       "setup": [
         "Leave the room empty and stand outside the door.",
         "Keep the door in the state required by the test plan.",
@@ -39,6 +41,7 @@
     },
     "MOVING_LATERAL": {
       "purpose": "Measure presence continuity during transverse movement across the room.",
+      "start_action": "BEGIN LATERAL WALKING",
       "setup": [
         "Close the door and stand at one end of the documented lateral path.",
         "Keep the sensor, furniture, and path unchanged between repetitions."
@@ -55,6 +58,7 @@
     },
     "MOVING_APPROACH": {
       "purpose": "Measure sensor behavior while one person approaches and moves away from the doorway-mounted sensor.",
+      "start_action": "BEGIN APPROACH / RETREAT MOVEMENT",
       "setup": [
         "Use the documented near and far points from the effective environment profile.",
         "Stand at the far point before the recording starts."
@@ -71,6 +75,7 @@
     },
     "SEATED_STILL": {
       "purpose": "Measure whether presence remains asserted while one person is seated and substantially still.",
+      "start_action": "REMAIN SEATED AND SUBSTANTIALLY STILL",
       "setup": [
         "Place a chair at the documented seated point and do not move it between repetitions.",
         "Sit before the recording starts, with the door closed and a normal posture."
@@ -87,6 +92,7 @@
     },
     "MICRO_MOVEMENT": {
       "purpose": "Measure presence while one seated person performs small realistic work or reading movements.",
+      "start_action": "BEGIN ONLY THE DECLARED SMALL MOVEMENTS",
       "setup": [
         "Sit at the same fixed point used for the seated-still test.",
         "Prepare one repeatable light activity, such as typing or turning pages."
@@ -103,6 +109,7 @@
     },
     "EXIT_CLEAR": {
       "purpose": "Measure how the reported state clears after the person leaves the room.",
+      "start_action": "LEAVE THE ROOM AND CLOSE THE DOOR",
       "setup": [
         "Stand at the documented internal test point while the sensor is already reporting presence.",
         "Keep the path to the door clear."
@@ -119,6 +126,7 @@
     },
     "ADJACENT_DOOR_CLOSED": {
       "purpose": "Measure whether movement outside the room is misclassified as internal presence while the door is closed.",
+      "start_action": "BEGIN WALKING ALONG THE EXTERNAL PATH",
       "setup": [
         "Leave the room empty and close the door completely.",
         "Document one adjacent external path and reuse it for every repetition."
@@ -135,6 +143,7 @@
     },
     "ADJACENT_DOOR_OPEN": {
       "purpose": "Measure how far detection extends beyond the room boundary while the door is open.",
+      "start_action": "BEGIN EXTERNAL MOVEMENT — DO NOT CROSS THE THRESHOLD",
       "setup": [
         "Leave the room empty and open the door to the same documented angle for every repetition.",
         "Document an external path that does not cross the threshold."
@@ -151,6 +160,7 @@
     },
     "WALL_MOVEMENT": {
       "purpose": "Measure whether movement behind an adjacent wall produces a presence report inside the room.",
+      "start_action": "BEGIN MOVEMENT BEHIND THE DOCUMENTED WALL",
       "setup": [
         "Leave the sensor room empty and close the door.",
         "Document the path behind the nearest wall and identify which wall separates it from the sensor."
@@ -167,6 +177,7 @@
     },
     "NON_HUMAN_INTERFERENCE": {
       "purpose": "Measure whether one documented moving non-human object produces false presence.",
+      "start_action": "ACTIVATE THE DOCUMENTED NON-HUMAN MOVEMENT",
       "setup": [
         "Leave the room empty.",
         "Place and document one moving object, such as a curtain moved by a fan.",
@@ -184,6 +195,7 @@
     },
     "REBOOT_PERSISTENCE": {
       "purpose": "Verify that evidence collection resumes after a reset and observe whether sensor behavior remains consistent.",
+      "start_action": "BEGIN THE DECLARED MOVEMENT; RESET WHEN INSTRUCTED",
       "setup": [
         "Remain in the test area while moving normally.",
         "Before starting, record whether the reset targets the ESP32-C3 or the sensor power."
@@ -200,6 +212,7 @@
     },
     "DIGITAL_UART_CONSISTENCY": {
       "purpose": "Compare the LD2410C digital output with presence derived from UART frames.",
+      "start_action": "BEGIN THE REQUIRED OCCUPIED / EMPTY ALTERNATION",
       "setup": [
         "Enable both channels only after pinout and logic levels have been verified.",
         "Start with an empty room and define one fixed internal occupied point."

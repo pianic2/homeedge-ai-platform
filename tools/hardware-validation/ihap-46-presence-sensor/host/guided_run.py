@@ -47,6 +47,9 @@ def load_actions(path: Path, plan: Mapping[str, Any]) -> dict[str, Any]:
                 isinstance(item, str) and item.strip() for item in value
             ):
                 invalid.append(f"{scenario_id}.{field}")
+        start_action = action.get("start_action")
+        if not isinstance(start_action, str) or not start_action.strip():
+            invalid.append(f"{scenario_id}.start_action")
         required = action.get("required_sensor_channels", [])
         if not isinstance(required, list) or not all(
             item in SENSOR_CHOICES for item in required
@@ -193,24 +196,120 @@ def scenario_card(
     scenario: Mapping[str, Any], action: Mapping[str, Any], repetition: int
 ) -> str:
     setup = "\n".join(f"  {i}. {item}" for i, item in enumerate(action["setup"], 1))
-    during = "\n".join(
-        f"  {i}. {item}" for i, item in enumerate(action["during_capture"], 1)
-    )
     invalid = "\n".join(f"  - {item}" for item in action["invalid_if"])
     return (
         "\n"
         + "=" * 76
-        + f"\nTEST: {scenario['id']} — {scenario['title']}\n"
+        + "\nIHAP-46 PHYSICAL VALIDATION\n"
+        + f"Scenario: {scenario['id']} — {scenario['title']}\n"
         + f"Repetition: {repetition}/{scenario['repetitions']}\n"
-        + f"Recorded duration: {format_duration(float(scenario['duration_s']))}\n"
-        + f"Expected ground truth: {scenario['ground_truth']}\n"
-        + f"Door state: {scenario['door_state']}\n\n"
-        + f"Test purpose\n  {action['purpose']}\n\n"
-        + f"Setup before recording\n{setup}\n\n"
-        + f"Actions during recording\n{during}\n\n"
-        + f"Invalidate this attempt if\n{invalid}\n"
+        + f"Duration: {format_duration(float(scenario['duration_s']))}\n"
+        + f"Door state: {str(scenario['door_state']).upper()}\n"
+        + "=" * 76
+        + f"\n\nPURPOSE\n{action['purpose']}\n\n"
+        + f"SETUP\n{setup}\n\n"
+        + f"INVALID IF\n{invalid}\n"
+        + f"\nSTART ACTION\n>>> {action['start_action']} <<<\n"
         + "=" * 76
     )
+
+
+def prompt_operator_setup(action: Mapping[str, Any]) -> None:
+    print("\n[OPERATOR SETUP]", flush=True)
+    print("Complete the setup described above.", flush=True)
+    print(
+        "When you are physically ready in the required start position, "
+        "press ENTER.",
+        flush=True,
+    )
+    print("Do NOT perform the test action yet.", flush=True)
+    input("Press ENTER only when setup is ready: ")
+
+
+def action_countdown() -> None:
+    print("\n[ACTION COUNTDOWN]", flush=True)
+    print("Do NOT perform the action yet.", flush=True)
+    for remaining in range(5, 0, -1):
+        print(f"{remaining}...", flush=True)
+        time.sleep(1)
+
+
+def emit_start_signal(
+    run_dir: Path,
+    scenario: Mapping[str, Any],
+    action: Mapping[str, Any],
+    repetition: int,
+    note: str,
+) -> None:
+    """Emit the authoritative command and persist event and marker at one timestamp."""
+
+    print("\n" + "=" * 76, flush=True)
+    print(f">>> START NOW — {action['start_action']} <<<", flush=True)
+    print("=" * 76, flush=True)
+    print("\a", end="", flush=True)
+    at_epoch_ms = ihap46.epoch_ms()
+    at = ihap46.isoformat_utc()
+    ihap46.append_jsonl(
+        run_dir / "capture-events.jsonl",
+        {
+            "at": at,
+            "at_epoch_ms": at_epoch_ms,
+            "event": "operator_start_signal_emitted",
+            "scenario_id": scenario["id"],
+            "repetition": repetition,
+            "action": action["start_action"],
+        },
+    )
+    append_marker(
+        run_dir,
+        scenario,
+        repetition,
+        "start",
+        note,
+        at_epoch_ms=at_epoch_ms,
+        at=at,
+    )
+
+
+def print_recording_guidance(action: Mapping[str, Any]) -> None:
+    print("\n[RECORDING ACTIVE]", flush=True)
+    print("Follow these instructions:", flush=True)
+    for item in action["during_capture"]:
+        print(f"- {item}", flush=True)
+    print("Do not stop until the runner reports REPETITION COMPLETE.", flush=True)
+
+
+def print_dry_run_capture_guidance(action: Mapping[str, Any]) -> None:
+    print("\nDURING CAPTURE", flush=True)
+    for item in action["during_capture"]:
+        print(f"- {item}", flush=True)
+
+
+def print_repetition_complete(
+    scenario: Mapping[str, Any], action: Mapping[str, Any], repetition: int
+) -> None:
+    print("\n" + "=" * 76, flush=True)
+    print(f"REPETITION {repetition} COMPLETE", flush=True)
+    print("Recording stopped.", flush=True)
+    print("You may now stop the test action.", flush=True)
+    if repetition < int(scenario["repetitions"]):
+        print("\nPrepare for the next repetition:", flush=True)
+        for item in action["setup"]:
+            print(f"- {item}", flush=True)
+        print("Press ENTER only when setup is ready.", flush=True)
+    else:
+        print("This is the final repetition for this scenario.", flush=True)
+    print("=" * 76, flush=True)
+
+
+def print_test_interrupted(reason: str) -> None:
+    print("\n" + "=" * 76, flush=True)
+    print("TEST INTERRUPTED — START PRECONDITION NOT SATISFIED", flush=True)
+    print("=" * 76, flush=True)
+    print("No valid repetition was started.", flush=True)
+    print("Evidence has been preserved.", flush=True)
+    print("Do not delete or overwrite this run.", flush=True)
+    print(f"Cause: {reason}", flush=True)
 
 
 def effective_environment(
@@ -331,15 +430,19 @@ def append_marker(
     repetition: int,
     phase: str,
     note: str,
+    *,
+    at_epoch_ms: int | None = None,
+    at: str | None = None,
 ) -> None:
+    marker_epoch_ms = ihap46.epoch_ms() if at_epoch_ms is None else at_epoch_ms
     ihap46.append_jsonl(
         run_dir / "marks.jsonl",
         {
             "schema_version": ihap46.SCHEMA_VERSION,
             "record_type": "ground_truth_marker",
             "run_id": run_dir.name,
-            "at": ihap46.isoformat_utc(),
-            "at_epoch_ms": ihap46.epoch_ms(),
+            "at": ihap46.isoformat_utc() if at is None else at,
+            "at_epoch_ms": marker_epoch_ms,
             "scenario_id": scenario["id"],
             "repetition": repetition,
             "phase": phase,
@@ -513,29 +616,27 @@ def run_interval(
     reminder_seconds: float,
 ) -> None:
     print(scenario_card(scenario, action, repetition))
-    input("Complete the setup, move to the required start position, and press Enter. ")
-    for remaining in range(5, 0, -1):
-        print(f"Recording starts in {remaining}...")
-        time.sleep(1)
+    prompt_operator_setup(action)
+    action_countdown()
 
-    append_marker(run_dir, scenario, repetition, "start", "guided runtime marker")
+    emit_start_signal(run_dir, scenario, action, repetition, "guided runtime marker")
     duration = float(scenario["duration_s"])
     deadline = time.monotonic() + duration
     next_reminder = 0.0
-    print("[RECORDING] IN PROGRESS")
-    print("[ACTION] " + " ".join(action["during_capture"]))
+    print_recording_guidance(action)
     while time.monotonic() < deadline:
         now = time.monotonic()
         if now >= next_reminder:
             print(
                 f"[RECORDING] {format_duration(deadline - now)} remaining — "
-                + action["during_capture"][0]
+                + action["during_capture"][0],
+                flush=True,
             )
             next_reminder = now + reminder_seconds
         time.sleep(min(0.5, max(0.0, deadline - time.monotonic())))
 
     append_marker(run_dir, scenario, repetition, "end", "guided runtime marker")
-    print("[RECORDING] COMPLETE")
+    print_repetition_complete(scenario, action, repetition)
     note = input(
         "Record any anomaly or invalidating event, or press Enter for none: "
     ).strip()
@@ -579,6 +680,7 @@ def print_dry_run(
         action = actions["actions"][scenario["id"]]
         for repetition in range(1, int(scenario["repetitions"]) + 1):
             print(scenario_card(scenario, action, repetition))
+            print_dry_run_capture_guidance(action)
 
 
 def command_run(args: argparse.Namespace) -> None:

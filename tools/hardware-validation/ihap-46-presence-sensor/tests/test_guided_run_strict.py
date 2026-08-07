@@ -236,6 +236,7 @@ class StrictGuidedRunTests(unittest.TestCase):
             }
             action = {
                 "purpose": "leave",
+                "start_action": "LEAVE THE ROOM",
                 "setup": [],
                 "during_capture": ["leave"],
                 "invalid_if": [],
