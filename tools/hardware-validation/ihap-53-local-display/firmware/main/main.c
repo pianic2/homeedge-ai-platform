@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "driver/i2c_master.h"
+#include "esp_check.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_timer.h"
