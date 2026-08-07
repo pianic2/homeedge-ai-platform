@@ -4,7 +4,7 @@
 **Date:** 2026-08-07  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** IHAP-52  
-**PR:** Pending  
+**PR:** [PR #30](https://github.com/pianic2/homeedge-ai-platform/pull/30)  
 **Supersedes:** None  
 **Superseded by:** None
 
@@ -182,7 +182,7 @@ No existing canonical Risk Record specifically covers central-node resource sizi
 | Evidence | Link |
 |---|---|
 | Jira issue | [IHAP-52](https://niccolopiazzi01.atlassian.net/browse/IHAP-52) |
-| Pull request | Pending |
+| Pull request | [PR #30](https://github.com/pianic2/homeedge-ai-platform/pull/30) |
 | Evidence index | [IHAP-52 evidence](../evidence/IHAP-52/README.md) |
 | Hardware comparison | [Central-node comparison](../evidence/IHAP-52/central-node-hardware-comparison.md) |
 | Validation plan | [Central-node validation plan](../evidence/IHAP-52/central-node-validation-plan.md) |
