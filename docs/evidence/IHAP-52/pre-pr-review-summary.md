@@ -2,132 +2,102 @@
 
 **Review target:** `ihap-52-central-node-hardware-decision`  
 **Base:** `main` at `d5e0b5648a2362385014241d50b950a1e8286417`  
-**Review stage:** pre-PR, before physical Raspberry Pi validation  
+**Review stage:** draft PR, before physical Raspberry Pi validation  
 **Decision authority:** advisory reviewers only; Project Owner retains ADR acceptance, Jira transition and merge authority.
-
-## Severity model
-
-`BLOCKER` > `MAJOR` > `MINOR` > `NOTE`
 
 ## Review result
 
-No open `BLOCKER` or `MAJOR` finding remains after the pre-PR corrections recorded below.
+No open `BLOCKER` or `MAJOR` finding remains after the pre-PR corrections.
 
-Physical Raspberry Pi 4 evidence is intentionally still pending. Therefore:
+Physical Raspberry Pi 4 evidence is still pending. Therefore:
 
 - ADR-0003 remains `Proposed`;
 - Raspberry Pi 4 remains the approved reference/validation candidate, not yet `Community validated`;
-- IHAP-52 must not be treated as complete;
-- final workload sufficiency, microSD endurance and AI acceleration remain `[UNVALIDATED]`.
+- the revised MVP storage baseline is **32 GB A2 microSD**;
+- **Raspberry Pi OS Lite 64-bit** is the first reference/validation image;
+- Alpine Linux remains a compatible alternative candidate pending separate validation;
+- final workload sufficiency, microSD endurance, thermal sufficiency and AI acceleration remain `[UNVALIDATED]`.
 
 ## Architecture Regression Reviewer
 
 **Result:** PASS with NOTE
 
-Checks:
-
-- central-node hardware remains separate from ESP32-C3 edge-node decisions;
-- target `services/*` directories are not used as runtime/resource evidence;
-- Docker, Alpine Linux, database, Kafka, orchestration and final deployment topology are not accepted by ADR-0003;
-- cloud-only runtime is not substituted for the local central-node boundary;
-- ARM64 and x86_64 remain permitted to avoid unnecessary Raspberry Pi vendor lock-in;
-- GPIO is explicitly not a central-node requirement.
-
-**NOTE:** Future Infrastructure-as-Code portability is recorded as an architectural constraint only. No IaC implementation is claimed by IHAP-52.
+- vendor-neutral ARM64/x86_64 hardware contract remains intact;
+- future IaC portability remains an architectural constraint, not an implementation claim;
+- Raspberry Pi OS Lite is a reference image, not a universal distro lock-in;
+- Alpine Linux remains compatible-candidate scope;
+- Docker, database, Kafka, orchestration and final AI runtime are not accepted by ADR-0003.
 
 ## Hardware Compatibility Reviewer
 
 **Result:** PASS with NOTE
 
-Checks:
-
-- Raspberry Pi 4 manufacturer capabilities are separated from HomeEdge measured evidence;
-- Pi 4 >=4 GB, 64 GB A2 microSD and Wi-Fi match the Project Owner decision;
+- Pi 4 >=4 GB, 32 GB A2 and Wi-Fi match the revised Project Owner baseline;
 - Ethernet remains optional;
-- PSU requirement is separated into a vendor-neutral stable-supply contract plus Raspberry Pi 4 reference guidance;
-- fan/heatsinks remain optional but recommended, not falsely required by an unmeasured workload;
-- Pi 5 remains a newer compatible/recommended candidate without a false HomeEdge validation claim;
-- Pi 3 B+ and Zero 2 W are closed proportionately because their documented RAM falls below the accepted minimum;
-- x86_64 mini-PC and reused-computer paths remain available when the minimum profile is met.
-
-**NOTE:** The Linux graphics/compute-device requirement establishes only hardware presence. VideoCore VI AI suitability remains `[UNVALIDATED]` and must be handled by later AI/runtime work.
+- stable manufacturer-supported PSU remains required;
+- fan/heatsinks remain optional but recommended;
+- Pi 5 remains a newer compatible/recommended candidate without false HomeEdge validation;
+- x86_64 equivalent-device paths remain available.
 
 ## Testing & Evidence Reviewer
 
-**Result:** PASS after one MINOR correction; physical evidence gate pending
+**Result:** PASS after corrections; physical evidence pending
 
-### Closed MINOR — thermal acceptance wording
+Closed corrections:
 
-Initial validation-plan wording risked deriving a CPU-temperature acceptance threshold from manufacturer operating-temperature material. The plan was corrected so that the automated gate relies on observable stability/current throttling state, while temperature samples are reviewed together with ambient conditions, enclosure and cooling configuration.
+- thermal acceptance now relies on observable stability/current-throttling evidence rather than an invented project temperature threshold;
+- storage smoke now verifies deterministic write/read SHA-256 integrity;
+- storage capacity gate is aligned to nominal 32 GB media and allows partition/format overhead;
+- OS identity is captured while the exact Raspberry Pi OS Lite selection is recorded manually because software cannot reliably distinguish every image variant.
 
-### Closed MINOR — storage integrity check
-
-The storage smoke test initially verified byte counts and cleanup only. The harness now computes deterministic write/read SHA-256 values and requires a matching hash in addition to equal byte counts and temporary-file removal.
-
-### Remaining evidence boundary
-
-The harness itself has been software-sanity checked, but the required physical Raspberry Pi 4 run has not yet been executed by the Project Owner. This is not a documentation defect; it is the planned evidence gate before community-validation/ADR acceptance.
+The next mandatory gate is execution on the physical Raspberry Pi 4 reference specimen.
 
 ## Security & Privacy Reviewer
 
 **Result:** PASS with NOTE
 
-Checks:
-
-- the harness does not require Internet connectivity;
-- Wi-Fi credentials and SSID are not collected;
-- assigned IP addresses are reduced to presence/family evidence rather than written verbatim;
-- hostname and username are not intentionally collected;
-- optional ping is restricted by documentation to an authorized local host;
-- raw run output remains ignored/local until review and sanitization;
-- no security-appliance, hardened, high-availability or certified claim is introduced.
-
-**NOTE:** `lsblk` may expose local storage model metadata. Raw output must therefore remain subject to the documented pre-publication review.
+- Internet access is not required by the harness;
+- Wi-Fi secrets/SSID are not intentionally collected;
+- raw evidence remains local until reviewed;
+- no hardened/security-appliance claim is introduced.
 
 ## Cost Governance Reviewer
 
 **Result:** PASS with NOTE
 
-Checks:
-
-- already-owned Raspberry Pi 4 8 GB is recorded as `unknown/pre-owned`, not EUR 0;
-- acquisition context is separated from contributor replication cost;
-- current prices are explicitly dated snapshots rather than guarantees;
-- cooling/enclosure package cost is not frozen before a reproducible package is selected;
-- final BOM propagation is deferred to IHAP-17/IHAP-43 after Project Owner acceptance.
-
-**NOTE:** The Raspberry Pi 4 4 GB supplier snapshot currently used for cost context was unavailable/out-of-stock when checked. Price and availability must be refreshed before final IHAP-17 propagation.
+- already-owned Pi 4 and 32 GB A2 card are availability evidence, not zero-cost replication assumptions;
+- replication prices must be refreshed when IHAP-17 is unblocked and BOM propagation occurs.
 
 ## Source of Truth Guardian
 
 **Result:** PASS
 
-Checks:
-
-- ADR, comparison, assumptions, validation plan and harness live in GitHub;
-- Jira records the active workflow state and Project Owner decision evidence;
-- no long-form technical decision has been duplicated into Confluence;
-- ADR-0003 is registered in the canonical ADR index;
-- `[UNVALIDATED]` markers are preserved on unproven runtime/resource/AI/endurance claims;
-- Confluence update is appropriately deferred until a stakeholder summary/link is useful.
+- GitHub contains ADR/evidence/harness;
+- Jira tracks workflow and Project Owner decisions;
+- Confluence remains link/summary-only;
+- `[UNVALIDATED]` markers remain on unsupported claims.
 
 ## ADR Conformance Reviewer
 
 **Result:** PASS with NOTE
 
-Checks:
+- ADR-0003 remains `Proposed`;
+- PR #30 is linked;
+- official Raspberry Pi OS installation documentation and Alpine alternative documentation are linked;
+- final Project Owner acceptance remains intentionally unchecked.
 
-- one stable architecture-significant decision is recorded: central-node hardware profile plus its reference/equivalence contract;
-- ADR follows the canonical Context / Decision / Alternatives / Consequences / Risks / Follow-up / Evidence / Review structure;
-- status is `Proposed`;
-- Project Owner decisions were recorded in Jira before the proposal;
-- no reviewer is treated as an acceptance authority;
-- physical evidence and explicit final Project Owner acceptance remain unchecked.
+## Conclusion
 
-**NOTE:** PR links are `Pending` until the single IHAP-52 PR is created. They must be backfilled on the same branch immediately after PR creation.
+The draft PR is ready for the revised physical validation configuration:
 
-## Pre-PR conclusion
+```text
+Raspberry Pi 4 Model B
+>=4 GB RAM
+32 GB A2 microSD
+Raspberry Pi OS Lite 64-bit
+Wi-Fi required
+Ethernet optional
+fan/heatsinks optional but recommended
+```
 
-The branch is suitable for a **draft PR** and Project Owner hardware validation.
-
-The next acceptance gate is not more planning. It is execution of the committed IHAP-52 harness on the Raspberry Pi 4 reference specimen, followed by evidence sanitization/review. No workflow move to final review or ADR acceptance is justified before that evidence exists.
+No move to final review or ADR acceptance is justified until the physical run is complete.
