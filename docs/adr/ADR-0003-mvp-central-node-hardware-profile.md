@@ -11,101 +11,114 @@
 <!--
 AI_AGENT_METADATA:
   document_type: architecture_decision_record
-  status_allowed_values:
-    - Proposed
-    - Accepted
-    - Superseded
-    - Rejected
   approval_authority: project_owner
   source_of_truth: github_versioned_repository_documentation
   jira_role: evidence_links_only
   confluence_role: stakeholder_navigation_only
-  related_risk_model: docs/risks/risk-model-baseline.md
   unvalidated_claim_marker: "[UNVALIDATED]"
 
 HIDDEN_ANTI_REGRESSION_RULES:
-  - Keep this ADR limited to the central-node hardware profile, reference implementation and hardware-equivalence contract.
-  - Do not accept Docker, Alpine Linux, a database, container orchestration, Kafka, backend implementation topology or a specific AI runtime/model through this ADR.
+  - Keep this ADR limited to the central-node hardware profile, reference implementation and compatibility contract.
   - Raspberry Pi 4 Model B is a reference implementation, not a vendor lock-in requirement.
-  - Raspberry Pi 5 and other machines are not community-validated merely because their documented specifications satisfy the profile.
-  - Do not claim GPU/NPU acceleration for AI until a future runtime/model is selected and measured.
+  - Raspberry Pi OS Lite 64-bit is the first reference/validation OS for the Pi 4 profile, not a universal Linux requirement.
+  - Alpine Linux remains a compatible candidate until separately validated for HomeEdge.
+  - Do not accept Docker, a database, container orchestration, Kafka or a specific AI runtime/model through this ADR.
+  - Do not claim GPU/NPU acceleration until a future runtime/model is selected and measured.
   - Keep [UNVALIDATED] on workload sufficiency, AI acceleration, storage endurance and thermal sufficiency until project evidence exists.
-  - Do not mark this ADR Accepted without explicit Project Owner approval after the required evidence review.
+  - Do not mark this ADR Accepted without explicit Project Owner approval after required evidence review.
 -->
 
 ---
 
 ## 1. Context
 
-HomeEdge separates ESP32-C3 edge nodes from a local central node. The central node is expected to receive local HTTP/JSON telemetry, support device and read-model directions, retain local operational data and logs, and provide a foundation for later small-model AI workloads. The repository currently exposes `services/ingestion/`, `services/device-registry/`, `services/read-model/` and `services/ai-insight/` only as target service boundaries; those folders are not runtime evidence and cannot be used to infer resource consumption.
+HomeEdge separates ESP32-C3 edge nodes from a local central node. The central node is expected to receive local telemetry, support future backend/read-model responsibilities, retain local operational data and provide a foundation for later small-model AI workloads.
 
-The hardware decision therefore needs two different contracts:
+The repository service directories remain target boundaries rather than runtime evidence, so final CPU, RAM, storage retention and AI performance remain `[UNVALIDATED]`.
 
-1. a vendor-neutral minimum profile that future Infrastructure-as-Code can target without binding HomeEdge to Raspberry Pi hardware;
-2. a reproducible reference implementation that can be physically validated by the project and later promoted to a community-validated device profile.
+The hardware decision therefore defines:
 
-Docker, Alpine Linux, deployment topology, database choice, Kafka, container orchestration and the final AI runtime/model remain separate `[UNVALIDATED]` software decisions.
+1. a vendor-neutral minimum profile that future Infrastructure-as-Code can target;
+2. a reproducible Raspberry Pi 4 reference implementation that the project can physically validate;
+3. a reference OS image for the first hardware-validation path without making that distro a universal architecture dependency.
 
-The Project Owner has an existing Raspberry Pi 4 Model B with 8 GB RAM available as the first validation specimen. Existing ownership is availability evidence only; it does not make replication cost zero and is not sufficient by itself to justify the architecture.
+The Project Owner has an existing Raspberry Pi 4 Model B with 8 GB RAM and currently has a 32 GB A2 microSD available for the MVP validation.
 
 ---
 
 ## 2. Decision
 
 ```text
-HomeEdge will define the central node through a vendor-neutral minimum hardware profile and will keep future Infrastructure-as-Code portable across compliant Linux machines.
+HomeEdge will define the central node through a vendor-neutral minimum hardware profile and keep future Infrastructure-as-Code portable across compliant 64-bit Linux machines.
 
-The first reference and project-validation platform is Raspberry Pi 4 Model B with at least 4 GB RAM, a 64 GB A2 microSD card and Wi-Fi connectivity.
+The first reference and project-validation platform is Raspberry Pi 4 Model B with at least 4 GB RAM, a 32 GB A2 microSD card and Wi-Fi connectivity.
+
+Raspberry Pi OS Lite 64-bit is the reference OS for the first Raspberry Pi 4 MVP validation and installation path.
 
 Raspberry Pi 5 is a recommended newer compatible candidate for new purchases, but it is not community-validated until equivalent project/community evidence exists.
 
-Only devices that satisfy the minimum profile may be considered compatible. Only devices with reproducible evidence may be labelled community-validated or officially recommended by the project.
+Alpine Linux remains a compatible lightweight distro candidate and may be validated later; it is not required for IHAP-52 acceptance.
 ```
 
 ### 2.1 Minimum compliant central-node profile
 
 | Dimension | Minimum requirement | Validation boundary |
 |---|---|---|
-| CPU architecture | 64-bit `arm64/aarch64` or `x86_64` Linux-capable platform | Architecture support is a hardware compatibility requirement; application/runtime compatibility remains `[UNVALIDATED]` |
-| CPU concurrency | At least 4 logical processors | Resource sufficiency for the final workload remains `[UNVALIDATED]` |
-| RAM | At least 4 GB | Required to preserve headroom for backend services and future small-model AI direction; actual workload sufficiency remains `[UNVALIDATED]` |
-| Local storage | At least a nominal 64 GB persistent device | Endurance and retention sufficiency remain `[UNVALIDATED]` |
-| Networking | Wi-Fi required and supported by Linux | Ethernet is optional |
-| Graphics / compute device | A Linux-exposed integrated or discrete graphics/compute device is required | Presence does not prove AI acceleration support; AI offload remains `[UNVALIDATED]` |
-| External accelerator path | Not mandatory | USB/PCIe or equivalent expansion is desirable where available for future AI accelerators |
-| Power | Manufacturer-supported regulated supply sized for the device and required peripherals | Board-specific voltage/current rules remain part of the device profile |
-| Cooling | No universal active-cooling requirement | Heatsinks and/or a fan are optional but recommended where low-cost; thermal sufficiency must be measured |
-| Enclosure | Must permit safe handling and adequate ventilation for the chosen device | No IP, industrial, fire-safety or certified-product claim |
-| GPIO | Not required | Central-node software must not depend on Raspberry Pi GPIO |
+| CPU architecture | 64-bit `arm64/aarch64` or `x86_64` Linux-capable platform | Final application/runtime compatibility remains `[UNVALIDATED]` |
+| CPU concurrency | At least 4 logical processors | Final workload sufficiency remains `[UNVALIDATED]` |
+| RAM | At least 4 GB | Required baseline for backend and future small-model AI direction; actual sufficiency remains `[UNVALIDATED]` |
+| Local storage | At least a nominal 32 GB persistent device | Retention/endurance remain `[UNVALIDATED]` |
+| Networking | Wi-Fi required and supported by Linux | Ethernet optional |
+| Graphics / compute device | Linux-exposed integrated/discrete graphics or compute device | Presence does not prove AI acceleration |
+| External accelerator path | Not mandatory | USB/PCIe or equivalent expansion desirable where available |
+| Power | Manufacturer-supported regulated supply sized for device/peripherals | Board-specific voltage/current rules apply |
+| Cooling | No universal active-cooling requirement | Heatsinks and/or fan optional but recommended; thermal sufficiency must be measured |
+| Enclosure | Safe handling and adequate ventilation | No industrial/IP/safety certification claim |
+| GPIO | Not required | Central-node application must not depend on Raspberry Pi GPIO |
+| Operating system | Supported 64-bit Linux | Raspberry Pi OS Lite 64-bit is the first reference image, not a universal requirement |
 
-The graphics/compute-device requirement establishes a hardware baseline only. For the Raspberry Pi 4 reference, VideoCore VI is documented hardware, but its suitability for the future HomeEdge AI runtime is `[UNVALIDATED]`. CPU-only small-model inference must remain possible until a later AI decision proves a supported acceleration path.
-
-### 2.2 Reference implementation
+### 2.2 Raspberry Pi 4 reference implementation
 
 | Component | Reference decision |
 |---|---|
 | Compute | Raspberry Pi 4 Model B |
-| Minimum RAM for reference | 4 GB |
+| Minimum RAM | 4 GB |
 | First validation specimen | Existing Raspberry Pi 4 Model B, 8 GB RAM |
-| Storage | 64 GB A2 microSD |
+| Storage | 32 GB A2 microSD |
 | Required network | On-board dual-band Wi-Fi |
 | Optional network | Gigabit Ethernet |
-| Power | Raspberry Pi-supported 5 V USB-C supply; official 15 W / 5.1 V 3 A class is preferred |
+| Power | Raspberry Pi-supported 5 V USB-C supply; official 15 W / 5.1 V 3 A class preferred |
 | Cooling | Optional but recommended heatsinks and/or fan |
 | Enclosure | Ventilated non-industrial Raspberry Pi-compatible case recommended |
+| Reference OS | Raspberry Pi OS Lite 64-bit |
 
-Raspberry Pi documents Raspberry Pi 4 as a 64-bit quad-core Cortex-A72 platform with 4 GB and 8 GB RAM variants, dual-band 802.11ac Wi-Fi, Gigabit Ethernet, USB 3.0, microSD storage, 5 V USB-C power and VideoCore VI graphics. These are documented manufacturer capabilities, not HomeEdge workload measurements.
+Raspberry Pi documents Raspberry Pi 4 as a 64-bit quad-core Cortex-A72 platform with 4 GB and 8 GB RAM variants, dual-band Wi-Fi, Gigabit Ethernet, USB 3.0, microSD storage and VideoCore VI graphics. These are manufacturer capabilities, not HomeEdge workload measurements.
 
-### 2.3 Support tiers
+### 2.3 Reference OS installation
+
+The first validation image must be installed using Raspberry Pi's official instructions:
+
+- official setup/install documentation: https://www.raspberrypi.com/documentation/computers/getting-started.html#install-an-operating-system
+- use Raspberry Pi Imager to select **Raspberry Pi OS Lite (64-bit)**, configure Wi-Fi and enable SSH for a headless deployment before first boot.
+
+Raspberry Pi's documentation recommends Raspberry Pi OS Lite for headless systems and lists 8 GB as sufficient to get started with Lite. The HomeEdge 32 GB A2 baseline therefore provides additional initial capacity, while final retention/endurance remain `[UNVALIDATED]`.
+
+Alpine Linux is not rejected. Official Alpine Raspberry Pi documentation is retained as the alternative lightweight distro reference:
+
+- https://wiki.alpinelinux.org/wiki/Raspberry_Pi
+
+Alpine uses different installation/persistence modes and therefore requires its own reproducibility validation before it can replace the reference image.
+
+### 2.4 Support tiers
 
 | Tier | Meaning |
 |---|---|
-| Minimum compliant | Meets the accepted hardware contract. No project runtime guarantee is implied. |
-| Compatible candidate | Documented specifications appear to meet the contract, but HomeEdge validation evidence is incomplete. |
-| Community validated | A reproducible HomeEdge validation run exists and passes the accepted evidence gates. |
-| Recommended reference | Community-validated hardware the project recommends for reproducibility and contributor onboarding. |
+| Minimum compliant | Meets the hardware/OS-family contract; no runtime guarantee implied |
+| Compatible candidate | Specifications appear compliant but HomeEdge validation is incomplete |
+| Community validated | Reproducible HomeEdge validation run passes reviewed gates |
+| Recommended reference | Community-validated profile recommended for reproduction/onboarding |
 
-At proposal time, Raspberry Pi 4 Model B is the approved validation/reference candidate. It becomes the first `Community validated` / `Recommended reference` profile only after the physical validation evidence is reviewed. Raspberry Pi 5 is a `Compatible candidate` and may be preferable for a new purchase because it is newer and materially faster, but it must not be described as HomeEdge-validated before a comparable run exists.
+At proposal time, Raspberry Pi 4 Model B with Raspberry Pi OS Lite 64-bit is the approved first validation/reference candidate. Raspberry Pi 5 is a compatible newer candidate. Alpine Linux is a compatible distro candidate, not yet the reference runtime image.
 
 ---
 
@@ -113,13 +126,15 @@ At proposal time, Raspberry Pi 4 Model B is the approved validation/reference ca
 
 | Alternative | Outcome | Reason |
 |---|---|---|
-| Raspberry Pi 4 Model B >=4 GB | Proposed reference | Available validation specimen, 64-bit quad-core CPU, >=4 GB variants, Wi-Fi, Ethernet, USB 3 and mature Linux support; project workload/thermal/storage evidence still required |
-| Raspberry Pi 5 >=4 GB | Compatible / recommended new-purchase candidate | Newer Cortex-A76 platform with greater CPU/GPU and I/O headroom; not yet validated by HomeEdge |
-| Raspberry Pi 3 Model B+ | Not recommended | 64-bit quad-core and Wi-Fi are present, but the documented 1 GB RAM is below the accepted minimum |
-| Raspberry Pi Zero 2 W | Rejected for central node | 512 MB RAM and limited I/O are below the minimum profile despite 64-bit CPU and Wi-Fi |
-| Low-cost x86_64 mini-PC / thin client | Compatible candidate when profile is met | Can provide strong CPU, RAM and internal SSD options; model variability prevents a generic device from being called validated |
-| Reused x86_64 laptop/desktop | Compatible candidate when profile is met | Useful reuse path with potentially zero acquisition cost, but reproducibility and power/thermal characteristics vary by unit |
-| Cloud-only runtime | Rejected as central-node replacement for MVP | Removes the required local central-node boundary and introduces WAN dependency; cloud remains a separate future architecture option |
+| Raspberry Pi 4 Model B >=4 GB | Proposed reference | Available specimen, adequate documented hardware, Wi-Fi, USB 3, mature Linux support; project workload evidence still required |
+| Raspberry Pi 5 >=4 GB | Compatible / recommended new-purchase candidate | Newer/faster platform with more headroom; not yet HomeEdge-validated |
+| Raspberry Pi 3 Model B+ | Not recommended | 1 GB RAM is below the 4 GB minimum |
+| Raspberry Pi Zero 2 W | Rejected for central node | 512 MB RAM and limited I/O are below the minimum |
+| x86_64 mini-PC / thin client | Compatible candidate | Strong CPU/RAM/storage options but model variability requires per-profile validation |
+| Reused x86_64 laptop/desktop | Compatible candidate | Useful reuse path; reproducibility/power/hardware support vary |
+| Cloud-only runtime | Rejected as MVP central-node replacement | Removes local node boundary and introduces WAN dependency |
+| Raspberry Pi OS Lite 64-bit | Reference OS | Minimal official headless path, straightforward Imager installation and strong Pi hardware integration |
+| Alpine Linux aarch64 | Compatible distro candidate | Very lightweight and Pi-supported, but persistence/install-mode choices add validation variance for the first MVP |
 
 ---
 
@@ -127,39 +142,34 @@ At proposal time, Raspberry Pi 4 Model B is the approved validation/reference ca
 
 ### Positive
 
-- Hardware requirements are separated from a specific vendor or board generation.
-- The available Raspberry Pi 4 can produce real project evidence without requiring an immediate purchase.
-- A contributor may buy a Raspberry Pi 5 or use a compliant x86_64 machine without forcing a new architecture decision.
-- Support labels distinguish specification compatibility from actual community validation.
-- Wi-Fi is guaranteed for the reference/local-node communication model while Ethernet remains optional.
-- 4 GB RAM and a graphics/compute-device baseline preserve headroom for future small-model AI work without prematurely accepting a model or runtime.
-- 64 GB A2 microSD provides a simple reproducible MVP storage baseline while keeping USB SSD migration possible later.
+- Requirements remain vendor-neutral while the project has one reproducible first reference.
+- The available Pi 4 and 32 GB A2 card can be tested immediately without unnecessary procurement.
+- Raspberry Pi OS Lite reduces background desktop overhead and follows the official headless setup path.
+- Contributors may later use Pi 5, x86_64 or Alpine when equivalent evidence exists.
+- Support labels distinguish compatibility from actual validation.
+- Wi-Fi is guaranteed while Ethernet remains optional.
 
 ### Negative / Trade-offs
 
-- Requiring 4 GB RAM, Wi-Fi and a graphics/compute device excludes otherwise capable headless or lower-memory machines.
-- A nominal 64 GB microSD requirement is a project baseline rather than measured retention/endurance evidence; storage sufficiency remains `[UNVALIDATED]`.
-- Raspberry Pi 4 graphics hardware does not by itself prove useful AI acceleration.
-- Supporting both ARM64 and x86_64 increases future build/test matrix scope.
-- Optional fan/heatsink recommendations add small replication cost and configuration variance.
+- 32 GB is a smaller storage baseline and makes retention/write-volume validation more important.
+- microSD endurance remains workload-dependent and `[UNVALIDATED]`.
+- Selecting Raspberry Pi OS Lite as the first reference image does not prove Alpine compatibility or portability by itself.
+- Supporting ARM64 and x86_64 increases the future IaC/test matrix.
+- Pi 4 graphics do not by themselves prove useful AI acceleration.
 
 ### Neutral / Operational
 
-- Raspberry Pi 5 is not rejected; it is intentionally kept as a newer compatible candidate until evidence is contributed.
-- USB SSD, NVMe/eMMC and internal SSD remain valid storage alternatives when a device satisfies the minimum capacity and future validation gates.
-- Infrastructure-as-Code portability is an architectural constraint for future implementation, not an IaC implementation delivered by IHAP-52.
-- The available Raspberry Pi 4 8 GB specimen is over the 4 GB minimum and does not change the minimum requirement.
-- Existing ownership and replication price snapshots remain separate cost concepts.
+- Raspberry Pi OS Lite is a reference implementation choice; future IaC must avoid unnecessary distro-specific application coupling.
+- Alpine Linux can later become validated without changing the central-node hardware contract if it satisfies the same runtime requirements.
+- USB SSD/NVMe/eMMC remain compatible alternatives when future evidence justifies them.
 
 ---
 
 ## 5. Related Risks and Treatments
 
-No existing canonical Risk Record specifically covers central-node resource sizing, microSD endurance or central-node thermals at the time of this proposal.
-
 | Risk | Treatment | Effect | Remaining exposure |
 |---|---|---|---|
-| None | IHAP-52 validation plan | Leaves unresolved pending evidence | Workload sufficiency, microSD endurance, thermal margin, Wi-Fi behavior and AI acceleration remain `[UNVALIDATED]` until measured or handled by later tasks |
+| None | IHAP-52 validation plan | Leaves unresolved pending evidence | Workload sufficiency, microSD endurance, thermal margin, Wi-Fi behavior and AI acceleration remain `[UNVALIDATED]` |
 
 ---
 
@@ -167,13 +177,14 @@ No existing canonical Risk Record specifically covers central-node resource sizi
 
 | Item | Tracking |
 |---|---|
-| Execute Raspberry Pi 4 physical validation and publish reviewed summary evidence | IHAP-52 |
-| Promote Raspberry Pi 4 to Community validated / Recommended reference after evidence passes | IHAP-52 Project Owner review |
-| Validate Raspberry Pi 5 through the same protocol when a specimen/community run is available | Future IHAP work / community evidence |
-| Implement portable Infrastructure-as-Code without Raspberry Pi-only application dependencies | Future infrastructure task |
-| Select and benchmark the small-model AI runtime/model and any GPU/NPU/USB accelerator path | Future AI task |
-| Define runtime OS/container implementation | Separate runtime/infrastructure decisions |
-| Propagate accepted central-node quantities and replication snapshots to the BOM | IHAP-17 / IHAP-43 after acceptance |
+| Install Raspberry Pi OS Lite 64-bit using official Raspberry Pi Imager guidance | IHAP-52 |
+| Execute Pi 4 physical validation and publish reviewed summary | IHAP-52 |
+| Promote Pi 4 profile after evidence passes | IHAP-52 Project Owner review |
+| Validate Pi 5 when specimen/community evidence becomes available | Future IHAP work |
+| Validate Alpine Linux as alternate lightweight central-node distro | Future infrastructure/runtime validation |
+| Implement portable IaC without Raspberry Pi-only application dependencies | Future infrastructure task |
+| Select/benchmark small-model AI runtime and optional accelerator path | Future AI task |
+| Propagate accepted BOM quantities/cost snapshots | IHAP-17 / IHAP-43 after acceptance |
 
 ---
 
@@ -187,12 +198,8 @@ No existing canonical Risk Record specifically covers central-node resource sizi
 | Hardware comparison | [Central-node comparison](../evidence/IHAP-52/central-node-hardware-comparison.md) |
 | Validation plan | [Central-node validation plan](../evidence/IHAP-52/central-node-validation-plan.md) |
 | Validation harness | [IHAP-52 harness](../../tools/hardware-validation/ihap-52-central-node/README.md) |
-| Raspberry Pi 4 official specifications | https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/ |
-| Raspberry Pi 5 official specifications | https://www.raspberrypi.com/products/raspberry-pi-5/ |
-| Raspberry Pi 3 Model B+ official product brief | https://datasheets.raspberrypi.com/rpi3/raspberry-pi-3-b-plus-product-brief.pdf |
-| Raspberry Pi Zero 2 W official specifications | https://www.raspberrypi.com/products/raspberry-pi-zero-2-w/ |
-| Related Risk Records | None |
-| Related treatments | None |
+| Raspberry Pi official OS installation | https://www.raspberrypi.com/documentation/computers/getting-started.html#install-an-operating-system |
+| Alpine Raspberry Pi documentation | https://wiki.alpinelinux.org/wiki/Raspberry_Pi |
 | Related ADRs | [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) |
 
 ---
@@ -200,18 +207,14 @@ No existing canonical Risk Record specifically covers central-node resource sizi
 ## 8. Review Notes
 
 ```text
-[x] One stable architectural decision only: central-node hardware profile and its reference/equivalence contract.
-[x] ADR necessity is explicit; IHAP-43 requires an architecture-significant central-node decision.
-[x] Related risks and treatments were checked; no matching canonical Risk Record exists at proposal time.
-[x] Source-of-truth boundaries are preserved.
-[x] MVP boundary is not silently expanded.
-[x] Docker, Alpine Linux, database, orchestration, Kafka and final AI runtime remain separate decisions.
-[x] Raspberry Pi 4 ownership is not used as the sole architectural justification.
+[x] Vendor-neutral hardware/IaC portability is preserved.
+[x] 32 GB A2 is the MVP reference storage baseline.
+[x] Raspberry Pi OS Lite 64-bit is the first reference/validation image.
+[x] Alpine Linux remains a compatible candidate rather than an implicitly accepted runtime.
+[x] Docker, database, orchestration, Kafka and final AI runtime remain separate decisions.
 [x] Raspberry Pi 5 is not labelled community-validated without evidence.
-[x] AI acceleration remains [UNVALIDATED].
-[x] Storage endurance, workload sufficiency and thermal sufficiency remain [UNVALIDATED].
-[x] No production-ready, commercial-ready, security-grade, certified, safety-critical, alarm-grade, antifurto, access-control, intrusion-detection, or protection claim is introduced.
-[x] Project Owner hardware-profile decisions were recorded in Jira before this Proposed ADR was created.
+[x] AI acceleration, storage endurance, final workload and thermal sufficiency remain [UNVALIDATED].
+[x] Official OS installation links are recorded.
 [ ] Physical Raspberry Pi 4 validation evidence has passed review.
 [ ] Project Owner has explicitly accepted this ADR.
 ```
