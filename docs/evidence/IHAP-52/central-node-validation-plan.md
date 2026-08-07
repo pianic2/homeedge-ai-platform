@@ -93,10 +93,12 @@ The harness creates CPU-bound worker processes equal to the detected logical CPU
 Pass criteria for the first project run:
 
 - harness completes without crash or forced reboot;
-- no current undervoltage flag at end of run;
-- no persistent thermal-throttling condition reported by Raspberry Pi firmware at the end of the run;
-- peak temperature is recorded and remains inside manufacturer-documented operating behavior;
+- no current undervoltage flag is reported at the end of the run;
+- no current thermal-throttling condition is reported by Raspberry Pi firmware at the end of the run;
+- the temperature series is successfully recorded when the platform exposes it;
 - no out-of-memory condition is observed.
+
+Temperature samples must be reviewed together with the recorded ambient conditions, enclosure and cooling configuration. IHAP-52 does not invent a CPU-temperature acceptance threshold from an ambient operating-range specification. Historical throttling or thermal-limit flags are evidence to review even when no current flag remains.
 
 This is a smoke/stability gate, not a production thermal qualification.
 
