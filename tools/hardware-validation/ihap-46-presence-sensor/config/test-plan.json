@@ -44,6 +44,7 @@
       "repetitions": 10,
       "ground_truth": "present_moving",
       "door_state": "open",
+      "expected_transition": "empty_to_occupied",
       "instructions": "Enter from outside the room and move into the intended sensing area.",
       "expected": {
         "ld2410c_uart": {"min_presence_ratio": 0.80, "max_onset_ms": 2000},
@@ -119,6 +120,7 @@
       "repetitions": 5,
       "ground_truth": "empty",
       "door_state": "closed",
+      "expected_transition": "occupied_to_empty",
       "instructions": "Leave the room, close the door and keep the room empty.",
       "expected": {
         "ld2410c_uart": {"max_presence_ratio": 0.40},

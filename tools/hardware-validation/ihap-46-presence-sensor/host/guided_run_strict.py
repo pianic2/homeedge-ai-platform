@@ -18,6 +18,8 @@ import ihap46
 
 CLEAR_STABLE_SECONDS = 3.0
 CLEAR_TIMEOUT_SECONDS = 90.0
+OCCUPIED_STABLE_SECONDS = 3.0
+OCCUPIED_TIMEOUT_SECONDS = 90.0
 LATEST_SAMPLE_MAX_AGE_MS = 1_000
 
 _ORIGINAL_ANALYZE_RUN = ihap46.analyze_run
@@ -34,6 +36,37 @@ def onset_sensor_ids(scenario: Mapping[str, Any]) -> tuple[str, ...]:
         for sensor_id, rule in expected.items()
         if isinstance(rule, Mapping) and "max_onset_ms" in rule
     )
+
+
+def selected_transition_sensor_ids(
+    run_dir: Path,
+    scenario: Mapping[str, Any],
+    transition: str,
+) -> tuple[str, ...]:
+    """Return selected channels relevant to the scenario transition."""
+
+    expected_transition = scenario.get("expected_transition")
+    if expected_transition is not None:
+        if expected_transition != transition:
+            return ()
+    elif transition == "empty_to_occupied":
+        # Backward-compatible fallback for pre-transition plan fixtures.
+        return onset_sensor_ids(scenario)
+    else:
+        return ()
+
+    expected = scenario.get("expected", {})
+    if not isinstance(expected, Mapping):
+        return ()
+    expected_ids = {str(sensor_id) for sensor_id in expected}
+    try:
+        run = ihap46.load_json(run_dir / "run.json")
+    except ihap46.HarnessError:
+        run = {}
+    selected = run.get("selected_sensor_channels") if isinstance(run, Mapping) else None
+    if not isinstance(selected, list):
+        selected = list(expected_ids)
+    return tuple(str(sensor_id) for sensor_id in selected if str(sensor_id) in expected_ids)
 
 
 def clear_start_snapshot(
@@ -101,6 +134,66 @@ def clear_start_snapshot(
     }
 
 
+def occupied_start_snapshot(
+    run_dir: Path,
+    sensor_ids: Sequence[str],
+    started_at_ms: int,
+    required_stable_ms: int,
+    *,
+    now_ms: int | None = None,
+) -> dict[str, Any]:
+    """Evaluate whether selected channels are freshly and continuously occupied."""
+
+    usable: list[tuple[int, dict[str, bool]]] = []
+    for record in ihap46.iter_jsonl(run_dir / "records.jsonl"):
+        received_ms = int(record.get("received_at_epoch_ms", 0))
+        if received_ms < started_at_ms:
+            continue
+        source = record.get("source")
+        if not isinstance(source, Mapping) or source.get("record_type") != "sample":
+            continue
+        states = {
+            sensor_id: ihap46.normalize_sensor_value(source, sensor_id)
+            for sensor_id in sensor_ids
+        }
+        if all(isinstance(value, bool) for value in states.values()):
+            usable.append((received_ms, {sensor_id: bool(value) for sensor_id, value in states.items()}))
+
+    current_ms = ihap46.epoch_ms() if now_ms is None else int(now_ms)
+    if not usable:
+        return {
+            "status": "WAIT",
+            "sample_count": 0,
+            "latest_sample_age_ms": None,
+            "latest_states": {},
+            "stable_occupied_ms": 0,
+        }
+
+    latest_ms, latest_states = usable[-1]
+    latest_sample_age_ms = max(0, current_ms - latest_ms)
+    stable_occupied_ms = 0
+    if all(value is True for value in latest_states.values()):
+        occupied_start_ms = latest_ms
+        for sample_ms, states in reversed(usable):
+            if not all(value is True for value in states.values()):
+                break
+            occupied_start_ms = sample_ms
+        stable_occupied_ms = latest_ms - occupied_start_ms
+
+    fresh = latest_sample_age_ms <= LATEST_SAMPLE_MAX_AGE_MS
+    return {
+        "status": (
+            "PASS"
+            if fresh and stable_occupied_ms >= required_stable_ms
+            else "WAIT"
+        ),
+        "sample_count": len(usable),
+        "latest_sample_age_ms": latest_sample_age_ms,
+        "latest_states": latest_states,
+        "stable_occupied_ms": stable_occupied_ms,
+    }
+
+
 def wait_for_clear_start(
     run_dir: Path,
     scenario: Mapping[str, Any],
@@ -145,6 +238,7 @@ def wait_for_clear_start(
                 "onset_clear_gate_passed",
                 scenario_id=scenario["id"],
                 repetition=repetition,
+                sensor_channels=list(sensor_ids),
                 stable_clear_ms=snapshot["stable_clear_ms"],
                 latest_states=snapshot["latest_states"],
             )
@@ -171,6 +265,7 @@ def wait_for_clear_start(
         "onset_clear_gate_failed",
         scenario_id=scenario["id"],
         repetition=repetition,
+        sensor_channels=list(sensor_ids),
         latest_states=snapshot.get("latest_states", {}),
         stable_clear_ms=snapshot.get("stable_clear_ms", 0),
     )
@@ -178,6 +273,83 @@ def wait_for_clear_start(
         "Onset start gate timed out before the selected channels were stably "
         "clear. Preserve the run and inspect adjacent-area detection or clear "
         "latency before repeating."
+    )
+
+
+def wait_for_occupied_start(
+    run_dir: Path,
+    scenario: Mapping[str, Any],
+    repetition: int,
+    sensor_ids: Sequence[str],
+    *,
+    stable_seconds: float = OCCUPIED_STABLE_SECONDS,
+    timeout_seconds: float = OCCUPIED_TIMEOUT_SECONDS,
+) -> dict[str, Any]:
+    """Block an offset repetition until every selected channel is stably occupied."""
+
+    required_stable_ms = int(stable_seconds * 1_000)
+    started_at_ms = ihap46.epoch_ms()
+    deadline = time.monotonic() + timeout_seconds
+    next_diagnostic = 0.0
+
+    ihap46.record_capture_event(
+        run_dir,
+        "offset_occupied_gate_started",
+        scenario_id=scenario["id"],
+        repetition=repetition,
+        sensor_channels=list(sensor_ids),
+        required_stable_ms=required_stable_ms,
+        timeout_ms=int(timeout_seconds * 1_000),
+    )
+    print(
+        "[START GATE] Remain at the documented occupied point. "
+        f"Waiting for {stable_seconds:.1f} seconds of continuous occupied state."
+    )
+
+    snapshot: dict[str, Any] = {}
+    while time.monotonic() < deadline:
+        snapshot = occupied_start_snapshot(
+            run_dir, sensor_ids, started_at_ms, required_stable_ms
+        )
+        if snapshot["status"] == "PASS":
+            ihap46.record_capture_event(
+                run_dir,
+                "offset_occupied_gate_passed",
+                scenario_id=scenario["id"],
+                repetition=repetition,
+                sensor_channels=list(sensor_ids),
+                stable_occupied_ms=snapshot["stable_occupied_ms"],
+                latest_states=snapshot["latest_states"],
+            )
+            print(
+                "[START GATE] PASS — selected channels are freshly and "
+                "continuously occupied"
+            )
+            return snapshot
+
+        now = time.monotonic()
+        if now >= next_diagnostic:
+            print(
+                "[START GATE] waiting — "
+                f"states={snapshot.get('latest_states') or 'no fresh sample'}, "
+                f"stable_occupied_ms={snapshot.get('stable_occupied_ms', 0)}, "
+                f"sample_age_ms={snapshot.get('latest_sample_age_ms')}"
+            )
+            next_diagnostic = now + 2.0
+        time.sleep(0.1)
+
+    ihap46.record_capture_event(
+        run_dir,
+        "offset_occupied_gate_failed",
+        scenario_id=scenario["id"],
+        repetition=repetition,
+        sensor_channels=list(sensor_ids),
+        latest_states=snapshot.get("latest_states", {}),
+        stable_occupied_ms=snapshot.get("stable_occupied_ms", 0),
+    )
+    raise ihap46.HarnessError(
+        "Offset start gate timed out before the selected channels were stably "
+        "occupied. Preserve the run and inspect the occupied precondition."
     )
 
 
@@ -200,6 +372,25 @@ def countdown_finished_clear(
     )
 
 
+def countdown_finished_occupied(
+    run_dir: Path,
+    sensor_ids: Sequence[str],
+) -> bool:
+    """Confirm that all selected channels remain present during the countdown."""
+
+    now_ms = ihap46.epoch_ms()
+    snapshot = occupied_start_snapshot(
+        run_dir,
+        sensor_ids,
+        now_ms - LATEST_SAMPLE_MAX_AGE_MS,
+        0,
+        now_ms=now_ms,
+    )
+    return snapshot["status"] == "PASS" and all(
+        value is True for value in snapshot["latest_states"].values()
+    )
+
+
 def strict_run_interval(
     run_dir: Path,
     scenario: Mapping[str, Any],
@@ -212,7 +403,12 @@ def strict_run_interval(
     print(base.scenario_card(scenario, action, repetition))
     input("Complete the setup, move to the required start position, and press Enter. ")
 
-    onset_channels = onset_sensor_ids(scenario)
+    onset_channels = selected_transition_sensor_ids(
+        run_dir, scenario, "empty_to_occupied"
+    )
+    offset_channels = selected_transition_sensor_ids(
+        run_dir, scenario, "occupied_to_empty"
+    )
     while True:
         if onset_channels:
             wait_for_clear_start(
@@ -221,25 +417,53 @@ def strict_run_interval(
                 repetition,
                 onset_channels,
             )
+        if offset_channels:
+            wait_for_occupied_start(
+                run_dir,
+                scenario,
+                repetition,
+                offset_channels,
+            )
 
         for remaining in range(5, 0, -1):
             print(f"Recording starts in {remaining}...")
             time.sleep(1)
 
-        if not onset_channels or countdown_finished_clear(run_dir, onset_channels):
+        countdown_valid = True
+        if onset_channels:
+            countdown_valid = countdown_finished_clear(run_dir, onset_channels)
+        if offset_channels:
+            countdown_valid = countdown_valid and countdown_finished_occupied(
+                run_dir, offset_channels
+            )
+        if not onset_channels and not offset_channels:
+            countdown_valid = True
+        if countdown_valid:
             break
 
+        transition_prefix = "onset" if onset_channels else "offset"
         ihap46.record_capture_event(
             run_dir,
-            "onset_countdown_restarted",
+            f"{transition_prefix}_countdown_restarted",
             scenario_id=scenario["id"],
             repetition=repetition,
-            reason="presence returned before the start marker",
+            sensor_channels=list(onset_channels or offset_channels),
+            reason=(
+                "presence returned before the start marker"
+                if onset_channels
+                else "presence cleared before the start marker"
+            ),
         )
-        print(
-            "[START GATE] Presence returned during the countdown. "
-            "The marker was not created; restarting the clear-state gate."
-        )
+        if onset_channels:
+            print(
+                "[START GATE] Presence returned during the countdown. "
+                "The marker was not created; restarting the clear-state gate."
+            )
+        else:
+            print(
+                "[START GATE] Presence cleared during the countdown. "
+                "The marker was not created; restarting the occupied-state gate."
+            )
 
     base.append_marker(
         run_dir,

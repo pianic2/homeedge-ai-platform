@@ -178,7 +178,8 @@ Press Enter to accept each physical default. Type a correction when the real set
 
 The pre-flight requires:
 
-- one parsed harness boot record;
+- reset evidence from either one parsed harness boot record or a USB serial
+  disconnect followed by reconnect;
 - sample records;
 - at least one fresh valid LD2410C UART frame.
 
