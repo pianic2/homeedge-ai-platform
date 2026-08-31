@@ -6,11 +6,11 @@
 **Review date:** 2026-08-31  
 **Reviewed physical run:** `IHAP53-DISPLAY-01`  
 **Overall advisory result:** **PASS — no BLOCKER or MAJOR finding remains on the IHAP-53 branch**  
-**Governance gate remaining:** explicit Project Owner acceptance/rejection of ADR-0004.
+**Project Owner decision:** **ADR-0004 Accepted on 2026-08-31**.
 
 ## Review basis
 
-The review uses the versioned IHAP-53 branch artifacts and the published physical evidence package:
+The final review covers:
 
 - `docs/adr/ADR-0004-local-status-display.md`;
 - `docs/adr/README.md`;
@@ -20,111 +20,87 @@ The review uses the versioned IHAP-53 branch artifacts and the published physica
 - `docs/evidence/IHAP-53/IHAP53-DISPLAY-01/run-record.md`;
 - the three sanitized evidence PNG files;
 - `tools/hardware-validation/ihap-53-local-display/`;
-- Jira IHAP-53 decision and acceptance boundaries;
-- the current Product Vision, which intentionally remains unchanged while ADR-0004 is Proposed.
+- Jira IHAP-53 decision and claim boundaries;
+- the Product Vision controlled update authorized by ADR acceptance.
 
-Raw `serial.log` remains local laboratory evidence by policy; the reviewed run record records the supported facts and the raw log remains retained locally for re-review.
+Raw `serial.log` remains local laboratory evidence by policy. The reviewed run record contains the claim-relevant facts, while the unchanged raw log remains retained locally for audit/re-review.
 
 ---
 
 ## 1. Architecture Regression Reviewer — PASS
 
-Findings:
-
-- ADR-0004 contains one stable architectural decision: the reference MVP uses a compact read-only local status display profile.
+- One stable decision: the reference MVP includes a compact read-only local status display.
 - ADR-0001 compute scope is not reopened.
-- DHT11 remains independent; BME280 sharing of I2C remains directional and final bus integration is explicitly delegated to IHAP-50.
-- The validation fixture pins `GPIO5/GPIO6` are not promoted to final product pinout.
+- DHT11 remains independent; BME280 I2C sharing remains subject to final IHAP-50 integration.
+- Validation pins `GPIO5/GPIO6` are not promoted to final product pinout.
 - Quantitative power, enclosure mechanics and definitive BOM remain with IHAP-49, IHAP-51 and IHAP-17.
-- Product Vision remains unchanged until explicit ADR acceptance.
-
-Open exposure is correctly deferred rather than silently accepted.
+- Product Vision update is limited to the accepted MVP capability and does not claim completed final firmware integration.
 
 ## 2. Hardware Compatibility Reviewer — PASS
 
-Findings:
-
-- The tested specimen is identified by observed marking `GME12864-11-12-13 V3.22` and blue display appearance.
-- Physical evidence demonstrates operation at 3.3 V, I2C address `0x3C`, 128×64 rendering, repeated updates and controlled reinitialization.
-- The evidence is correctly phrased as **SSD1306 command/profile compatibility** rather than independent proof of the controller die.
-- `0x3D`, multi-vendor replacement compatibility, pull-ups, final wiring and mechanical interchangeability are not overclaimed.
-- Replacement sourcing remains a candidate market snapshot, not proof that every listed module is electrically/mechanically interchangeable.
+- Tested specimen marking: `GME12864-11-12-13 V3.22`; observed blue OLED.
+- Physical evidence supports 3.3 V operation, I2C `0x3C`, 128×64 rendering, repeated updates and controlled reinitialization.
+- Claim is correctly limited to **SSD1306 command/profile compatibility**, not independent identification of the controller die.
+- `0x3D`, replacement compatibility, pull-ups, final wiring and mechanical interchangeability remain outside the physical evidence.
 
 ## 3. Testing & Evidence Reviewer — PASS
 
-Findings:
-
 - Short functional gate: PASS.
-- Highest accepted pre-reset heartbeat: `elapsed_s=3622`, satisfying the `>=3600` gate.
+- Highest accepted pre-reset heartbeat: `elapsed_s=3622` (`>=3600`).
 - Controlled reboot/reinitialization: PASS.
 - Operator visual evidence covers full-on, full-off, checkerboard, readable `HOMEEDGE / IHAP53`, correct orientation and moving stability marker.
-- Published evidence includes the reviewed run record plus front text-card, rear PCB and annotated wiring photographs.
-- The run record no longer contains the stale statement that the rear photograph is missing.
-- Host-side monitor disconnection occurred only after the required reboot/re-init evidence had already been captured and remains classified as non-invalidating.
-- No new hardware run is required by this review.
+- Published evidence contains reviewed run record, front text-card, rear PCB and annotated wiring photographs.
+- Host-side monitor disconnection occurred after the required reboot/re-init evidence was already captured and is non-invalidating.
+- No additional hardware run is required.
 
 ## 4. Cost Governance Reviewer — PASS
 
-Findings:
-
 - Owned inventory is not treated as zero replication cost.
-- Replacement sourcing is explicitly dated and non-guaranteed.
-- Definitive BOM propagation remains deferred to IHAP-17 until Project Owner acceptance.
-- No unsupported lifetime, power-cost or procurement reproducibility claim is introduced.
+- Replacement sourcing remains a dated, non-guaranteed market snapshot.
+- IHAP-17 receives the accepted display profile/tested-reference/cost handoff after ADR acceptance.
+- No unsupported lifetime, power-cost or procurement-reproducibility claim is introduced.
 
 ## 5. Source of Truth Guardian — PASS
 
-Findings:
-
-- ADR content and technical evidence remain in GitHub.
-- Jira retains workflow state, decision authority and evidence links.
-- Confluence is not used as a competing technical specification source.
-- IHAP-53 now uses ADR-0004 consistently within PR #31; no `ADR-0003` reference remains in the IHAP-53 PR diff.
-- The Product Vision remains intentionally unchanged while ADR-0004 is Proposed.
-
-Confluence Stakeholder Hub remains stale and must be updated after the final decision/merge; this is a post-merge synchronization item, not a branch blocker.
+- GitHub remains canonical for ADR content and technical evidence.
+- Jira retains workflow state, Project Owner decision authority and evidence links.
+- Confluence remains stakeholder summary/navigation only.
+- IHAP-53 uses ADR-0004 consistently and does not modify IHAP-52.
+- Acceptance is recorded only after physical PASS, final specialist review and explicit Project Owner approval.
 
 ## 6. Security & Privacy Reviewer — PASS
 
-Findings:
-
 - Display content remains current room-level telemetry only.
 - Identity, person tracking, behavioral/occupancy history, SSID, credentials, alarm/security semantics and access-control claims remain excluded.
-- IP address is limited to maintenance diagnostics when needed, not the normal dashboard.
-- Published photographs and run documentation avoid unnecessary private network data.
+- IP address remains maintenance-only when needed, not normal-dashboard content.
 - No production-ready, security-grade, alarm-grade, antifurto, access-control, safety-critical or certification claim is introduced.
 
 ## 7. Stakeholder Clarity Reviewer — PASS
 
-Findings:
-
-- The decision clearly separates the functional MVP requirement, reusable display profile and tested owned specimen.
-- The physical PASS and its limitations are visible without reading raw serial output.
-- The 4xy/5xy diagnostic model is explicitly identified as HomeEdge device codes rather than HTTP response status codes.
-- Follow-up ownership for power, interconnect, enclosure and BOM is explicit.
-- The remaining governance step is unambiguous: Project Owner acceptance/rejection of ADR-0004.
+- Functional requirement, reusable profile and tested owned specimen are clearly separated.
+- Physical PASS and its limitations are visible without requiring raw serial output.
+- 4xy/5xy codes are HomeEdge device codes, not HTTP response statuses.
+- Follow-up ownership for power, interconnect, enclosure and BOM remains explicit.
+- ADR-0004 is now unambiguously **Accepted** by the Project Owner.
 
 ---
 
-## Resolved findings from closure review
+## Resolved closure findings
 
-| Previous finding | Resolution |
+| Finding | Resolution |
 |---|---|
-| Evidence package missing from remote branch | Resolved — published under `docs/evidence/IHAP-53/IHAP53-DISPLAY-01/` |
-| ADR numbering collision from IHAP-53 perspective | Resolved on this branch — IHAP-53 renumbered to ADR-0004; no IHAP-52 modification performed |
-| Run record says rear photo both present and missing | Resolved |
-| `SSD1306 validated` overstates controller identification | Resolved — compatibility claim narrowed to tested SSD1306 command/profile |
-| Evidence README still pre-validation | Resolved — records physical PASS and claim boundary |
-| ADR/index/PR body still pending physical validation | Resolved — physical PASS recorded; architectural acceptance remains separate |
-| Required final specialist review not recorded | Resolved by this document |
+| Evidence package absent from remote branch | Resolved — published under `docs/evidence/IHAP-53/IHAP53-DISPLAY-01/` |
+| ADR numbering collision from IHAP-53 branch | Resolved — IHAP-53 renumbered to ADR-0004; IHAP-52 untouched |
+| Run-record rear-photo contradiction | Resolved |
+| `SSD1306 validated` overclaim | Resolved — narrowed to SSD1306 command/profile compatibility |
+| Evidence README pre-validation state | Resolved |
+| ADR/index/PR body pre-validation state | Resolved |
+| Required specialist review not recorded | Resolved |
+| Project Owner acceptance pending | Resolved — ADR-0004 accepted 2026-08-31 |
+| Product Vision authorization pending | Resolved — controlled update authorized by acceptance |
 
-## Remaining non-remediation gate
+## Closure conclusion
 
-No technical or documentation remediation remains on the IHAP-53 branch before Project Owner review.
+No technical or documentation remediation remains on the IHAP-53 branch.
 
-ADR-0004 is deliberately still `Proposed`. The next step requires an explicit Product Owner decision:
-
-- **Accept ADR-0004**, then update Product Vision, finalize PR review state and proceed toward merge/Jira/Confluence synchronization; or
-- **Reject/change ADR-0004**, keeping the rationale and applying any requested changes on the same branch/PR.
-
-This specialist review does not substitute for Project Owner acceptance.
+ADR-0004 is **Accepted**. Remaining work is closure synchronization only: finalize the Product Vision change on this branch, finalize/merge PR #31, transition Jira IHAP-53, and update Confluence stakeholder navigation. This review does not expand IHAP-53 into final firmware, power, pinout, enclosure or BOM implementation.
