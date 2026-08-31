@@ -4,6 +4,28 @@ This directory contains the minimal ESP-IDF harness used to validate the owned 0
 
 It is **validation tooling**, not final room-node firmware and not the final IHAP-50 pinout.
 
+## Human execution entrypoint
+
+Do not execute a physical IHAP-53 run from abbreviated commands in this file.
+
+The complete canonical procedure, including required hardware/software, exact checkout, wiring, ESP-IDF reference version, build/flash, serial-log capture, run IDs, visual observations, 60-minute gate, controlled reboot, evidence filenames and stop conditions is:
+
+[`docs/evidence/IHAP-53/README.md`](../../../docs/evidence/IHAP-53/README.md)
+
+The per-run record template is:
+
+[`run-record-template.md`](run-record-template.md)
+
+Raw attempts are stored locally under:
+
+```text
+runs/<RUN-ID>/
+```
+
+The `runs/` directory is ignored by Git except for its `.gitignore`; raw runs must not be committed by default.
+
+## Harness behavior
+
 The harness:
 
 1. probes `0x3C` and `0x3D` on I2C;
@@ -14,17 +36,20 @@ The harness:
 6. enters a five-second heartbeat/update loop for the one-hour stability gate;
 7. emits structured serial records for review.
 
-Canonical wiring, operator steps, acceptance criteria and evidence rules are in:
+## Firmware source
 
-[`docs/evidence/IHAP-53/README.md`](../../../docs/evidence/IHAP-53/README.md)
+```text
+firmware/main/main.c
+```
 
-Build and run:
+Reference ESP-IDF for the controlled physical run: **v6.0.1**.
+
+For developer-only build verification, after activating ESP-IDF:
 
 ```bash
 cd tools/hardware-validation/ihap-53-local-display/firmware
 idf.py set-target esp32c3
 idf.py build
-idf.py -p /dev/ttyACM0 flash monitor
 ```
 
-Use the actual serial port when it differs from `/dev/ttyACM0`.
+For a controlled physical run, return to the canonical evidence/runbook file above so evidence capture is not skipped.
