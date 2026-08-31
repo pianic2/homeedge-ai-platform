@@ -44,6 +44,8 @@ AI_AGENT_METADATA:
       - docs/governance/engineering-assistant-rules.md
     product:
       - docs/product/product-vision.md
+    architecture:
+      - docs/architecture/ihap-48-audio-hardware-disposition.md
     risks:
       - docs/risks/README.md
       - docs/risks/risk-model-baseline.md
@@ -57,7 +59,6 @@ AI_AGENT_METADATA:
 
   future_candidate_paths:
     - docs/reviews/
-    - docs/evidence/
     - docs/glossary/project-glossary.md
 
 HIDDEN_ANTI_REGRESSION_RULES:
@@ -80,6 +81,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Source-of-truth rules | `governance/source-of-truth.md` |
 | Documentation strategy | `governance/documentation-strategy.md` |
 | Product Vision / MVP boundary | `product/product-vision.md` |
+| Audio hardware disposition / FUTURE boundary | `architecture/ihap-48-audio-hardware-disposition.md` |
 | Risk documentation index | `risks/README.md` |
 | Risk model baseline | `risks/risk-model-baseline.md` |
 | ADR index | `adr/README.md` |
@@ -97,8 +99,9 @@ HIDDEN_ANTI_REGRESSION_RULES:
 | Risks | `risks/` | Risk modeling guide and concrete risk records |
 | ADRs | `adr/` | Existing documentation family |
 | Templates | `templates/` | Existing documentation family |
-| Architecture | `architecture/` | Existing area; use only when needed |
-| Reviews / Evidence | future `reviews/` or `evidence/` | Candidate only |
+| Architecture | `architecture/` | Existing area; IHAP-48 contains the audio hardware disposition record |
+| Evidence | `evidence/` | Existing task-specific durable evidence family |
+| Reviews | future `reviews/` | Candidate only |
 | Glossary | future `glossary/project-glossary.md` | Candidate only; current glossary stays in `product/product-vision.md` |
 
 Future paths are not created, validated, or accepted just because they are listed here.
