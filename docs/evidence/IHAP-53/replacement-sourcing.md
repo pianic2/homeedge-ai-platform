@@ -25,4 +25,4 @@ The BOM must not use the owned specimen's sunk cost as `€0` replication cost. 
 2. the tested reference implementation;
 3. a dated current replacement-price source.
 
-Mechanical envelope and exact interchangeability remain subject to IHAP-51 and the replacement-profile constraints in ADR-0003.
+`IHAP53-DISPLAY-01` validates the owned specimen under its tested conditions; it does not prove exact interchangeability with these market examples. Mechanical envelope, controller/configuration differences and exact replacement compatibility remain subject to ADR-0004 constraints and IHAP-51/IHAP-50 follow-up work.
