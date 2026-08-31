@@ -69,7 +69,7 @@ The complete `serial.log` remains in the ignored local run by default. Do not co
 The reviewed `run-record.md` records the evidence-derived facts needed for repository review, including:
 
 - `0x3C` ACK and `0x3D` no-ACK;
-- SSD1306 initialization PASS;
+- SSD1306 initialization-profile transfer PASS;
 - visual transfer sequence PASS plus operator visual confirmation;
 - heartbeat at/after 3600 seconds;
 - highest accepted pre-reset `elapsed_s`;
@@ -113,4 +113,4 @@ git add docs/evidence/IHAP-53/publication-guide.md
 
 Do not stage `tools/hardware-validation/ihap-53-local-display/runs/`.
 
-The publication of PASS evidence does not itself accept ADR-0003. ADR status remains under explicit Project Owner authority after evidence review.
+`IHAP53-DISPLAY-01` is physically validated PASS. Publication of PASS evidence does not itself accept ADR-0004; ADR status remains under explicit Project Owner authority after evidence review.
