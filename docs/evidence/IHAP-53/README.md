@@ -1,13 +1,38 @@
 # IHAP-53 Local Display Evidence and Physical Validation Runbook
 
 **Issue:** IHAP-53 — Local Display Decision — 0.96-inch OLED vs No Display  
-**Status:** pre-validation; owned specimen not yet qualified  
+**Status:** physical validation PASS; ADR-0004 remains `Proposed` pending explicit Project Owner acceptance  
 **Human entrypoint:** this file  
 **Validation harness:** `tools/hardware-validation/ihap-53-local-display/`  
 **Raw evidence location:** `tools/hardware-validation/ihap-53-local-display/runs/<RUN-ID>/` — local only, do not commit raw runs  
+**Published evidence:** `docs/evidence/IHAP-53/IHAP53-DISPLAY-01/`  
 **Purpose:** qualify the owned 0.96-inch OLED candidate with a reproducible procedure without turning IHAP-53 into a final firmware implementation task.
 
 > Do not rely on chat history for execution. If an instruction needed to execute or interpret IHAP-53 is missing from this file or from a file linked by this file, stop the run and correct the repository documentation on the existing IHAP-53 branch/PR before continuing.
+
+## Validated result — IHAP53-DISPLAY-01
+
+The controlled physical run completed with **PASS**.
+
+Validated for the tested owned specimen only:
+
+- observed I2C address: `0x3C`;
+- `0x3D` did not acknowledge;
+- SSD1306 command/data profile used by the harness: functionally compatible;
+- 128×64 full-area rendering and text card: visually correct by operator observation;
+- stability: heartbeat reached `elapsed_s=3622`, beyond the required 3600 seconds;
+- no invalidating I2C failure, brownout, unexpected reset, frozen display or visible corruption during the one-hour gate;
+- controlled reboot/reinitialization: PASS;
+- tested supply: ESP32-C3 `3.3V`.
+
+Published review evidence:
+
+- [`IHAP53-DISPLAY-01/run-record.md`](IHAP53-DISPLAY-01/run-record.md)
+- [`IHAP53-DISPLAY-01/photo-front-text-card.png`](IHAP53-DISPLAY-01/photo-front-text-card.png)
+- [`IHAP53-DISPLAY-01/photo-rear-marking.png`](IHAP53-DISPLAY-01/photo-rear-marking.png)
+- [`IHAP53-DISPLAY-01/photo-wiring-annotated.png`](IHAP53-DISPLAY-01/photo-wiring-annotated.png)
+
+The PASS does **not** independently identify the physical controller die, seller/lot provenance, onboard regulator or pull-up implementation, quantitative current consumption, final product wiring, enclosure suitability or universal compatibility of similarly marked modules.
 
 ---
 
@@ -53,7 +78,7 @@ If another ESP-IDF version is used, record it as a deviation in `run-record.md`.
 
 ---
 
-## 2. Claim classification before the run
+## 2. Claim classification
 
 ### Physical observations
 
@@ -84,7 +109,7 @@ Solomon Systech documents SSD1306 as a 128×64 monochrome OLED controller with I
 
 Source: <https://www.solomon-systech.com/en/product/SSD1306>
 
-The owned specimen is **consistent with** the GoldenMorning `-12` family description, but seller provenance, exact PCB-revision correspondence, onboard pull-ups/regulator implementation and electrical behavior remain `[UNVALIDATED]` until the protocol below passes.
+The owned specimen is **consistent with** the GoldenMorning `-12` family description. Physical validation demonstrates compatibility with the SSD1306 command/data profile used by the harness, but does not independently prove exact controller die identity, seller provenance, exact PCB-revision correspondence, onboard pull-up/regulator implementation or electrical characteristics beyond the tested 3.3 V functional behavior.
 
 ---
 
@@ -95,12 +120,13 @@ The owned specimen is **consistent with** the GoldenMorning `-12` family descrip
 | Evidence ID | `IHAP53-DISPLAY-OWNED-01` |
 | Observed marking | `GME12864-11-12-13 V3.22` |
 | Observed color | Blue |
-| Candidate family | `GME12864-12` — conditional |
-| Candidate controller | SSD1306 — conditional |
-| Expected interface | I2C |
-| Expected address | `0x3C` reference; `0x3D` accepted if physically configured |
-| Validation supply | ESP32-C3 `3.3V` only |
+| Candidate family | `GME12864-12` — consistent with family evidence; exact provenance `[UNVALIDATED]` |
+| Controller profile | SSD1306 command/data profile — functionally validated for tested specimen; exact die identity `[UNVALIDATED]` |
+| Interface | I2C — validated for tested specimen |
+| Observed address | `0x3C` |
+| Validation supply | ESP32-C3 `3.3V` — functional PASS for tested specimen |
 | Status before run | `[UNVALIDATED]` |
+| Status after run | `PASS` within documented claim boundary |
 
 ---
 
@@ -295,7 +321,7 @@ Reject the run if:
 - the ESP32-C3 repeatedly resets or reports brownout;
 - the display becomes unstable during the run.
 
-A failed SSD1306 test does **not** prove the module is defective. It means the candidate controller/profile has not been validated and must be investigated before ADR acceptance.
+A failed SSD1306-profile test does **not** prove the module is defective. It means the candidate profile has not been validated and must be investigated before ADR acceptance.
 
 When the static text card is visible and correct, save:
 
@@ -336,7 +362,7 @@ After a valid heartbeat at or beyond 3600 seconds:
 3. Do not change wiring.
 4. Confirm the harness emits a new boot sequence.
 5. Confirm it probes the same display address again.
-6. Confirm SSD1306 initialization succeeds again.
+6. Confirm SSD1306-profile initialization succeeds again.
 7. Confirm the full visual sequence is correct again.
 8. Confirm stability mode starts again.
 
@@ -371,7 +397,7 @@ Must identify:
 - reboot/reinitialization result;
 - brownout/unexpected reset observation;
 - visible corruption observation;
-- controller conclusion;
+- controller/profile compatibility conclusion;
 - deviations/anomalies/notes.
 
 ### `serial.log`
@@ -380,7 +406,7 @@ Must contain one continuous evidence stream covering:
 
 - initial boot;
 - probe;
-- SSD1306 initialization;
+- SSD1306-profile initialization;
 - complete short visual sequence;
 - stability start;
 - heartbeat at or beyond 3600 seconds;
@@ -393,9 +419,11 @@ Must show the complete display while the `HOMEEDGE` / `IHAP53` text card is visi
 
 ### `photo-rear-marking.jpg`
 
-Must show enough of the rear/PCB side to identify the specimen marking and pin labels.
+Must show enough of the rear/PCB side to identify the specimen marking and address-select markings.
 
 Before any photograph is committed to the repository it must be cropped to the component, converted to a standard image format when needed and stripped of EXIF metadata. Do not publish workstation paths, network credentials, SSIDs, MAC addresses or unique chip identifiers.
+
+Published sanitized evidence may use PNG names defined by `publication-guide.md`.
 
 ---
 
@@ -407,7 +435,7 @@ Use the repository template:
 
 Do not use an acceptance record copied from chat.
 
-The physical test does not itself change ADR status. A complete PASS creates evidence for Project Owner review; ADR-0003 remains `Proposed` until the Project Owner explicitly accepts the decision.
+The physical test does not itself change ADR status. `IHAP53-DISPLAY-01` is a complete PASS and creates evidence for Project Owner review; **ADR-0004 remains `Proposed` until the Project Owner explicitly accepts the decision**.
 
 ---
 
@@ -424,6 +452,7 @@ A complete PASS supports only these owned-specimen claims:
 
 It does not prove:
 
+- exact physical controller die identity;
 - universal compatibility of every `GME12864-11/12/13` board;
 - seller or lot reproducibility;
 - final product wiring;
