@@ -113,4 +113,4 @@ git add docs/evidence/IHAP-53/publication-guide.md
 
 Do not stage `tools/hardware-validation/ihap-53-local-display/runs/`.
 
-`IHAP53-DISPLAY-01` is physically validated PASS. Publication of PASS evidence does not itself accept ADR-0004; ADR status remains under explicit Project Owner authority after evidence review.
+`IHAP53-DISPLAY-01` is physically validated PASS. Publication of PASS evidence did not itself accept ADR-0004; architectural acceptance was recorded separately by the Project Owner on 2026-08-31 after evidence review and final specialist review.
