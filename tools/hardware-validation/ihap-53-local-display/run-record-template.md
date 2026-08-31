@@ -38,7 +38,7 @@ Do not overwrite a completed or invalidated run. Copy this template to `runs/<RU
 - `0x3D` ACK: YES / NO
 - Observed display address:
 - Exactly one candidate address found: YES / NO
-- SSD1306 initialization transfer: PASS / FAIL
+- SSD1306 initialization-profile transfer: PASS / FAIL
 
 ## Short functional gate — visual observations
 
@@ -81,7 +81,7 @@ Do not overwrite a completed or invalidated run. Copy this template to `runs/<RU
 - One intentional ESP32-C3 reset performed after stability gate: YES / NO
 - New boot sequence captured in same `serial.log`: YES / NO
 - Same display address rediscovered: YES / NO
-- SSD1306 initialization succeeded again: YES / NO
+- SSD1306 initialization-profile transfer succeeded again: YES / NO
 - Full visual sequence succeeded again: YES / NO
 - Stability mode restarted: YES / NO
 - Reboot/re-init gate: PASS / FAIL
@@ -99,7 +99,7 @@ Do not overwrite a completed or invalidated run. Copy this template to `runs/<RU
 - Reboot/re-init: PASS / FAIL
 - Brownout/unexpected reset observed: YES / NO
 - Visible corruption observed: YES / NO
-- Controller conclusion: `SSD1306 validated` / `not validated`
+- Controller/profile conclusion: `SSD1306 command/profile compatibility validated for tested specimen; exact physical controller identity not independently proven` / `not validated`
 - Overall physical validation: PASS / FAIL / INVALID
 
 ## Deviations, anomalies and notes
@@ -111,4 +111,4 @@ Do not overwrite a completed or invalidated run. Copy this template to `runs/<RU
 
 ## Claim boundary
 
-A PASS supports only the claims listed in `docs/evidence/IHAP-53/README.md`. It does not itself accept ADR-0003, finalize the product pinout, quantify display current/autonomy, approve enclosure mechanics, finalize BOM, or establish production/certification maturity.
+A PASS supports only the claims listed in `docs/evidence/IHAP-53/README.md`. It does not itself accept ADR-0004, finalize the product pinout, quantify display current/autonomy, approve enclosure mechanics, finalize BOM, identify the physical controller die, or establish production/certification maturity.
