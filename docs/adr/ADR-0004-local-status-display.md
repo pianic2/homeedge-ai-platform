@@ -297,6 +297,7 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 | Rear PCB photograph | [`photo-rear-marking.png`](../evidence/IHAP-53/IHAP53-DISPLAY-01/photo-rear-marking.png) |
 | Annotated wiring photograph | [`photo-wiring-annotated.png`](../evidence/IHAP-53/IHAP53-DISPLAY-01/photo-wiring-annotated.png) |
 | Replacement sourcing snapshot | [`docs/evidence/IHAP-53/replacement-sourcing.md`](../evidence/IHAP-53/replacement-sourcing.md) |
+| Final specialist review | [`docs/evidence/IHAP-53/final-review-summary.md`](../evidence/IHAP-53/final-review-summary.md) |
 | Product boundary | [`docs/product/product-vision.md`](../product/product-vision.md) |
 | Compute ADR | [`ADR-0001`](ADR-0001-mvp-edge-compute-platform.md) |
 | Environmental profiles | [`ADR-0002`](ADR-0002-environmental-sensor-profiles.md) |
@@ -323,7 +324,7 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 [x] [UNVALIDATED] is preserved on provenance, replacement, quantitative power and other unproven claims.
 [x] No unsupported production, commercial, security, safety, alarm, access-control or certification claim is introduced.
 [x] Physical validation completed.
-[ ] Specialist reviews completed after final remediation.
+[x] Specialist reviews completed after final remediation.
 [ ] Project Owner PR review completed.
 [ ] Project Owner acceptance recorded before status becomes Accepted.
 ```
