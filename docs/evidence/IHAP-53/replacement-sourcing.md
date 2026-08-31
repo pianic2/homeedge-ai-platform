@@ -19,7 +19,7 @@ Sources:
 
 ## Interpretation
 
-The BOM must not use the owned specimen's sunk cost as `€0` replication cost. After ADR acceptance, IHAP-17 should record:
+The BOM must not use the owned specimen's sunk cost as `€0` replication cost. With ADR-0004 accepted, IHAP-17 should receive the follow-up handoff containing:
 
 1. the generic required profile;
 2. the tested reference implementation;
