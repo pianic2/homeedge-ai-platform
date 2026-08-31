@@ -44,8 +44,6 @@ AI_AGENT_METADATA:
       - docs/governance/engineering-assistant-rules.md
     product:
       - docs/product/product-vision.md
-    architecture:
-      - docs/architecture/ihap-48-audio-hardware-disposition.md
     risks:
       - docs/risks/README.md
       - docs/risks/risk-model-baseline.md
