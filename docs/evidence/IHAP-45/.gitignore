@@ -1,0 +1,12 @@
+# IHAP-45 repository evidence is summary-only.
+raw/
+private/
+*.log
+samples.jsonl
+markers.jsonl
+reference.jsonl
+run-metadata.json
+comparison.csv
+report.html
+*.heic
+*.HEIC
