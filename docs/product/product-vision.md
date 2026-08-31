@@ -3,7 +3,8 @@
 **Issue:** IHAP-11 — S0-002 — Product Vision, MVP Boundaries and Glossary  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Document type:** Product foundation / governance documentation  
-**Status:** Sprint 0 draft for review  
+**Status:** Active product foundation — updated through accepted ADRs  
+**Last controlled MVP update:** 2026-08-31 — ADR-0004 Local Status Display  
 **Source of truth:** This versioned GitHub document is the technical source of truth for the Product Vision, MVP boundaries, and initial glossary until superseded by a later reviewed change.
 
 <!--
@@ -11,6 +12,7 @@ AI_AGENT_METADATA:
   issue: IHAP-11
   related_issues:
     - IHAP-15
+    - IHAP-53
   document_type: product_foundation
   source_of_truth: github_versioned_documentation
   task_scope: documentation_governance_only
@@ -28,9 +30,12 @@ AI_AGENT_METADATA:
     - humidity_collection
     - local_presence_detection
     - door_open_closed_state
+    - local_status_display
     - http_json_event_direction
     - minimal_event_schema_direction
     - documentation_governance
+  accepted_local_display_adr: ADR-0004
+  local_display_runtime_integration_status: unvalidated_until_final_room_node_implementation
   mvp_excludes:
     - raw_audio_collection
     - individual_presence_tracking
@@ -85,7 +90,10 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - This document must not contradict the repository skeleton introduced by IHAP-10.
   - The only firmware node in the MVP is firmware/room-env-node/.
   - firmware/room-env-node/ represents the first generic room/door node positioned near the room door.
-  - The MVP includes temperature, humidity, local non-identifying presence detection, and door open/closed state.
+  - The MVP includes temperature, humidity, local non-identifying presence detection, door open/closed state, and the local status display capability accepted by ADR-0004.
+  - ADR-0004 does not imply that final room-node display firmware, final pinout, quantitative power, enclosure mechanics or BOM propagation are already complete.
+  - The local display is read-only, compact status/debug UI; do not turn it into a terminal, touch UI, identity/history surface, or alarm/security interface.
+  - No dedicated status LED is an MVP requirement when the accepted local display provides local status indication.
   - The four backend directories remain target service boundaries, not proof of completed production services.
   - Kafka direct production from ESP32 remains OUT OF MVP.
   - Backend-side Kafka/event streaming remains FUTURE unless a later ADR and implementation task validate it.
@@ -127,9 +135,12 @@ The MVP focuses on a small, reviewable smart home vertical slice:
 - room humidity;
 - local non-identifying presence detection;
 - room door open/closed state;
+- a compact read-only local status display for user/maintenance visibility, accepted by ADR-0004;
 - HTTP/JSON event direction toward ingestion;
 - documented backend service boundaries;
 - governance through GitHub and Jira.
+
+The local display capability is part of the MVP product boundary. The tested 0.96-inch-class 128×64 monochrome I2C profile and owned specimen evidence are defined by ADR-0004. Final integration into `firmware/room-env-node/`, final pins, quantitative power behavior, enclosure mechanics and definitive BOM propagation remain separate work and must not be inferred from this Product Vision update.
 
 The MVP does **not** include person tracking, behavioral history, raw audio collection, certified access control, alarm-grade intrusion detection, 220V automation, or direct Kafka production from ESP32.
 
@@ -137,9 +148,9 @@ The MVP does **not** include person tracking, behavioral history, raw audio coll
 
 ## 2. Document Control
 
-This document defines the initial product framing for HomeEdge AI Platform.
+This document defines the product framing for HomeEdge AI Platform and is updated by reviewed Product Owner decisions and accepted ADRs.
 
-It is intentionally limited to product documentation and governance. It does **not** introduce firmware, backend, mobile, infrastructure, CI/CD, cloud, Kafka, AI runtime, or production implementation.
+It is intentionally limited to product documentation and governance. It does **not** introduce firmware, backend, mobile, infrastructure, CI/CD, cloud, Kafka, AI runtime, or production implementation by itself.
 
 ### 2.1 Scope of this document
 
@@ -164,6 +175,8 @@ Excluded:
 ### 2.2 Claim policy
 
 Any capability that is not implemented, tested, and supported by runtime evidence must be marked as `[UNVALIDATED]`.
+
+An accepted architectural/product requirement may be part of the MVP boundary before final runtime integration, but its implementation maturity must remain explicit. ADR-0004 therefore accepts the local-display capability/profile while final room-node integration remains `[UNVALIDATED]` until implementation evidence exists.
 
 A statement may describe a **TARGET** architecture only when it is explicitly framed as target, planned, or future work.
 
@@ -191,6 +204,7 @@ The project connects multiple disciplines in one traceable system:
 
 - embedded firmware on ESP32-class devices;
 - sensor-based smart home telemetry;
+- compact local device status/debug visibility;
 - HTTP/JSON event ingestion;
 - backend service boundaries;
 - mobile-first monitoring;
@@ -237,7 +251,7 @@ HomeEdge is technically valuable because it is structured as a scalable platform
 
 The main technical axes are:
 
-- **Edge devices:** ESP32-class nodes collecting room-level signals.
+- **Edge devices:** ESP32-class nodes collecting room-level signals and exposing a compact local status/debug surface.
 - **Backend services:** target service boundaries for ingestion, device registry, read model, and AI insight.
 - **Mobile monitoring:** mobile-first dashboard direction for telemetry and device health visibility.
 - **AI-ready insight layer:** future service boundary for deriving insights from validated data.
@@ -270,6 +284,8 @@ In the MVP, the node may collect:
 - local non-identifying presence state;
 - door open/closed state.
 
+The MVP node also includes a **compact read-only local status display capability** accepted by ADR-0004. The accepted display profile is 0.96-inch-class, 128×64, monochrome OLED over I2C. Final room-node rendering/driver integration remains `[UNVALIDATED]` until implemented and tested outside the IHAP-53 validation harness.
+
 No other firmware node is part of the MVP unless a later ADR explicitly changes this boundary.
 
 ### 4.2 MVP included
@@ -283,6 +299,7 @@ The MVP includes the following scope:
 | Environment telemetry | Temperature and humidity collection | MVP |
 | Local presence | Local presence detection as a boolean or state signal, without identity, behavioral history, or individual tracking | MVP |
 | Door state | Door open/closed state detection | MVP |
+| Local status display | Compact read-only 0.96-inch-class 128×64 monochrome I2C status/debug display; healthy UI shows room label, temperature, humidity, presence and door state; no dedicated status LED requirement | MVP capability accepted by ADR-0004; final room-node firmware/pinout/power/enclosure integration remains `[UNVALIDATED]` |
 | Transport | HTTP/JSON event sent toward ingestion backend | MVP target until implemented and verified |
 | Event model | Minimal event schema for room environment, presence state, and door state | MVP target until implemented and verified |
 | Backend | Ingestion boundary as target service area | TARGET |
@@ -300,6 +317,8 @@ Presence detection does **not** mean tracking people, identifying people, storin
 Door state detection in the MVP means detecting whether the room door is open or closed.
 
 Door state detection does **not** mean access control, intrusion certification, alarm-grade security, or safety-critical monitoring.
+
+The local display may present only current permitted room-level status and compact maintenance diagnostics. It must not expose identity, behavioral/occupancy history, credentials, SSID, access-control/alarm semantics or other data outside the accepted privacy boundary.
 
 ### 4.3 Minimal event direction
 
@@ -347,7 +366,9 @@ The MVP uses minimal room-level telemetry. Data must stay classified by purpose,
 | Behavioral history / routine profiling | Behavioral data | OUT OF MVP | Not allowed. | Blocked. |
 | Window sensors | Opening telemetry | FUTURE / OUT OF current MVP | Not part of the current room/door node scope. | Do not imply MVP delivery. |
 
-The table does not validate runtime behavior. Event fields, service boundaries, mobile views, AI insight, and storage behavior remain `[UNVALIDATED]` until implementation and test evidence exist.
+The accepted local display does not create a new class of telemetry. It may expose only current values/states permitted by this table plus compact maintenance diagnostics allowed by ADR-0004. Normal display content must omit SSID, credentials and behavioral history; private network metadata remains excluded from ordinary stakeholder/user display.
+
+The table does not validate runtime behavior. Event fields, service boundaries, mobile views, AI insight, storage behavior, and final room-node display integration remain `[UNVALIDATED]` until implementation and test evidence exist.
 
 ### 4.5 MVP acceptance boundary
 
@@ -366,6 +387,8 @@ The MVP must remain understandable without requiring any of the following:
 - cloud deployment;
 - production-grade security certification;
 - commercial or safety-critical positioning.
+
+The accepted local status display is part of the MVP and is therefore not an optional FUTURE feature. Its presence must not be used to imply final firmware integration, production maturity, quantitative autonomy, certified enclosure suitability or security/alarm semantics.
 
 ---
 
@@ -456,8 +479,9 @@ At Sprint 0, this is a target/future boundary, not a validated AI runtime.
 | Term | Definition |
 |---|---|
 | Edge Node | A physical embedded device near the environment being observed. In this project, edge nodes are expected to use ESP32-class hardware unless changed by ADR. |
-| Generic Room/Door Node | The first MVP smart home node placed near a room door. It collects minimal room environment data, local presence state, and door open/closed state. |
-| Room Environment Node | The MVP firmware node located at `firmware/room-env-node/`. In the MVP, it acts as a generic room/door node responsible for temperature, humidity, local presence detection, and door open/closed state. |
+| Generic Room/Door Node | The first MVP smart home node placed near a room door. It collects minimal room environment data, local presence state, door open/closed state, and includes the accepted local status display capability. |
+| Room Environment Node | The MVP firmware node located at `firmware/room-env-node/`. In the MVP, it acts as a generic room/door node responsible for temperature, humidity, local presence detection, door open/closed state, and the local status display capability accepted by ADR-0004. |
+| Local Status Display | The read-only compact status/debug display accepted by ADR-0004 for the reference MVP node. Reference profile: 0.96-inch-class, 128×64, monochrome OLED, I2C. Final product pinout, power policy, enclosure and definitive BOM remain separate follow-up work. |
 | Event | A structured record describing something observed or produced by the system, such as a room environment sample. |
 | Door State | A local telemetry signal indicating whether the room door is open or closed. It is allowed in the MVP as a non-certified state signal. |
 | Presence Detection | A local, non-identifying room-level signal indicating whether presence is currently detected. It is allowed in the MVP only as a minimal state signal. |
