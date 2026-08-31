@@ -1,7 +1,7 @@
 # IHAP-47 — Door State Sensor Evidence
 
 **Issue:** [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47)  
-**Decision document:** [`ADR-0002`](../../adr/ADR-0002-mvp-door-state-sensor.md)  
+**Decision document:** [`ADR-0003`](../../adr/ADR-0003-mvp-door-state-sensor.md)  
 **Evidence owner:** Project Owner  
 **Package state:** Prepared for physical execution  
 **Repository purpose:** durable summaries, sanitized photographs, structured results and reproducible procedures
