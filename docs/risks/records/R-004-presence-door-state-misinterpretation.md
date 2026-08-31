@@ -19,7 +19,7 @@ AI_AGENT_METADATA:
   risk_acceptance_authority: project_owner
   runtime_changes_allowed: false
   related_adrs:
-    - docs/adr/ADR-0002-mvp-door-state-sensor.md
+    - docs/adr/ADR-0003-mvp-door-state-sensor.md
   adr_created: true
   adr_status: Proposed
   unvalidated_claim_marker: "[UNVALIDATED]"
@@ -113,6 +113,6 @@ The MVP can describe local presence and door state as telemetry only. It must no
 
 | ADR | Status | Effect on this risk | Remaining exposure |
 |---|---|---|---|
-| [ADR-0002 — MVP Door State Sensor](../../adr/ADR-0002-mvp-door-state-sensor.md) | Proposed | Preserves the telemetry-only boundary and explicitly rejects wire-supervision, tamper, access-control, alarm, antifurto, intrusion-detection and protection interpretations. | The risk remains active. Physical sensing evidence cannot prevent later wording, reporting or product-positioning misinterpretation. |
+| [ADR-0003 — MVP Door State Sensor](../../adr/ADR-0003-mvp-door-state-sensor.md) | Proposed | Preserves the telemetry-only boundary and explicitly rejects wire-supervision, tamper, access-control, alarm, antifurto, intrusion-detection and protection interpretations. | The risk remains active. Physical sensing evidence cannot prevent later wording, reporting or product-positioning misinterpretation. |
 
-ADR-0002 does not accept, close or resolve R-004. Any residual-risk decision remains with the Project Owner and the Risk Record workflow.
+ADR-0003 does not accept, close or resolve R-004. Any residual-risk decision remains with the Project Owner and the Risk Record workflow.
