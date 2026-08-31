@@ -1,7 +1,8 @@
 # ADR-0004 — Local Status Display
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-08-07  
+**Accepted:** 2026-08-31  
 **Last evidence review:** 2026-08-31  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53)  
@@ -15,21 +16,22 @@ AI_AGENT_METADATA:
   decision_scope: local_status_display
   issue: IHAP-53
   parent_issue: IHAP-43
-  status: Proposed
+  status: Accepted
   approval_authority: project_owner
-  approval_recorded: false
+  approval_recorded: true
+  approval_date: 2026-08-31
   source_of_truth: github_versioned_repository_documentation
   jira_role: workflow_state_blockers_and_evidence_links
   confluence_role: stakeholder_summary_and_navigation_only
   reference_profile: 0.96-inch-class_128x64_monochrome_i2c
   owned_specimen_marking: GME12864-11-12-13_V3.22
-  owned_specimen_status: physical_validation_pass_pending_project_owner_acceptance
+  owned_specimen_status: accepted_tested_reference_with_claim_boundaries
   dedicated_status_led_required: false
   final_pinout_owner: IHAP-50
   quantitative_power_owner: IHAP-49
   enclosure_owner: IHAP-51
   bom_owner: IHAP-17
-  product_vision_update_after_acceptance: true
+  product_vision_update_after_acceptance: completed_by_ihap_53_closure
   runtime_changes_allowed: false
   unvalidated_claim_marker: "[UNVALIDATED]"
 
@@ -42,7 +44,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Keep enclosure mechanics in IHAP-51 and definitive BOM accounting in IHAP-17.
   - Treat the owned specimen as physically validated only within the tested 3.3 V / I2C / SSD1306-profile conditions.
   - Do not claim the physical controller die, seller provenance, lot reproducibility, current consumption or final product wiring from IHAP-53 evidence.
-  - Do not mark this ADR Accepted until explicit Project Owner acceptance after evidence and review.
+  - Preserve the Project Owner acceptance recorded on 2026-08-31 unless a later reviewed ADR supersedes this decision.
 -->
 
 ---
@@ -51,7 +53,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 The HomeEdge reference MVP room/door node already requires temperature, humidity, local non-identifying presence and door open/closed telemetry. ADR-0001 deliberately left local-display scope to IHAP-53 and did not reserve GPIO specifically for a display.
 
-The Project Owner has made a readable local UI an explicit MVP function. It must provide a compact local status and maintenance console without replacing serial diagnostics or backend observability.
+The Project Owner made a readable local UI an explicit MVP function. It must provide a compact local status and maintenance console without replacing serial diagnostics or backend observability.
 
 The owned blue 0.96-inch-class four-pin OLED is physically observed with:
 
@@ -61,7 +63,7 @@ The owned blue 0.96-inch-class four-pin OLED is physically observed with:
 
 GoldenMorning documents the `GME12864-11/12/13` family as 0.96-inch, 128×64, monochrome, four-pin I2C, SSD1306, with the `-12` variant blue and a 3.3–5 V module supply range.
 
-Physical run `IHAP53-DISPLAY-01` subsequently demonstrated, for the owned specimen under the documented validation wiring:
+Physical run `IHAP53-DISPLAY-01` demonstrated, for the owned specimen under the documented validation wiring:
 
 - I2C response at `0x3C` and no response at `0x3D`;
 - successful use of the SSD1306 command/data profile used by the harness;
@@ -71,6 +73,8 @@ Physical run `IHAP53-DISPLAY-01` subsequently demonstrated, for the owned specim
 - operation from the ESP32-C3 3.3 V validation supply.
 
 This evidence validates functional compatibility of the tested specimen with the SSD1306 profile used by the harness. It does **not** independently identify the physical controller die or prove seller/lot provenance, onboard regulator/pull-up implementation, quantitative current, final product wiring or universal compatibility of all similarly marked boards.
+
+On 2026-08-31 the Project Owner explicitly accepted ADR-0004 after the physical PASS and final specialist review.
 
 ---
 
@@ -84,11 +88,11 @@ The display will be a read-only compact status/debug console. It will not be a
 full terminal, touch UI or interactive application surface.
 
 The owned GME12864-11-12-13 V3.22 blue specimen has passed the IHAP-53 physical
-validation under the documented 3.3 V / I2C test conditions and is the tested
-reference candidate pending explicit Project Owner acceptance of this ADR.
+validation under the documented 3.3 V / I2C test conditions and is the accepted
+tested reference implementation within the evidence boundaries of IHAP-53.
 ```
 
-This decision becomes authoritative only when this ADR is accepted by the Project Owner.
+This decision is authoritative from the Project Owner acceptance recorded on 2026-08-31.
 
 ### 2.1 Reference display profile
 
@@ -213,9 +217,9 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 ### 2.9 Power, enclosure and BOM handoff
 
 - IHAP-49 owns current measurement, sleep behavior and quantitative power-budget impact.
-- The display remains an MVP requirement if this ADR is accepted; IHAP-49 must adapt the power subsystem rather than silently remove it.
+- The display is now an accepted MVP requirement; IHAP-49 must adapt the power subsystem rather than silently remove it.
 - IHAP-51 owns aperture, alignment, protection, mounting, serviceability and final mechanical tolerance.
-- IHAP-17 must record the generic profile, tested reference implementation and dated replacement price after acceptance, even though the current specimen is already owned.
+- IHAP-17 receives the generic profile, tested reference implementation and dated replacement-price handoff after this acceptance, even though the current specimen is already owned.
 
 ---
 
@@ -223,9 +227,9 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 
 | Alternative | Outcome | Reason |
 |---|---|---|
-| No local display | Rejected by functional direction | Does not satisfy the explicit readable user/maintenance UI requirement |
-| Status LED only | Rejected by functional direction | Insufficient information density; no dedicated status LED is required |
-| 0.96-inch 128×64 monochrome I2C OLED | Proposed | Proportionate information density, compact footprint, simple four-wire interface and successful physical validation of the owned specimen |
+| No local display | Rejected | Does not satisfy the explicit readable user/maintenance UI requirement |
+| Status LED only | Rejected | Insufficient information density; no dedicated status LED is required |
+| 0.96-inch 128×64 monochrome I2C OLED | **Accepted** | Proportionate information density, compact footprint, simple four-wire interface and successful physical validation of the owned specimen |
 | Larger OLED/TFT/touch UI | Rejected | Adds firmware, GPIO, enclosure, power and UI complexity without an MVP need |
 | SPI 0.96-inch display | Rejected for reference profile | Adds wiring/GPIO pressure without a demonstrated benefit |
 
@@ -256,8 +260,8 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 - Final GPIO assignment: IHAP-50.
 - Final sleep/power policy: IHAP-49.
 - Final aperture/mechanical tolerance: IHAP-51.
-- Physical validation of the owned specimen is complete; architectural acceptance remains pending explicit Project Owner approval.
-- Product Vision remains unchanged while this ADR is `Proposed`.
+- Physical validation and architectural acceptance of the display decision are complete.
+- Product Vision is updated by the IHAP-53 closure to include the accepted local status display capability without claiming final runtime UI implementation.
 
 ---
 
@@ -274,14 +278,14 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 | Item | Tracking |
 |---|---|
 | Physical validation of owned specimen | IHAP-53 — completed, `IHAP53-DISPLAY-01` PASS |
-| Final Project Owner acceptance of this decision | IHAP-53 |
+| Project Owner acceptance of this decision | IHAP-53 — completed 2026-08-31 |
 | Freeze I2C pins, wiring, pull-up interaction and bus-recovery strategy | IHAP-50 |
 | Measure display current and decide sleep/power policy | IHAP-49 |
 | Define aperture, mounting, orientation and protection | IHAP-51 |
-| Add generic profile + tested reference + dated replacement cost | IHAP-17 after acceptance |
+| Add generic profile + tested reference + dated replacement cost | IHAP-17 follow-up after ADR acceptance |
 | Implement display driver and healthy/degraded/error UI | Future firmware implementation task |
-| Add `local status display` to Product Vision | IHAP-53 only after ADR acceptance |
-| Add accepted display disposition to final hardware matrix | IHAP-43 after acceptance |
+| Add `local status display` to Product Vision | IHAP-53 — completed after ADR acceptance |
+| Add accepted display disposition to final hardware matrix | IHAP-43 follow-up |
 
 ---
 
@@ -320,11 +324,11 @@ The IHAP-53 validation wiring (`SDA=GPIO5`, `SCL=GPIO6`) is evidence-fixture wir
 [x] Display failure is not a sensing/telemetry single point of failure.
 [x] Final pinout, power, enclosure and BOM responsibilities remain separated.
 [x] Source-of-truth boundaries are preserved.
-[x] Product Vision remains unchanged while this ADR is Proposed.
+[x] Product Vision update is authorized by explicit Project Owner acceptance.
 [x] [UNVALIDATED] is preserved on provenance, replacement, quantitative power and other unproven claims.
 [x] No unsupported production, commercial, security, safety, alarm, access-control or certification claim is introduced.
 [x] Physical validation completed.
 [x] Specialist reviews completed after final remediation.
-[ ] Project Owner PR review completed.
-[ ] Project Owner acceptance recorded before status becomes Accepted.
+[x] Project Owner acceptance recorded on 2026-08-31.
+[x] ADR status changed to Accepted only after explicit Project Owner approval.
 ```
