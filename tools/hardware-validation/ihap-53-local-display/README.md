@@ -12,6 +12,10 @@ The complete canonical procedure, including required hardware/software, exact ch
 
 [`docs/evidence/IHAP-53/README.md`](../../../docs/evidence/IHAP-53/README.md)
 
+After a run is reviewed, the exact raw-to-published evidence promotion flow is:
+
+[`docs/evidence/IHAP-53/publication-guide.md`](../../../docs/evidence/IHAP-53/publication-guide.md)
+
 The per-run record template is:
 
 [`run-record-template.md`](run-record-template.md)
@@ -22,7 +26,7 @@ Raw attempts are stored locally under:
 runs/<RUN-ID>/
 ```
 
-The `runs/` directory is ignored by Git except for its `.gitignore`; raw runs must not be committed by default.
+The `runs/` directory is ignored by Git except for its `.gitignore`; raw runs must not be committed by default. Do not remove the ignore rule and do not force-add raw run files.
 
 ## Harness behavior
 
