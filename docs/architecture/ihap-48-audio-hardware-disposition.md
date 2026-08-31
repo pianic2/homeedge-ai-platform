@@ -6,7 +6,7 @@
 **Jira:** IHAP-48 — Audio Hardware Disposition — GY-MAX4466  
 **Parent:** IHAP-43 — MVP Hardware Component Decision Baseline  
 **Document type:** Hardware disposition / ADR-not-required decision record  
-**Source of truth:** This versioned GitHub record is the canonical technical disposition for the GY-MAX4466 relative to the reference MVP until superseded by a later reviewed decision.
+**Technical authority:** GitHub is the technical source of truth under `docs/governance/source-of-truth.md`; this durable task record captures the accepted GY-MAX4466 disposition until superseded by a later reviewed decision.
 
 <!--
 AI_AGENT_METADATA:
@@ -32,7 +32,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Ownership does not justify physical inclusion.
   - Do not reserve ADC/GPIO, power, wiring, enclosure volume, aperture or firmware surface for audio in the MVP.
   - Raw audio collection, transmission, persistence, voice recognition, identity, individual tracking, behavioral history and routine profiling remain outside MVP.
-  - FUTURE audio-derived work is not authorized by this record and requires a separate reviewed task and Product Owner approval.
+  - FUTURE audio-derived work is not authorized by this record and requires a separate reviewed task and Project Owner approval.
   - Do not infer the exact purchased module pinout, supply implementation, current draw, microphone type, gain network or seller/lot characteristics without evidence.
   - No production-ready, commercial-ready, security-grade, alarm-grade, antifurto, access-control, safety-critical or certification claim is introduced.
 -->
