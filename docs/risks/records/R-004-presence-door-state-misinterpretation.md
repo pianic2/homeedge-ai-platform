@@ -20,8 +20,11 @@ AI_AGENT_METADATA:
   runtime_changes_allowed: false
   related_adrs:
     - docs/adr/ADR-0003-mvp-door-state-sensor.md
+    - docs/adr/ADR-0005-mvp-presence-sensor.md
   adr_created: true
-  adr_status: Proposed
+  adr_statuses:
+    ADR-0003: Accepted
+    ADR-0005: Proposed
   unvalidated_claim_marker: "[UNVALIDATED]"
 -->
 
@@ -113,6 +116,7 @@ The MVP can describe local presence and door state as telemetry only. It must no
 
 | ADR | Status | Effect on this risk | Remaining exposure |
 |---|---|---|---|
-| [ADR-0003 — MVP Door State Sensor](../../adr/ADR-0003-mvp-door-state-sensor.md) | Proposed | Preserves the telemetry-only boundary and explicitly rejects wire-supervision, tamper, access-control, alarm, antifurto, intrusion-detection and protection interpretations. | The risk remains active. Physical sensing evidence cannot prevent later wording, reporting or product-positioning misinterpretation. |
+| [ADR-0003 — MVP Door State Sensor](../../adr/ADR-0003-mvp-door-state-sensor.md) | Accepted | Preserves the telemetry-only boundary and explicitly rejects wire-supervision, tamper, access-control, alarm, antifurto, intrusion-detection and protection interpretations. | The risk remains active. Physical sensing evidence cannot prevent later wording, reporting or product-positioning misinterpretation. |
+| [ADR-0005 — MVP Presence Sensor](../../adr/ADR-0005-mvp-presence-sensor.md) | Proposed | Keeps radar detail inside local validation and authorizes only a non-identifying boolean presence state at the product/event boundary. | The sensor decision and residual physical evidence remain pending; later wording or schema changes could still overclaim the capability. |
 
-ADR-0003 does not accept, close or resolve R-004. Any residual-risk decision remains with the Project Owner and the Risk Record workflow.
+Neither ADR accepts, closes or resolves R-004. Any residual-risk decision remains with the Project Owner and the Risk Record workflow.
