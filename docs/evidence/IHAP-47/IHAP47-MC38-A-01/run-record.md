@@ -11,6 +11,7 @@
 - Stable-state window: `150 ms`
 - Requested complete cycles: `20`
 - Raw `serial.log` and `records.jsonl`: preserved locally, not committed
+- Project Owner decision: **Accepted — 2026-09-01**
 
 ## Sanitization review
 
@@ -22,6 +23,8 @@ The supplied generated artifacts were reviewed before publication.
 - no account, order, address or private-room information is present;
 - raw serial/device logs remain local;
 - the generated HTML report is retained locally because it duplicates the reviewed summary and is not required for the decision gate.
+
+Two later Project Owner photographs were also reviewed: no EXIF metadata or visible sensitive/account/device-identifier information was found. They support visible specimen form only; they do not establish supplier or manufacturer identity.
 
 ## Electrical mapping
 
@@ -83,7 +86,9 @@ The physical evidence supports the IHAP-47 sensor-technology decision gate:
 - failure-mode limitation explicitly demonstrated: PASS;
 - temporary bench topology stable: PASS.
 
-Overall evidence classification: **PASS — observed owned specimen, pending Project Owner decision**.
+Overall evidence classification: **PASS — observed owned specimen**.
+
+The Project Owner explicitly accepted ADR-0003 on **2026-09-01**, accepting passive wired two-conductor magnetic reed-contact technology for MVP binary door-state telemetry and `MC38-A` as the tested local reference specimen.
 
 ## Explicit claim boundary
 
