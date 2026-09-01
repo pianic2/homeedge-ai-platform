@@ -1,6 +1,6 @@
 # ADR-0005 — MVP Presence Sensor
 
-**Status:** Proposed
+**Status:** Accepted
 **Date:** 2026-09-01
 **Project:** [ITS] [EDGE] HomeEdge AI Platform
 **Jira:** [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46)
@@ -14,9 +14,10 @@ AI_AGENT_METADATA:
   decision_scope: mvp_local_non_identifying_presence_sensor
   issue: IHAP-46
   parent_issue: IHAP-43
-  status: Proposed
+  status: Accepted
   approval_authority: project_owner
-  approval_recorded: false
+  approval_recorded: true
+  accepted_on: 2026-09-01
   source_of_truth: github_versioned_repository_documentation
   proposed_technology: hlk_ld2410c_class_24ghz_presence_radar
   tested_owned_specimen: LD2410C-HLK-V1.1-OWNED-01
@@ -31,7 +32,7 @@ AI_AGENT_METADATA:
 
 HIDDEN_ANTI_REGRESSION_RULES:
   - Keep one decision: the presence-sensing technology for the reference MVP.
-  - Do not mark this ADR Accepted without explicit Project Owner approval.
+  - Preserve the Project Owner acceptance recorded on 2026-09-01.
   - Keep the product/event boundary at presence_detected boolean only.
   - Treat detailed radar fields as local laboratory diagnostics only.
   - Do not authorize coordinates, trajectory, identity, person count, behavioral history, persistent raw radar, occupancy guarantees, alarm, antifurto, intrusion detection, safety or protection claims.
@@ -121,11 +122,10 @@ control surface by this ADR.
 ## 2. Decision
 
 ```text
-Proposed decision:
+Decision:
 
 Select one HLK-LD2410C-class 24 GHz presence-radar module as the reference
-MVP technology for local, non-identifying room presence, subject only to
-explicit Project Owner acceptance of this Proposed ADR.
+MVP technology for local, non-identifying room presence.
 
 Authorize only a current boolean presence state across the product/event
 boundary. Keep detailed radar telemetry local to controlled diagnostics.
@@ -140,9 +140,9 @@ GPIO/UART wiring remains IHAP-50. GPIO OUT is not a blocking decision test when
 the reviewed UART path is sufficient. Quantitative current, rail and autonomy
 remain IHAP-49.
 
-This proposed decision does not accept itself. The physical decision evidence
-is complete and specialist review records no blocker or major finding.
-Acceptance remains pending only at the Project Owner decision gate.
+The Project Owner accepted this decision on 2026-09-01 after the physical gate
+and specialist review completed with no blocker or major finding. Merge and
+Jira closure remain separate workflow gates.
 
 ---
 
@@ -252,5 +252,5 @@ authority remains with the Project Owner.
 [x] No alarm, antifurto, intrusion-detection, safety, occupancy-guarantee or protection claim is introduced.
 [x] Residual stationary, release and adjacent-space physical gate reviewed.
 [x] Final specialist review records BLOCKER 0 / MAJOR 0.
-[ ] Explicit Project Owner acceptance or rejection recorded.
+[x] Explicit Project Owner acceptance recorded on 2026-09-01.
 ```

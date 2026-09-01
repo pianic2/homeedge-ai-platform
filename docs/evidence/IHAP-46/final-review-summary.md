@@ -2,7 +2,7 @@
 
 **Issue:** [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46)  
 **PR:** [#25](https://github.com/pianic2/homeedge-ai-platform/pull/25)  
-**Decision state:** evidence complete; Project Owner decision pending; ADR-0005 remains `Proposed`
+**Decision state:** accepted by the Project Owner on 2026-09-01; merge pending
 
 ## Recommendation
 
@@ -71,8 +71,8 @@ count, behavioral profiles, persistent raw radar, individual room history,
 occupancy guarantees, alarm, antifurto, intrusion-detection, safety and
 protection claims remain prohibited.
 
-## Project Owner decision gate
+## Project Owner decision
 
-The evidence supports the proposed selection. ADR-0005 must remain `Proposed`,
-PR #25 must remain unmerged, and Jira must remain `In corso` until the Project
-Owner explicitly accepts or rejects the decision.
+The Project Owner accepted the LD2410C selection on 2026-09-01. ADR-0005 is
+`Accepted`. PR #25 remains unmerged and Jira remains `In corso` until merge is
+confirmed and the post-merge source-of-truth checks are complete.
