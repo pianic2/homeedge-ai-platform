@@ -1,0 +1,57 @@
+{
+  "schema_version": "1.0.0",
+  "issue": "IHAP-47",
+  "evidence_id": "IHAP47-MC38-A-01",
+  "source_session": "20260901T113516Z",
+  "evidence_class": "observed-owned-specimen",
+  "review_state": "reviewed-pending-project-owner-decision",
+  "specimen_id": "MC38-A",
+  "mapping": {
+    "magnet_far": {
+      "raw_level": 1,
+      "circuit_state": "open"
+    },
+    "magnet_near": {
+      "raw_level": 0,
+      "circuit_state": "closed"
+    }
+  },
+  "cycle_test": {
+    "complete_cycles": 20,
+    "stable_movements": 40,
+    "mismatches": 0,
+    "buffer_overflows": 0,
+    "movements_with_multiple_raw_transitions": 0,
+    "sample_period_us": 250,
+    "stable_window_ms": 150,
+    "result": "PASS"
+  },
+  "failure_modes": {
+    "one_conductor_disconnected_raw_level": 1,
+    "gpio_to_ground_raw_level": 0,
+    "open_vs_disconnected_distinguishable": false,
+    "result": "PASS"
+  },
+  "internal_pull_up_bench_adequate": true,
+  "decision_gate": "PASS",
+  "supported_claims": [
+    "The tested owned specimen has deterministic FAR=open/raw 1 and NEAR=closed/raw 0 behavior in the temporary bench topology.",
+    "Twenty complete near/far cycles completed with 40 stable movements, zero mismatches and zero buffer overflows.",
+    "No movement produced more than one raw transition at the 250 us harness sampling resolution.",
+    "A disconnected contact conductor produces the same raw HIGH state as an open contact in the tested two-wire pull-up topology.",
+    "The ESP32-C3 internal pull-up was adequate for this temporary bench session."
+  ],
+  "limitations": [
+    "Applies only to specimen MC38-A and the recorded bench session.",
+    "Does not establish universal MC-38/DC-38 specifications or replacement equivalence.",
+    "Does not establish production reliability or oscilloscope-grade bounce timing.",
+    "Does not distinguish legitimate open contact from disconnected wire or other failed-open conditions.",
+    "Does not freeze final GPIO, debounce, pull network, cable, protection, power budget or mounting geometry.",
+    "Does not support alarm, tamper, intrusion-detection, antifurto, access-control, safety or certification claims."
+  ],
+  "raw_logs": {
+    "serial_log_preserved_locally": true,
+    "records_jsonl_preserved_locally": true,
+    "committed_to_repository": false
+  }
+}
