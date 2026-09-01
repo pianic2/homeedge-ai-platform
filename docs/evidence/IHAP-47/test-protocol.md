@@ -1,322 +1,295 @@
-# IHAP-47 — Reproducible MC-38 Physical Test Protocol
+# IHAP-47 — Lean Automated MC-38 Physical Test Protocol
 
 **Issue:** [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47)  
 **Protocol state:** Ready for Project Owner execution  
-**Physical execution state:** Not started  
-**Scope:** qualify owned wired magnetic contacts for binary door-state telemetry only
+**Scope:** qualify an owned passive wired magnetic contact for binary door-state telemetry only
 
-## 1. Objective
+## 1. Principle
 
-Determine, for identified owned specimens and a controlled geometry:
+IHAP-47 validates a technology decision, not a mounting system or a production electrical design.
 
-- magnet-near and magnet-far electrical behavior;
-- unambiguous reed-form interpretation;
-- observed pull-in and drop-out distances;
-- alignment sensitivity;
-- raw transition behavior and bounce;
-- repeated-cycle consistency;
-- disconnected-wire and short-to-ground behavior;
-- whether the internal pull-up is sufficient for the temporary bench setup.
+The default procedure must therefore minimize operator effort and maximize automatic evidence capture.
 
-The protocol does not validate final wiring, power consumption, autonomy, enclosure, mounting adhesive, access control, tamper detection or alarm behavior.
+Normal execution requires the operator to:
 
-## 2. Required Equipment
+- place the magnet FAR or NEAR when prompted;
+- move the magnet back and forth during the automated cycle test;
+- perform two explicit failure-mode wiring changes.
+
+The operator does **not** manually type JSON observations, individual `snapshot` commands, cycle identifiers or repeated measurements.
+
+## 2. Decision question
+
+The test answers only:
+
+> Is the tested owned passive wired reed-contact specimen suitable for MVP binary electrical door-state telemetry using the temporary ESP32-C3 bench topology?
+
+It does not validate:
+
+- final mounting geometry;
+- universal MC-38 specifications;
+- production reliability;
+- final GPIO or pull network;
+- power consumption or autonomy;
+- tamper detection;
+- alarm, intrusion-detection, antifurto or access-control behavior.
+
+## 3. Required equipment
 
 Minimum:
 
-- two owned MC-38 / DC-38 contact-and-magnet pairs when available;
+- one identified owned contact-and-magnet pair, e.g. `MC38-A`;
 - ESP32-C3 board accepted by ADR-0001;
-- PC USB data cable;
-- digital multimeter with continuity or resistance mode;
-- breadboard or secure temporary terminals;
-- jumper wires;
-- metric ruler with 1 mm resolution, preferably a caliper;
-- non-ferromagnetic alignment surface;
-- camera or phone for evidence photographs.
+- USB data cable;
+- secure temporary wiring;
+- PC with ESP-IDF and Python environment.
 
-Optional:
+Optional diagnostic equipment:
 
-- 10 kOhm external pull-up resistor for comparison;
-- logic analyzer or oscilloscope for independent bounce timing;
-- removable tape for the measurement fixture.
+- multimeter;
+- ruler or caliper;
+- logic analyzer or oscilloscope.
 
-The optional instruments improve evidence quality but do not authorize power, rail or alarm-grade claims.
+Optional instruments may be used to investigate anomalies but are not mandatory decision gates.
 
-## 3. Specimen Identification
-
-Assign stable local identifiers before testing:
-
-- `MC38-A`;
-- `MC38-B`.
-
-Do not use seller claims as specimen facts.
-
-Record for each specimen:
-
-- visible text and markings;
-- sensor-body dimensions;
-- magnet-body dimensions;
-- cable length;
-- visible cable or housing differences;
-- whether the sensor and magnet were supplied as a pair.
-
-Take the photographs listed in the evidence manifest before electrical testing.
-
-## 4. Safety and Scope Checks
-
-- Disconnect the ESP32-C3 before using continuity or resistance mode.
-- Do not apply mains voltage or an external contact load.
-- Use ESP32-C3 3.3 V GPIO logic only.
-- Do not measure current, rail regulation or battery autonomy in this task.
-- Do not mount the sensor permanently.
-- Do not interpret any result as security, alarm, antifurto, access-control, intrusion-detection or tamper evidence.
-
-## 5. Test A — Passive Continuity and Reed Form
-
-### Procedure
-
-For each specimen:
-
-1. Disconnect it from all electronics.
-2. Place the multimeter across the two contact wires.
-3. Keep the paired magnet at least 100 mm away.
-4. Record resistance or continuity as `open`, `closed` or `unstable`.
-5. Bring the magnet into direct, repeatable side-by-side alignment without forcing the housings together.
-6. Record resistance or continuity again.
-7. Repeat the far/near cycle ten times.
-8. Reverse magnet orientation and repeat two cycles as an observation only.
-
-### Interpretation
-
-Use component terminology, not door-installation shorthand:
-
-| Magnet far | Magnet near | Inferred behavior |
-|---|---|---|
-| Open | Closed | Form A / normally open relative to magnetic actuation |
-| Closed | Open | Form B / normally closed relative to magnetic actuation |
-| Other or unstable | Other or unstable | Do not classify; stop and investigate |
-
-### Pass gate
-
-- all ten cycles for a specimen produce the same far and near states;
-- at least one specimen can be classified unambiguously;
-- disagreement between specimens is reported, not averaged away.
-
-A commercial listing that calls a sensor `NC` does not override the observed reed-form test.
-
-## 6. Test B — Pull-In and Drop-Out Distance
-
-### Fixture
-
-- Keep sensor and magnet long axes parallel.
-- Fix the sensor.
-- Move only the magnet along a marked straight line.
-- Define `0 mm` as the closest repeatable non-forced housing position.
-- Use the same reference faces for all repetitions.
-- Keep ferromagnetic objects away from the fixture.
-
-### Procedure
-
-For each specimen:
-
-1. Start with the magnet far enough that the electrical circuit is in the magnet-far state.
-2. Move the magnet toward the sensor slowly.
-3. Record the distance at the first stable transition: `pull_in_mm`.
-4. Continue to the near position.
-5. Move the magnet away slowly.
-6. Record the distance at the first stable release: `drop_out_mm`.
-7. Repeat ten times.
-
-### Reporting
-
-Report:
-
-- minimum;
-- maximum;
-- median;
-- all individual values;
-- measurement tool resolution;
-- fixture photograph;
-- any hesitation or unstable zone.
-
-Do not report a universal MC-38 operating gap. The result applies only to the tested specimen and geometry.
-
-## 7. Test C — Alignment Sensitivity
-
-Test at a conservative near distance derived from Test B, not at the observed transition threshold.
-
-For each specimen, move the magnet while retaining parallel orientation:
-
-- lateral offset in 1 mm increments;
-- vertical offset in 1 mm increments;
-- optional rotation observations at 15 degree increments.
-
-Record the last stable position and the first unstable or released position.
-
-This test informs IHAP-51. It does not choose the final mounting margin.
-
-## 8. Test D — Bench GPIO Mapping
-
-Temporary wiring:
+## 4. Bench topology
 
 ```text
-ESP32-C3 GPIO6 ---- contact ---- GND
+ESP32-C3 GPIO6 ---- passive contact ---- GND
         |
         +---- internal pull-up enabled by test firmware
 ```
 
-GPIO6 is a test-harness default inherited from historical prototype evidence. It is not the final IHAP-50 pin decision.
+Expected temporary bench mapping:
 
-### Procedure
+- electrical open -> raw `1`;
+- electrical closed -> raw `0`.
 
-1. Flash the IHAP-47 harness.
-2. Start the local capture script.
-3. Send `snapshot` with magnet far.
-4. Send `snapshot` with magnet near.
-5. Confirm:
-   - open electrical circuit -> raw level `1`;
-   - closed electrical circuit -> raw level `0`.
-6. Repeat for both specimens.
+GPIO6 is test-only. IHAP-50 owns the final pin and integrated circuit.
 
-### Stop condition
+## 5. Default execution
 
-Stop if the GPIO is floating, unstable or does not match the passive continuity result.
+Build and flash from `tools/hardware-validation/ihap-47-door-state-sensor/firmware/` when needed:
 
-## 9. Test E — Raw Transition and Bounce Capture
-
-The harness records raw level transitions during a bounded capture window. It does not claim oscilloscope-grade timing.
-
-For each specimen and direction:
-
-1. Send `begin BOUNCE_OPEN_TO_CLOSED MC38-A`.
-2. Move the magnet once from the stable far position to the stable near position.
-3. Wait one second.
-4. Send `end`.
-5. Repeat ten times.
-6. Repeat ten times for `BOUNCE_CLOSED_TO_OPEN`.
-
-Record:
-
-- raw transition count;
-- timestamp of each transition;
-- total interval from first to final transition;
-- final stable level;
-- whether buffer overflow occurred.
-
-When a logic analyzer is available, capture the same transition independently and state the instrument and sampling rate.
-
-### Debounce decision rule
-
-Do not predeclare a production interval. After the observations:
-
-- report the maximum observed transition interval;
-- propose a stable-state debounce interval with explicit engineering margin;
-- keep the proposed interval `[UNVALIDATED]` until the repeated-cycle test passes with it.
-
-The historical three-read majority method is not accepted automatically.
-
-## 10. Test F — Repeated Cycle Consistency
-
-For each specimen:
-
-1. Use the observed conservative near and far positions.
-2. Execute 50 complete near/far cycles.
-3. Capture one stable snapshot after every movement.
-4. Record expected and observed raw levels.
-5. Do not discard failed or ambiguous cycles.
-
-Minimum decision input:
-
-- cycle count;
-- mismatches;
-- unstable readings;
-- missed transitions;
-- repeated transitions after debounce simulation.
-
-A zero-mismatch result supports the tested session only. It does not establish production reliability.
-
-## 11. Test G — Failure-Mode Observations
-
-With the ESP32-C3 and capture running, record these controlled cases:
-
-| Case | Expected electrical result under pull-up topology |
-|---|---|
-| Contact circuit open | `HIGH` |
-| One contact conductor disconnected | `HIGH` |
-| Magnet removed or far | Depends on Test A; expected open circuit for the historical candidate topology |
-| Contact conductors shorted together / GPIO connected to GND | `LOW` |
-| Boot with contact circuit open | Internal state must remain uninitialized until first stable sample, then `HIGH` |
-| Boot with contact circuit closed | Internal state must remain uninitialized until first stable sample, then `LOW` |
-
-Use only low-voltage bench wiring. Never short a supply rail.
-
-Required conclusion:
-
-> Under a simple two-wire pull-up topology, a legitimate open circuit and several fault conditions are electrically indistinguishable.
-
-If the Project Owner requires fault distinction, stop. A supervised loop is a scope and architecture change.
-
-## 12. Test H — Internal Pull-Up Adequacy
-
-The ESP32-C3 datasheet describes the internal pull-up as weak and gives a typical value around 45 kOhm. The exact value varies and the final cable is not selected.
-
-For the temporary bench wiring:
-
-1. run the repeated-cycle test with internal pull-up only;
-2. note any unstable raw levels;
-3. optionally repeat with a 10 kOhm external pull-up to 3.3 V;
-4. label the external resistor test as a comparison, not the final circuit.
-
-No final pull decision is made by this protocol. IHAP-50 owns the integrated circuit after cable and connector constraints are known. IHAP-49 owns the quantitative closed-loop current impact.
-
-## 13. Local Data Files
-
-The capture workflow creates local files under `output/<session-id>/`:
-
-- `serial.log` — complete local serial capture;
-- `records.jsonl` — parsed firmware records;
-- `operator-observations.jsonl` — manual observations entered by the operator;
-- `session.json` — local execution metadata;
-- `summary.json` — sanitized machine-readable summary;
-- `report.html` — standalone human-readable report.
-
-Repository policy:
-
-- do not commit `serial.log`;
-- do not commit raw `records.jsonl`;
-- review and sanitize `summary.json` and `report.html` before publication;
-- remove MAC addresses, private paths and unrelated logs;
-- commit only evidence required to support the decision.
-
-## 14. Result Review Gate
-
-The physical handoff is complete only when:
-
-```text
-[ ] At least one specimen has repeatable magnet-far and magnet-near behavior.
-[ ] Preferably two owned specimens were compared.
-[ ] Reed form is reported from observation, not seller wording.
-[ ] Pull-in and drop-out distributions are recorded.
-[ ] Alignment geometry and measurement resolution are recorded.
-[ ] Raw transition captures exist in both directions.
-[ ] Repeated-cycle mismatches are reported without filtering.
-[ ] Disconnect and short-to-ground observations are recorded.
-[ ] Open-door and open-circuit ambiguity is explicitly accepted or escalated.
-[ ] No tamper, alarm, access-control or reliability claim is introduced.
-[ ] Raw logs remain local and only sanitized summaries are proposed for GitHub.
+```bash
+idf.py set-target esp32c3
+idf.py build
+idf.py -p /dev/ttyACM0 flash
 ```
 
-## 15. Mandatory Stop Conditions
+Then, from the harness root, run:
 
-Stop and request a decision when:
+```bash
+python scripts/guided_run.py \
+  --port /dev/ttyACM0 \
+  --specimen MC38-A
+```
 
-- specimens disagree on reed behavior;
-- a specimen is unstable at a conservative near position;
-- the activation envelope is impractical for the expected door geometry;
-- the harness buffer overflows repeatedly;
-- the contact produces unexplained transitions without movement;
-- the internal pull-up is unstable and an external circuit must be frozen;
-- a `FAULT`, `UNKNOWN` or tamper state is requested in the external contract;
-- wire supervision is requested;
-- an alternative sensor technology becomes necessary;
-- final power, wiring or mounting work would be pulled into IHAP-47.
+Default execution uses **20 complete near/far cycles**.
+
+No manual JSON entry is part of the normal protocol.
+
+## 6. Gate A — FAR/NEAR electrical mapping
+
+The guided runner requests three setup actions:
+
+1. place magnet FAR, at least approximately 100 mm away;
+2. place magnet NEAR and aligned;
+3. return magnet FAR before automated cycling.
+
+The runner captures firmware snapshots automatically.
+
+### Pass gate
+
+For the historical candidate topology:
+
+- FAR -> raw `1` / electrical open;
+- NEAR -> raw `0` / electrical closed;
+- return FAR -> raw `1`.
+
+This supports Form A / normally-open behavior relative to magnetic actuation for the tested specimen.
+
+A seller label such as `NC` does not override observed component behavior.
+
+## 7. Gate B — Automated repeated-cycle and raw-transition test
+
+The runner performs the instrumentation and bookkeeping.
+
+For each complete cycle:
+
+1. it starts a bounded raw capture while the magnet is FAR;
+2. it prompts the operator to move the magnet NEAR;
+3. it polls firmware state until the target level remains stable for the configured stable window;
+4. it ends the bounded capture and records all raw transitions;
+5. it immediately starts the reverse bounded capture;
+6. it prompts the operator to move the magnet FAR;
+7. it waits for a stable FAR state and ends the capture;
+8. it increments the cycle automatically.
+
+The operator only moves the magnet when prompted.
+
+Default parameters:
+
+- complete cycles: `20`;
+- stable window: `150 ms`;
+- host status poll interval: `50 ms`;
+- firmware raw sampling period: `250 us`.
+
+### Automatically recorded
+
+For every movement:
+
+- initial level;
+- expected target level;
+- final level;
+- raw transition count;
+- raw transition span when multiple transitions occur;
+- buffer overflow state;
+- pass/fail of the stable movement.
+
+For the complete run:
+
+- completed cycles;
+- mismatches;
+- buffer overflows;
+- number of movements with multiple raw transitions;
+- maximum observed raw-transition span.
+
+### Pass gate
+
+- all requested complete cycles finish;
+- every stable movement ends at the requested target state;
+- no unexplained timeout occurs;
+- no buffer overflow occurs.
+
+Multiple raw transitions do not automatically fail the sensor decision. They are retained as bounce evidence and inform IHAP-50 debounce work.
+
+A clean single-transition result means only that no additional transition was observed at the harness sampling resolution.
+
+## 8. Gate C — Failure-mode observation
+
+After automated cycling the runner requests only two controlled setup changes.
+
+### C1 — disconnected conductor
+
+With the contact expected closed, disconnect one contact conductor.
+
+Expected under the simple pull-up topology:
+
+```text
+raw level = 1
+```
+
+This demonstrates that an open contact and an interrupted conductor are electrically indistinguishable.
+
+### C2 — GPIO to GND bench check
+
+Reconnect the sensor and temporarily connect GPIO6 to GND using only the low-voltage bench wiring.
+
+Expected:
+
+```text
+raw level = 0
+```
+
+Never short a supply rail.
+
+### Required conclusion
+
+> Under a simple two-wire pull-up topology, a legitimate open circuit and several wiring/fault conditions are electrically indistinguishable.
+
+If fault distinction or wire supervision becomes a requirement, stop: that is an architecture change outside IHAP-47.
+
+## 9. Internal pull-up bench adequacy
+
+No separate repetitive pull-up test is required.
+
+For IHAP-47 the temporary internal pull-up is considered adequate for the bench session when:
+
+- FAR and NEAR mapping are stable;
+- all automated cycles complete without unexplained mismatch;
+- no spontaneous unstable state prevents the stable-state gate.
+
+The final pull-network decision remains IHAP-50. Quantitative power impact remains IHAP-49.
+
+## 10. Measurements deliberately removed from the blocking gate
+
+Repeated pull-in/drop-out distance and alignment sweeps are **not blocking IHAP-47 evidence**.
+
+Reason:
+
+- operating gap and mounting margin are mechanical integration properties;
+- the final enclosure, door geometry and cable route are not frozen here;
+- repeated manual millimetre entry does not materially improve the sensor-technology decision.
+
+These measurements belong to **IHAP-51 — mounting/integration** when the actual geometry is available.
+
+A single rough gap or alignment observation may be retained as optional context, but it must not force repeated manual data entry or block the IHAP-47 decision.
+
+## 11. Boot-state and production-debounce checks
+
+Boot initialization semantics, final debounce interval, final GPIO and final pull network are implementation concerns owned by IHAP-50.
+
+IHAP-47 may retain observed raw-transition data for that handoff, but it does not require repeated boot-state execution as a sensor-selection gate.
+
+## 12. Evidence files
+
+The guided runner creates one local session under:
+
+```text
+output/<session-id>/
+```
+
+Expected files:
+
+- `serial.log` — complete local serial evidence;
+- `records.jsonl` — parsed firmware records;
+- `operator-observations.jsonl` — runner-generated observations;
+- `session.json` — execution metadata;
+- `guided-result.json` — machine-readable final guided result;
+- `summary.json` — generated summary after successful execution;
+- `report.html` — generated human-readable report after successful execution.
+
+### Preservation rule
+
+Do not delete raw session files before the task is closed.
+
+`serial.log` and `records.jsonl` remain local and are not committed to GitHub.
+
+Only reviewed, sanitized, decision-relevant artifacts may be copied into `docs/evidence/IHAP-47/`.
+
+## 13. Stop conditions
+
+Stop and investigate only when:
+
+- FAR/NEAR mapping does not match passive continuity behavior;
+- the sensor cannot reach a stable requested state;
+- repeated movements produce unexplained mismatches;
+- buffer overflow occurs;
+- transitions occur persistently without physical movement;
+- specimens materially disagree if a second specimen is tested;
+- fault distinction, wire supervision or a security state is requested;
+- final power, wiring or mounting decisions are being pulled into IHAP-47.
+
+## 14. Result review gate
+
+Physical evidence is sufficient for IHAP-47 review when:
+
+```text
+[ ] At least one owned specimen has deterministic FAR/NEAR behavior.
+[ ] Automated repeated cycling completed with all mismatches reported.
+[ ] Raw transition behavior was captured automatically.
+[ ] Buffer overflow status is known.
+[ ] Disconnected-conductor ambiguity is demonstrated and accepted or escalated.
+[ ] Temporary internal pull-up was stable for the bench session.
+[ ] No alarm, tamper, intrusion, access-control or universal reliability claim is introduced.
+[ ] Raw logs remain local and preserved until task closure.
+```
+
+A second specimen is useful for confidence but is not mandatory unless the first specimen is anomalous or the Project Owner explicitly requires cross-specimen qualification.
+
+## 15. Manual diagnostic mode
+
+`scripts/capture_serial.py` and direct firmware commands remain available for troubleshooting only.
+
+They are not the normal validation workflow. Manual `@observe` JSON entry is not required for a standard IHAP-47 run.
