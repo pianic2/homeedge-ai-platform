@@ -26,7 +26,7 @@ AI_AGENT_METADATA:
   final_interconnect_issue: IHAP-50
   final_mounting_issue: IHAP-51
   definitive_bom_issue: IHAP-17
-  residual_physical_gate: pending
+  residual_physical_gate: completed
   unvalidated_claim_marker: "[UNVALIDATED]"
 
 HIDDEN_ANTI_REGRESSION_RULES:
@@ -77,18 +77,29 @@ The owned specimen is visibly marked `HLK-LD2410C` and `V1.1`. A receive-only
 laboratory path was tested with LD2410C TX connected to ESP32-C3 GPIO5 at
 256000 baud. LD2410C RX and OUT remained disconnected.
 
-Reviewed evidence currently establishes:
+Reviewed evidence establishes for the owned specimen and tested setups:
 
 - `EMPTY-02`: 300.007 s, 3,001 samples, presence ratio 0.000, zero invalid radar frames;
 - strict `ENTER-02`: 6,535 valid UART samples, zero invalid radar frames and ten valid clear preconditions;
 - strict `ENTER-02`: all ten repetitions eventually reported presence, with presence ratios from 0.917 to 0.993;
 - strict `ENTER-02`: 7/10 repetitions met the original 2,000 ms operational-onset threshold.
+- `STILL-02`: 300.008 s with 3,000/3,000 presence samples and zero invalid radar frames;
+- corrected `EXIT-04`: eventual release in both clean repetitions, but both failed the original 10,000 ms operational release gate at 18,506 ms and 18,754 ms from `START NOW`;
+- `ADJ-CLOSED-01`: zero presence in 1,200 samples over 120.009 s on the tested external corridor path;
+- `ADJ-OPEN-01`: zero presence in 1,200 samples over 120.010 s on the same path, with the door open about 30 degrees and the threshold never crossed.
 
 The operational onset includes operator reaction and travel. It is not isolated
 radar-processing latency. Three threshold failures remain recorded as failures.
 
-Stationary presence, release after exit and adjacent-space behavior remain
-`[UNVALIDATED]` until the lean residual physical gate is executed and reviewed.
+The exit measurement includes normal operator travel and door closing. The
+operator estimated that at about 5–7 seconds; no machine marker exists at door
+closure, so the estimate is not subtracted. The two clean failures characterize
+an operational release limitation rather than isolated radar-processing delay.
+
+The adjacent-space results are limited to the stated path, placement, door
+conditions and owned specimen. They do not establish universal immunity through
+walls or doorways. The lean physical gate is complete; no further physical run
+is required for this decision.
 
 ### 1.2 Capability and data boundary
 
@@ -112,9 +123,9 @@ control surface by this ADR.
 ```text
 Proposed decision:
 
-Use one HLK-LD2410C-class 24 GHz presence-radar module as the reference
-MVP technology for local, non-identifying room presence, subject to the
-remaining lean physical gate and explicit Project Owner acceptance.
+Select one HLK-LD2410C-class 24 GHz presence-radar module as the reference
+MVP technology for local, non-identifying room presence, subject only to
+explicit Project Owner acceptance of this Proposed ADR.
 
 Authorize only a current boolean presence state across the product/event
 boundary. Keep detailed radar telemetry local to controlled diagnostics.
@@ -129,9 +140,9 @@ GPIO/UART wiring remains IHAP-50. GPIO OUT is not a blocking decision test when
 the reviewed UART path is sufficient. Quantitative current, rail and autonomy
 remain IHAP-49.
 
-This proposed decision does not yet accept the sensor. Acceptance remains
-blocked by the stationary, release and adjacent-space evidence and by the
-Project Owner decision gate.
+This proposed decision does not accept itself. The physical decision evidence
+is complete and specialist review records no blocker or major finding.
+Acceptance remains pending only at the Project Owner decision gate.
 
 ---
 
@@ -140,8 +151,8 @@ Project Owner decision gate.
 | Criterion | LD2410C | Conventional PIR | No presence sensor |
 |---|---|---|---|
 | Moving presence | Demonstrated on the owned specimen, with recorded onset limitations | Technology is intended for motion/change detection; no identified owned specimen was qualified | Not available |
-| Stationary presence | Technology capability claimed by primary source; owned-specimen gate still `[UNVALIDATED]` | Weak fit for a current-presence state because the sensing principle depends on infrared change | Not available |
-| Adjacent-space behavior | Configurable but susceptible to placement/range sensitivity; physical gate pending | Optical field of view can be constrained; exact module/lens behavior remains `[UNVALIDATED]` | No false presence because no signal exists |
+| Stationary presence | Demonstrated for 300 seconds on the owned specimen | Weak fit for a current-presence state because the sensing principle depends on infrared change | Not available |
+| Adjacent-space behavior | No detection on the tested 120-second corridor path with the door closed or open about 30 degrees; other placements remain `[UNVALIDATED]` | Optical field of view can be constrained; exact module/lens behavior remains `[UNVALIDATED]` | No false presence because no signal exists |
 | Complexity | 5 V module supply plus UART/GPIO choices and configuration surface | Typically simpler digital motion output | Lowest |
 | Power | Qualitatively higher and continuously active; quantitative evidence belongs to IHAP-49 | Qualitatively lower for common low-power PIR classes; exact candidate not costed/tested | Zero |
 | ESP32-C3 integration | Receive-only UART physically demonstrated; final pinout pending IHAP-50 | Simple GPIO direction, but no physical comparison specimen | None |
@@ -149,7 +160,7 @@ Project Owner decision gate.
 | Cost evidence | EUR 4.39 acquired unit cost; dated official listing USD 4.98; replacement equivalence `[UNVALIDATED]` | Exact candidate cost `[UNVALIDATED]` | Zero |
 | Replacement | Manufacturer family is listed; PCB/seller/lot equivalence remains `[UNVALIDATED]` | Broad technology availability, but no controlled candidate profile is selected | Not applicable |
 | Testability | Structured UART supports automated acquisition and limitation analysis | GPIO is simple but provides less diagnostic evidence | No sensing behavior to test |
-| Product fit | Best candidate if stationary and boundary gates pass | Suitable for motion-trigger use, not sufficient evidence for the intended current-presence state | Conflicts with the current Product Vision presence capability |
+| Product fit | Best fit: stationary presence is demonstrated and the boolean-only boundary is defined; onset/release limitations are explicit | Suitable for motion-trigger use, not sufficient for the intended current-presence state | Conflicts with the current Product Vision presence capability |
 
 No additional sensor technology is introduced because none changes the current
 decision with proportionate evidence.
@@ -173,6 +184,8 @@ decision with proportionate evidence.
 - richer UART diagnostics increase privacy and logging exposure if boundaries are not enforced;
 - adjacent-space detections may require placement and sensitivity constraints;
 - 3/10 strict entry repetitions exceeded the original 2,000 ms operational threshold;
+- both clean corrected exit repetitions exceeded the original 10,000 ms operational release threshold;
+- adjacent-space evidence covers only the tested path and does not guarantee immunity in other layouts;
 - one tested specimen does not prove seller, lot or population-wide equivalence;
 - exact replacement availability, landed price and revision continuity can change;
 - no occupancy, safety, alarm, antifurto, intrusion-detection or protection guarantee is created.
@@ -204,7 +217,6 @@ authority remains with the Project Owner.
 
 | Item | Tracking |
 |---|---|
-| Execute and review the four residual scenarios | IHAP-46 / PR #25 |
 | Quantify voltage/current/rail/autonomy impact | IHAP-49 |
 | Freeze UART/GPIO path, pins, connectors and protection | IHAP-50 |
 | Define placement, range constraint, mounting and enclosure | IHAP-51 |
@@ -238,7 +250,7 @@ authority remains with the Project Owner.
 [x] Power, wiring, mounting and BOM ownership remain in their existing tasks.
 [x] Existing physical failures and limitations are preserved without threshold rewriting.
 [x] No alarm, antifurto, intrusion-detection, safety, occupancy-guarantee or protection claim is introduced.
-[ ] Residual stationary, release and adjacent-space physical gate reviewed.
-[ ] Final specialist review records BLOCKER 0 / MAJOR 0.
+[x] Residual stationary, release and adjacent-space physical gate reviewed.
+[x] Final specialist review records BLOCKER 0 / MAJOR 0.
 [ ] Explicit Project Owner acceptance or rejection recorded.
 ```

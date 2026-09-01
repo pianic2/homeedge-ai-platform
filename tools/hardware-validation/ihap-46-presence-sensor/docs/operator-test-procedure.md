@@ -159,12 +159,12 @@ The preview must display:
 - duration and repetitions;
 - invalidation conditions.
 
-## 8. Execute the residual decision scenarios
+## 8. Reproduce a decision scenario only when justified
 
-`EMPTY-02` and strict `ENTER-02` are already reviewed evidence. Do not repeat
-them without a new evidence-driven reason.
+The IHAP-46 physical campaign is complete. Do not repeat a reviewed scenario
+without a new evidence-driven reason.
 
-Run the remaining scenarios one at a time, beginning with stationary presence:
+If reproduction is explicitly required, run one scenario at a time:
 
 ```bash
 python host/guided_run_strict.py \
@@ -224,9 +224,9 @@ Any deliberate or accidental delay after the signal contaminates the metric
 and invalidates the threshold result; retain the run as procedure evidence and
 use a new run ID.
 
-## 11. Execution order
+## 11. Retained residual-plan order
 
-The only remaining decision-gate sequence is:
+The completed decision-gate sequence, retained for reproducibility, is:
 
 1. `SEATED_STILL` — 300 seconds, one repetition;
 2. `EXIT_CLEAR` — 60 seconds, three automatically counted repetitions;

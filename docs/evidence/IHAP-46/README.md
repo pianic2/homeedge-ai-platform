@@ -14,7 +14,7 @@ AI_AGENT_METADATA:
   original_files_committed: false
   published_files_sanitized: true
   upload_status: published
-  physical_test_evidence_status: partial_decision_evidence
+  physical_test_evidence_status: complete_for_decision_gate
   transformations:
     - crop
     - jpeg_reencode
@@ -116,14 +116,18 @@ The physical run checkpoint is recorded in:
 - [`reviewed-runs.md`](reviewed-runs.md) — human-readable interpretation;
 - [`existing-run-summary.json`](existing-run-summary.json) — machine-readable aggregate facts;
 - [`replacement-sourcing.md`](replacement-sourcing.md) — acquisition, inventory, reference quantity and dated replacement snapshot.
+- [`final-review-summary.md`](final-review-summary.md) — cross-functional review and Project Owner decision gate.
 
-Current reviewed evidence establishes:
+Current reviewed evidence establishes for the owned specimen and tested setups:
 
-- a working receive-only 256000-baud UART path for the owned specimen;
-- one 300-second controlled empty-room run with zero reported presence and zero invalid radar frames;
-- strict moving-entry acquisition with valid clear preconditions for all ten repetitions and zero invalid radar frames;
-- eventual presence during all ten strict entry repetitions, while three exceeded the original 2000 ms operational threshold.
+- a stable receive-only 256000-baud UART path with zero invalid radar frames in accepted intervals;
+- one 300-second controlled empty-room run with zero reported presence;
+- eventual presence during all ten strict entries, while three exceeded the original 2000 ms operational threshold;
+- stationary presence for 300 seconds with 3,000/3,000 presence samples;
+- eventual release after exit, while both clean corrected repetitions exceeded the original 10-second operational gate;
+- zero reported presence during the tested 120-second adjacent corridor path with the door closed;
+- zero reported presence during the same tested path with the door open about 30 degrees and the threshold never crossed.
 
-It does not yet establish stationary-presence retention, release after exit, or
-adjacent-space behavior. Those three decision gaps remain `[UNVALIDATED]` and
-are the only required physical scenarios in the lean residual plan.
+The lean physical campaign is complete for the decision gate. These results do
+not create an occupancy guarantee, a universal adjacent-space immunity claim or
+equivalence across sellers, revisions, lots or replacement modules.

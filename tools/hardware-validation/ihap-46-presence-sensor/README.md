@@ -152,14 +152,14 @@ python host/guided_run_strict.py \
   --scenario SEATED_STILL
 ```
 
-## Current residual decision gate
+## Retained lean decision plan
 
-The reviewed `EMPTY-02` and strict `ENTER-02` runs already cover the controlled
-empty-room observation, moving-person detection, UART acquisition quality, and
-entry precondition integrity. Do not repeat them merely because they were part
-of the original matrix.
+The physical decision campaign is complete. Reviewed evidence covers controlled
+empty-room, moving-person, stationary-person, release and adjacent-path behavior.
+Do not repeat any scenario without a new evidence-driven reason.
 
-Only these scenarios remain required by the canonical plan:
+These were the four residual scenarios and remain in the canonical plan only
+for exact reproducibility:
 
 | Scenario | Duration × repetitions | Decision question |
 |---|---:|---|
@@ -168,7 +168,7 @@ Only these scenarios remain required by the canonical plan:
 | `ADJACENT_DOOR_CLOSED` | 120 s × 1 | Does closed-door adjacent movement remain outside the room state? |
 | `ADJACENT_DOOR_OPEN` | 120 s × 1 | What limitation appears with an open doorway? |
 
-Total controlled acquisition time is 12 minutes. The runner performs
+Their total controlled acquisition time is 12 minutes. The runner performs
 precondition gates, timestamps, repetition counting, classification,
 aggregation, and report generation automatically.
 
@@ -250,8 +250,7 @@ The digital-output consistency scenario requires both:
 
 Do not enable `ld2410c_out` until the output logic level is verified. GPIO OUT,
 PIR comparison hardware, reboot endurance, full placement sweeps, and
-interference characterization are not required when the residual decision gate
-is sufficient.
+interference characterization are not required for the IHAP-46 decision gate.
 
 ## Evidence produced by each run
 

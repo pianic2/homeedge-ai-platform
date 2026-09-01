@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "issue": "IHAP-46",
   "title": "Presence Sensor Decision — LD2410C vs PIR Alternatives",
-  "decision_state": "lean residual decision gate after reviewed EMPTY-02 and ENTER-02 evidence; sensor decision remains UNVALIDATED",
+  "decision_state": "physical campaign complete; plan retained for reproducibility; Project Owner decision pending",
   "production_data_boundary": {
     "allowed": ["presence_detected"],
     "laboratory_only": [
