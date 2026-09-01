@@ -104,14 +104,14 @@ The generated HTML report was reviewed but is not published because the reviewed
 | E-IHAP47-R01 | `IHAP47-MC38-A-01/run-record.md` | Human-readable reviewed physical run and claim boundary | Reviewed | `711ffa5ab799c31af1910d22deec273679608bbe1629f583d8373ae52aceaa04` |
 | E-IHAP47-R02 | `IHAP47-MC38-A-01/summary.json` | Machine-readable reviewed decision summary | Reviewed | `63fcad134fe0c97b2ee1247f4678f77c3635a7f2d28f3eea6f187146c12a4b5d` |
 
-### 5.1 Supplied photograph evidence awaiting repository binary copy
+### 5.1 Published photograph evidence
 
-The Project Owner supplied two photographs on 2026-09-01. Sanitization review found no EXIF metadata and no visible account, order, address, device identifier or sensitive private-room information.
+The Project Owner supplied two photographs on 2026-09-01. Sanitization review found no EXIF metadata and no visible account, order, address, device identifier or sensitive private-room information. Repository copies were verified after publication; their SHA-256 values match the reviewed source files.
 
-| Evidence ID | Intended repository artifact | Supports | Current state | Source SHA-256 |
+| Evidence ID | Repository artifact | Supports | State | SHA-256 |
 |---|---|---|---|---|
-| E-IHAP47-P01 | `IHAP47-MC38-A-01/photo-overview.jpg` | Visible owned sensor/magnet pair and wired sensor housing | Supplied; repository binary copy pending | `c52db2c54c42e8f82ea034b63360c70103963365c196129d0e8035babc23d4dd` |
-| E-IHAP47-P02 | `IHAP47-MC38-A-01/photo-mounting.jpg` | Visible sensor housing, paired magnet and mounting openings/geometry | Supplied; repository binary copy pending | `7739c9b5ab223a8d959d84329c51ddd3ccdfae87085337fa8363446f6ae2ca0d` |
+| E-IHAP47-P01 | [`IHAP47-MC38-A-01/photo-overview.jpg`](IHAP47-MC38-A-01/photo-overview.jpg) | Visible owned sensor/magnet pair and wired sensor housing | Reviewed / Published | `c52db2c54c42e8f82ea034b63360c70103963365c196129d0e8035babc23d4dd` |
+| E-IHAP47-P02 | [`IHAP47-MC38-A-01/photo-mounting.jpg`](IHAP47-MC38-A-01/photo-mounting.jpg) | Visible sensor housing, paired magnet and mounting openings/geometry | Reviewed / Published | `7739c9b5ab223a8d959d84329c51ddd3ccdfae87085337fa8363446f6ae2ca0d` |
 
 The photographs do **not** prove supplier, manufacturer, commercial listing, exact reed internals or replacement equivalence. No readable controlled manufacturer marking is established by these images.
 
