@@ -1,7 +1,8 @@
 # ADR-0003 — MVP Door State Sensor
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-07-16  
+**Accepted:** 2026-09-01  
 **Last evidence review:** 2026-09-01  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47)  
@@ -15,15 +16,16 @@ AI_AGENT_METADATA:
   decision_scope: mvp_door_state_sensor_technology
   issue: IHAP-47
   parent_issue: IHAP-43
-  status: Proposed
+  status: Accepted
   approval_authority: project_owner
-  approval_recorded: false
+  approval_recorded: true
+  approval_date: 2026-09-01
   source_of_truth: github_versioned_repository_documentation
   candidate_sensor_class: passive_wired_magnetic_reed_contact
   tested_owned_specimen: MC38-A
   reviewed_evidence_id: IHAP47-MC38-A-01
   owned_specimen_physical_gate: PASS
-  project_owner_acceptance: pending
+  project_owner_acceptance: accepted_2026-09-01
   observed_far_state: open_raw_1
   observed_near_state: closed_raw_0
   observed_reed_form: form_a_normally_open_relative_to_magnetic_actuation
@@ -43,7 +45,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Do not define final GPIO, cable, connector, external pull resistor, protection or production debounce; those belong to IHAP-50.
   - Do not infer measured current or autonomy; those belong to IHAP-49.
   - Do not define final mounting gap, alignment margin, adhesive, bracket or enclosure; those belong to IHAP-51.
-  - Do not change status to Accepted until the Project Owner explicitly records the decision.
+  - Preserve the Project Owner acceptance recorded on 2026-09-01 unless a later ADR supersedes this decision.
 -->
 
 ---
@@ -60,7 +62,7 @@ The owned candidate is sold under the generic `MC-38` / `DC-38` label. That labe
 
 | Candidate | Power at sensor | Interface | Main benefit | Main limitation | MVP disposition |
 |---|---:|---|---|---|---|
-| Packaged wired magnetic reed contact | None | Two conductors + GPIO | Passive, simple, contactless, already owned | Generic commercial variants are not controlled | **Preferred** |
+| Packaged wired magnetic reed contact | None | Two conductors + GPIO | Passive, simple, contactless, already owned | Generic commercial variants are not controlled | **Accepted** |
 | Bare reed switch + selected magnet | None | Two conductors + GPIO | Controllable component choice | Requires custom protection/packaging | Deferred fallback |
 | Digital Hall sensor | Active supply | Supply + ground + digital output | Semiconductor output, no reed contact | Adds powered electronics and integration complexity | Rejected for primary MVP |
 | Mechanical microswitch | None | Two/three conductors + GPIO | Controlled industrial parts available | Requires mechanical actuation, force and travel | Rejected for primary MVP |
@@ -110,8 +112,8 @@ No additional transition was observed in the 40 movements at the `250 us` harnes
 Use passive, wired, two-conductor magnetic reed-contact technology
 as the MVP door-state sensor class.
 
-MC38-A has passed the owned-specimen physical decision gate and is the
-proposed local MVP reference specimen, pending explicit Project Owner acceptance.
+MC38-A passed the owned-specimen physical decision gate and is accepted
+as the tested local MVP reference specimen.
 
 Do not treat the generic MC-38/DC-38 commercial label as a controlled
 replacement specification.
@@ -138,7 +140,7 @@ The following remain outside this ADR:
 - tamper or supervised-loop behavior;
 - controlled replacement SKU and cross-lot equivalence.
 
-The ADR remains `Proposed` until the Project Owner explicitly accepts or rejects the decision.
+The Project Owner explicitly accepted this decision on 2026-09-01.
 
 ---
 
@@ -146,7 +148,7 @@ The ADR remains `Proposed` until the Project Owner explicitly accepts or rejects
 
 | Alternative | Outcome | Reason |
 |---|---|---|
-| Owned packaged MC38-A reed contact | **Physical gate PASS; proposed local reference** | Passive, deterministic in reviewed bench evidence, already owned, proportionate to binary telemetry |
+| Owned packaged MC38-A reed contact | **Accepted local tested reference** | Passive, deterministic in reviewed bench evidence, already owned, proportionate to binary telemetry |
 | Controlled packaged reed contact with manufacturer P/N | Deferred fallback | Use if replacement reproducibility becomes necessary |
 | Bare reed + separate magnet | Deferred | Adds packaging/protection work |
 | Digital Hall sensor | Rejected primary | Active supply and additional design complexity without demonstrated MVP need |
@@ -238,7 +240,7 @@ Repeated gap/alignment sweeps are not an IHAP-47 acceptance gate. They belong to
 [x] Mounting geometry deferred to IHAP-51.
 [x] No production/security/alarm/tamper/access-control claim introduced.
 [x] R-004 remains open and authoritative.
-[ ] Project Owner decision explicitly recorded before status becomes Accepted.
+[x] Project Owner acceptance recorded on 2026-09-01.
 ```
 
-Physical evidence is complete for the IHAP-47 technology decision. The remaining gate is the explicit Project Owner decision.
+ADR-0003 is Accepted. MC38-A is the tested local reference specimen; generic MC-38/DC-38 replacement equivalence remains `[UNVALIDATED]`.
