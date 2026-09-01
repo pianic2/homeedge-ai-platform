@@ -36,6 +36,34 @@ class PlanTests(unittest.TestCase):
         errors = ihap46.validate_plan(invalid)
         self.assertTrue(any("between 0 and 1" in error for error in errors))
 
+    def test_negative_transition_threshold_is_rejected(self) -> None:
+        invalid = copy.deepcopy(self.plan)
+        invalid["scenarios"][0]["expected"]["ld2410c_uart"]["max_clear_ms"] = -1
+        errors = ihap46.validate_plan(invalid)
+        self.assertTrue(any("max_clear_ms must be >= 0" in error for error in errors))
+
+    def test_invalid_required_start_state_is_rejected(self) -> None:
+        invalid = copy.deepcopy(self.plan)
+        invalid["scenarios"][0]["required_start_state"] = "unknown"
+        errors = ihap46.validate_plan(invalid)
+        self.assertTrue(any("required_start_state" in error for error in errors))
+
+    def test_default_plan_contains_only_residual_decision_scenarios(self) -> None:
+        required = {
+            scenario["id"]
+            for scenario in self.plan["scenarios"]
+            if scenario.get("required", True)
+        }
+        self.assertEqual(
+            {
+                "SEATED_STILL",
+                "EXIT_CLEAR",
+                "ADJACENT_DOOR_CLOSED",
+                "ADJACENT_DOOR_OPEN",
+            },
+            required,
+        )
+
 
 class ParsingTests(unittest.TestCase):
     def test_decode_json_record_ignores_boot_noise(self) -> None:
@@ -112,6 +140,48 @@ class AnalysisTests(unittest.TestCase):
         result = ihap46.evaluate_interval(interval, [], self.plan["scenarios"][0])
         self.assertEqual("FAIL", result["status"])
         self.assertIn("no samples", result["sensors"]["ld2410c_uart"]["failures"])
+
+    def test_clear_latency_is_measured_and_enforced(self) -> None:
+        scenario = {
+            "id": "EXIT_CLEAR",
+            "title": "fixture clear",
+            "required": True,
+            "duration_s": 10,
+            "repetitions": 1,
+            "ground_truth": "empty",
+            "door_state": "closed",
+            "expected_transition": "occupied_to_empty",
+            "instructions": "fixture",
+            "expected": {
+                "ld2410c_uart": {
+                    "max_presence_ratio": 0.4,
+                    "max_clear_ms": 3_000,
+                }
+            },
+        }
+        interval = ihap46.ScenarioInterval(
+            scenario_id="EXIT_CLEAR",
+            repetition=1,
+            start_ms=1_000,
+            end_ms=11_000,
+            ground_truth="empty",
+            door_state="closed",
+            note="",
+        )
+        records = [
+            {
+                "received_at_epoch_ms": 1_000 + index * 1_000,
+                "source": {
+                    "record_type": "sample",
+                    "ld2410c": {"uart_presence": index < 2},
+                },
+            }
+            for index in range(10)
+        ]
+        result = ihap46.evaluate_interval(interval, records, scenario)
+        metrics = result["sensors"]["ld2410c_uart"]
+        self.assertEqual("PASS", result["status"])
+        self.assertEqual(2_000, metrics["first_false_latency_ms"])
 
     def test_end_without_start_is_reported(self) -> None:
         intervals, warnings = ihap46.build_intervals(

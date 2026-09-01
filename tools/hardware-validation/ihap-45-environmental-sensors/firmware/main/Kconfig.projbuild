@@ -1,0 +1,47 @@
+menu "IHAP-45 validation harness"
+
+config IHAP45_DHT11_GPIO
+    int "DHT11 data GPIO"
+    range 0 21
+    default 3
+
+config IHAP45_DHT22_GPIO
+    int "DHT22 data GPIO"
+    range 0 21
+    default 4
+
+config IHAP45_I2C_SDA_GPIO
+    int "BME280 I2C SDA GPIO"
+    range 0 21
+    default 5
+
+config IHAP45_I2C_SCL_GPIO
+    int "BME280 I2C SCL GPIO"
+    range 0 21
+    default 6
+
+config IHAP45_SAMPLE_INTERVAL_MS
+    int "Batch interval in milliseconds"
+    range 2000 60000
+    default 5000
+
+config IHAP45_I2C_FREQUENCY_HZ
+    int "I2C clock frequency"
+    range 10000 400000
+    default 100000
+
+config IHAP45_I2C_INTERNAL_PULLUPS
+    bool "Enable ESP32-C3 internal I2C pull-ups"
+    default n
+    help
+        Keep disabled for the initial breakout qualification. External/module
+        pull-ups should be verified. Enable only as an explicit diagnostic step.
+
+config IHAP45_DHT_INTERNAL_PULLUPS
+    bool "Enable ESP32-C3 internal DHT pull-ups"
+    default n
+    help
+        The photographed DHT breakouts contain passive components. Keep this
+        disabled unless the module pull-up is proven absent.
+
+endmenu

@@ -144,7 +144,7 @@ python -m venv .venv
 source .venv/bin/activate
 python -m pip install -r host/requirements.txt
 python -m unittest discover -s tests -v
-python host/guided_run.py --dry-run
+python host/guided_run_strict.py --dry-run
 ```
 
 The preview must display:
@@ -159,17 +159,19 @@ The preview must display:
 - duration and repetitions;
 - invalidation conditions.
 
-## 8. Execute the smoke run
+## 8. Execute the residual decision scenarios
+
+`EMPTY-02` and strict `ENTER-02` are already reviewed evidence. Do not repeat
+them without a new evidence-driven reason.
+
+Run the remaining scenarios one at a time, beginning with stationary presence:
 
 ```bash
-python host/guided_run.py \
+python host/guided_run_strict.py \
   --port /dev/ttyACM0 \
-  --run-id IHAP46-LD2410C-SMOKE-01 \
+  --run-id IHAP46-LD2410C-STILL-01 \
   --sensor ld2410c_uart \
-  --scenario ROOM_EMPTY_BASELINE \
-  --scenario ENTER_ROOM \
-  --scenario SEATED_STILL \
-  --scenario EXIT_CLEAR
+  --scenario SEATED_STILL
 ```
 
 Enter stable operator, sensor, and board IDs.
@@ -218,35 +220,21 @@ The runtime reads the detailed instructions from `config/operator-actions.json` 
 
 ## 11. Execution order
 
-### Stage A — electrical and data path
+The only remaining decision-gate sequence is:
 
-- build;
-- flash;
-- pre-flight;
-- `ROOM_EMPTY_BASELINE`;
-- `ENTER_ROOM`;
-- `EXIT_CLEAR`.
+1. `SEATED_STILL` — 300 seconds, one repetition;
+2. `EXIT_CLEAR` — 60 seconds, three automatically counted repetitions;
+3. `ADJACENT_DOOR_CLOSED` — 120 seconds, one repetition;
+4. `ADJACENT_DOOR_OPEN` — 120 seconds, one repetition.
 
-Stop and inspect evidence after any boot failure, invalid UART frame pattern, repeated disconnect, or unexplained reset.
+Stop and inspect the generated `results.json` after every scenario. Do not
+continue after a boot failure, invalid UART frame pattern, repeated disconnect,
+unexplained reset, invalid precondition, or operator-declared invalidating event.
 
-### Stage B — presence behavior
-
-- `MOVING_LATERAL`;
-- `MOVING_APPROACH`;
-- `SEATED_STILL`;
-- `MICRO_MOVEMENT`.
-
-### Stage C — room boundaries
-
-- `ADJACENT_DOOR_CLOSED`;
-- `ADJACENT_DOOR_OPEN`;
-- `WALL_MOVEMENT`, when physically applicable.
-
-### Stage D — robustness and interfaces
-
-- `NON_HUMAN_INTERFERENCE`, when physically applicable;
-- `REBOOT_PERSISTENCE`;
-- `DIGITAL_UART_CONSISTENCY`, only after output-level verification.
+The original movement variants, wall/interference characterization, reboot
+endurance, GPIO OUT consistency, and physical PIR comparison remain optional.
+They are not required to close the LD2410C-versus-PIR-versus-no-sensor decision
+when the residual evidence is sufficient.
 
 ## 12. Evidence acceptance gate
 

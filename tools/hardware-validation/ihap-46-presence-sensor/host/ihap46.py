@@ -41,6 +41,7 @@ GROUND_TRUTH_VALUES = {
 }
 DOOR_VALUES = {"open", "closed", "unknown"}
 PHASE_VALUES = {"start", "end", "point"}
+START_STATE_VALUES = {"clear", "occupied"}
 
 
 class HarnessError(RuntimeError):
@@ -130,6 +131,11 @@ def validate_plan(plan: Mapping[str, Any]) -> list[str]:
             errors.append(f"{prefix}.ground_truth must be one of {sorted(GROUND_TRUTH_VALUES)}")
         if scenario.get("door_state") not in DOOR_VALUES:
             errors.append(f"{prefix}.door_state must be one of {sorted(DOOR_VALUES)}")
+        start_state = scenario.get("required_start_state")
+        if start_state is not None and start_state not in START_STATE_VALUES:
+            errors.append(
+                f"{prefix}.required_start_state must be one of {sorted(START_STATE_VALUES)}"
+            )
         for numeric_field in ("duration_s", "repetitions"):
             value = scenario.get(numeric_field)
             if not isinstance(value, (int, float)) or value <= 0:
@@ -150,6 +156,11 @@ def validate_plan(plan: Mapping[str, Any]) -> list[str]:
                     threshold = rule[key]
                     if not isinstance(threshold, (int, float)) or not 0 <= threshold <= 1:
                         errors.append(f"{prefix}.expected.{sensor_id}.{key} must be between 0 and 1")
+            for key in ("max_onset_ms", "max_clear_ms"):
+                if key in rule:
+                    threshold = rule[key]
+                    if not isinstance(threshold, (int, float)) or threshold < 0:
+                        errors.append(f"{prefix}.expected.{sensor_id}.{key} must be >= 0")
     return errors
 
 
@@ -270,6 +281,18 @@ def first_true_latency_ms(records: Sequence[Mapping[str, Any]], interval: Scenar
     return None
 
 
+def first_false_latency_ms(records: Sequence[Mapping[str, Any]], interval: ScenarioInterval, sensor_id: str) -> int | None:
+    """Return elapsed time to the first reported clear state in an interval."""
+
+    for record in records:
+        source = record.get("source")
+        if not isinstance(source, Mapping):
+            continue
+        if normalize_sensor_value(source, sensor_id) is False:
+            return max(0, int(record["received_at_epoch_ms"]) - interval.start_ms)
+    return None
+
+
 def evaluate_interval(interval: ScenarioInterval, records: Sequence[Mapping[str, Any]], scenario: Mapping[str, Any]) -> dict[str, Any]:
     sensors: dict[str, Any] = {}
     for sensor_id, rule in scenario["expected"].items():
@@ -299,11 +322,21 @@ def evaluate_interval(interval: ScenarioInterval, records: Sequence[Mapping[str,
                 failures.append("no positive onset")
             elif latency > int(max_onset_ms):
                 failures.append(f"onset {latency} ms > {int(max_onset_ms)} ms")
+        clear_latency = first_false_latency_ms(records, interval, sensor_id)
+        max_clear_ms = rule.get("max_clear_ms")
+        if max_clear_ms is not None:
+            if clear_latency is None:
+                failures.append("no clear transition")
+            elif clear_latency > int(max_clear_ms):
+                failures.append(
+                    f"clear {clear_latency} ms > {int(max_clear_ms)} ms"
+                )
         sensors[sensor_id] = {
             "sample_count": len(values),
             "presence_count": sum(values),
             "presence_ratio": presence_ratio,
             "first_true_latency_ms": latency,
+            "first_false_latency_ms": clear_latency,
             "status": "PASS" if not failures else "FAIL",
             "failures": failures,
         }
@@ -333,6 +366,7 @@ def summarize_results(interval_results: Sequence[Mapping[str, Any]]) -> dict[str
                 "failed": 0,
                 "presence_ratios": [],
                 "onset_latencies_ms": [],
+                "clear_latencies_ms": [],
             })
             entry["intervals"] += 1
             if metrics["status"] == "PASS":
@@ -345,12 +379,17 @@ def summarize_results(interval_results: Sequence[Mapping[str, Any]]) -> dict[str
             latency = metrics.get("first_true_latency_ms")
             if isinstance(latency, int):
                 entry["onset_latencies_ms"].append(latency)
+            clear_latency = metrics.get("first_false_latency_ms")
+            if isinstance(clear_latency, int):
+                entry["clear_latencies_ms"].append(clear_latency)
 
     for entry in sensor_rollup.values():
         ratios = entry.pop("presence_ratios")
         latencies = entry.pop("onset_latencies_ms")
+        clear_latencies = entry.pop("clear_latencies_ms")
         entry["mean_presence_ratio"] = statistics.fmean(ratios) if ratios else None
         entry["median_onset_latency_ms"] = statistics.median(latencies) if latencies else None
+        entry["median_clear_latency_ms"] = statistics.median(clear_latencies) if clear_latencies else None
         entry["status"] = "PASS" if entry["failed"] == 0 and entry["intervals"] else "FAIL"
 
     return {
@@ -403,6 +442,7 @@ def render_report(results: Mapping[str, Any], output_path: Path) -> None:
             ratio = metrics.get("presence_ratio")
             ratio_text = "—" if ratio is None else f"{ratio:.3f}"
             latency = metrics.get("first_true_latency_ms")
+            clear_latency = metrics.get("first_false_latency_ms")
             rows.append(
                 "<tr>"
                 f"<td>{html.escape(interval['scenario_id'])}</td>"
@@ -412,6 +452,7 @@ def render_report(results: Mapping[str, Any], output_path: Path) -> None:
                 f"<td>{metrics['sample_count']}</td>"
                 f"<td>{ratio_text}</td>"
                 f"<td>{'—' if latency is None else latency}</td>"
+                f"<td>{'—' if clear_latency is None else clear_latency}</td>"
                 f"<td><span class='status {metrics['status'].lower()}'>{metrics['status']}</span></td>"
                 f"<td>{html.escape('; '.join(metrics['failures']))}</td>"
                 "</tr>"
@@ -455,7 +496,7 @@ code {{ background:#111827; padding:.15rem .35rem; border-radius:4px; }}
 <h2>Presence ratio by interval</h2><canvas id="chart" width="1100" height="260"></canvas>
 <h2>Results</h2>
 <div class="controls"><label>Sensor <select id="sensorFilter"><option value="">all</option></select></label><label>Scenario <input id="scenarioFilter" placeholder="filter"></label></div>
-<div style="overflow:auto"><table id="resultsTable"><thead><tr><th>Scenario</th><th>Rep</th><th>Sensor</th><th>Ground truth</th><th>Samples</th><th>Presence ratio</th><th>Onset ms</th><th>Status</th><th>Failures</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
+<div style="overflow:auto"><table id="resultsTable"><thead><tr><th>Scenario</th><th>Rep</th><th>Sensor</th><th>Ground truth</th><th>Samples</th><th>Presence ratio</th><th>Onset ms</th><th>Clear ms</th><th>Status</th><th>Failures</th></tr></thead><tbody>{''.join(rows)}</tbody></table></div>
 <h2>Warnings</h2><ul>{warning_items or '<li>None</li>'}</ul>
 <script id="ihap46-data" type="application/json">{json_for_script(results)}</script>
 <script>

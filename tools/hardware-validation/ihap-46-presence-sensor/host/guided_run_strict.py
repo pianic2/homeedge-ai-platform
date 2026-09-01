@@ -69,6 +69,29 @@ def selected_transition_sensor_ids(
     return tuple(str(sensor_id) for sensor_id in selected if str(sensor_id) in expected_ids)
 
 
+def selected_start_state_sensor_ids(
+    run_dir: Path,
+    scenario: Mapping[str, Any],
+    state: str,
+) -> tuple[str, ...]:
+    """Return selected channels for an explicit non-transition start gate."""
+
+    if scenario.get("required_start_state") != state:
+        return ()
+    expected = scenario.get("expected", {})
+    if not isinstance(expected, Mapping):
+        return ()
+    expected_ids = {str(sensor_id) for sensor_id in expected}
+    try:
+        run = ihap46.load_json(run_dir / "run.json")
+    except ihap46.HarnessError:
+        run = {}
+    selected = run.get("selected_sensor_channels") if isinstance(run, Mapping) else None
+    if not isinstance(selected, list):
+        selected = list(expected_ids)
+    return tuple(str(sensor_id) for sensor_id in selected if str(sensor_id) in expected_ids)
+
+
 def clear_start_snapshot(
     run_dir: Path,
     sensor_ids: Sequence[str],
@@ -420,50 +443,67 @@ def strict_run_interval(
     offset_channels = selected_transition_sensor_ids(
         run_dir, scenario, "occupied_to_empty"
     )
+    clear_start_channels = selected_start_state_sensor_ids(run_dir, scenario, "clear")
+    occupied_start_channels = selected_start_state_sensor_ids(
+        run_dir, scenario, "occupied"
+    )
     while True:
-        if onset_channels:
+        if onset_channels or clear_start_channels:
             wait_for_clear_start(
                 run_dir,
                 scenario,
                 repetition,
-                onset_channels,
+                onset_channels or clear_start_channels,
             )
-        if offset_channels:
+        if offset_channels or occupied_start_channels:
             wait_for_occupied_start(
                 run_dir,
                 scenario,
                 repetition,
-                offset_channels,
+                offset_channels or occupied_start_channels,
             )
 
         base.action_countdown()
 
         countdown_valid = True
-        if onset_channels:
-            countdown_valid = countdown_finished_clear(run_dir, onset_channels)
-        if offset_channels:
-            countdown_valid = countdown_valid and countdown_finished_occupied(
-                run_dir, offset_channels
+        if onset_channels or clear_start_channels:
+            countdown_valid = countdown_finished_clear(
+                run_dir, onset_channels or clear_start_channels
             )
-        if not onset_channels and not offset_channels:
+        if offset_channels or occupied_start_channels:
+            countdown_valid = countdown_valid and countdown_finished_occupied(
+                run_dir, offset_channels or occupied_start_channels
+            )
+        if not (
+            onset_channels
+            or offset_channels
+            or clear_start_channels
+            or occupied_start_channels
+        ):
             countdown_valid = True
         if countdown_valid:
             break
 
-        transition_prefix = "onset" if onset_channels else "offset"
+        clear_precondition = bool(onset_channels or clear_start_channels)
+        transition_prefix = "onset" if clear_precondition else "offset"
         ihap46.record_capture_event(
             run_dir,
             f"{transition_prefix}_countdown_restarted",
             scenario_id=scenario["id"],
             repetition=repetition,
-            sensor_channels=list(onset_channels or offset_channels),
+            sensor_channels=list(
+                onset_channels
+                or clear_start_channels
+                or offset_channels
+                or occupied_start_channels
+            ),
             reason=(
                 "presence returned before the start marker"
-                if onset_channels
+                if clear_precondition
                 else "presence cleared before the start marker"
             ),
         )
-        if onset_channels:
+        if clear_precondition:
             print("\n[COUNTDOWN CANCELLED]", flush=True)
             print("Presence returned before START.", flush=True)
             print("DO NOT ENTER.", flush=True)
@@ -555,7 +595,7 @@ def apply_onset_integrity(
     records: Sequence[Mapping[str, Any]],
     plan: Mapping[str, Any],
 ) -> dict[str, Any]:
-    """Reject latency metrics without a fresh clear pre-start observation."""
+    """Reject transition latency metrics without a fresh valid precondition."""
 
     updated = copy.deepcopy(dict(results))
     scenarios = ihap46.scenario_index(plan)
@@ -563,14 +603,15 @@ def apply_onset_integrity(
         records,
         key=lambda record: int(record.get("received_at_epoch_ms", 0)),
     )
-    invalid_count = 0
+    invalid_onset_count = 0
+    invalid_clear_count = 0
 
     for interval in updated.get("intervals", []):
         scenario = scenarios.get(str(interval.get("scenario_id")), {})
         expected = scenario.get("expected", {})
         for sensor_id, metrics in interval.get("sensors", {}).items():
             rule = expected.get(sensor_id, {}) if isinstance(expected, Mapping) else {}
-            if not isinstance(rule, Mapping) or "max_onset_ms" not in rule:
+            if not isinstance(rule, Mapping):
                 continue
 
             pre_start_value, sample_age_ms = latest_pre_start_value(
@@ -580,28 +621,47 @@ def apply_onset_integrity(
             )
             metrics["pre_start_presence"] = pre_start_value
             metrics["pre_start_sample_age_ms"] = sample_age_ms
-            metrics["onset_integrity"] = (
-                "PASS" if pre_start_value is False else "FAIL"
-            )
+            if "max_onset_ms" in rule:
+                metrics["onset_integrity"] = (
+                    "PASS" if pre_start_value is False else "FAIL"
+                )
+                if pre_start_value is not False:
+                    invalid_onset_count += 1
+                    raw_latency = metrics.get("first_true_latency_ms")
+                    metrics["raw_first_true_latency_ms"] = raw_latency
+                    metrics["first_true_latency_ms"] = None
+                    reason = (
+                        "onset invalid: sensor was already present immediately before "
+                        "the interval start"
+                        if pre_start_value is True
+                        else "onset invalid: no fresh pre-start sensor sample"
+                    )
+                    failures = list(metrics.get("failures", []))
+                    if reason not in failures:
+                        failures.append(reason)
+                    metrics["failures"] = failures
+                    metrics["status"] = "FAIL"
 
-            if pre_start_value is False:
-                continue
-
-            invalid_count += 1
-            raw_latency = metrics.get("first_true_latency_ms")
-            metrics["raw_first_true_latency_ms"] = raw_latency
-            metrics["first_true_latency_ms"] = None
-            reason = (
-                "onset invalid: sensor was already present immediately before "
-                "the interval start"
-                if pre_start_value is True
-                else "onset invalid: no fresh pre-start sensor sample"
-            )
-            failures = list(metrics.get("failures", []))
-            if reason not in failures:
-                failures.append(reason)
-            metrics["failures"] = failures
-            metrics["status"] = "FAIL"
+            if "max_clear_ms" in rule:
+                metrics["clear_integrity"] = (
+                    "PASS" if pre_start_value is True else "FAIL"
+                )
+                if pre_start_value is not True:
+                    invalid_clear_count += 1
+                    raw_latency = metrics.get("first_false_latency_ms")
+                    metrics["raw_first_false_latency_ms"] = raw_latency
+                    metrics["first_false_latency_ms"] = None
+                    reason = (
+                        "clear invalid: sensor was already clear immediately before "
+                        "the interval start"
+                        if pre_start_value is False
+                        else "clear invalid: no fresh pre-start sensor sample"
+                    )
+                    failures = list(metrics.get("failures", []))
+                    if reason not in failures:
+                        failures.append(reason)
+                    metrics["failures"] = failures
+                    metrics["status"] = "FAIL"
 
         sensors = interval.get("sensors", {})
         interval["status"] = (
@@ -612,9 +672,14 @@ def apply_onset_integrity(
 
     updated["summary"] = ihap46.summarize_results(updated.get("intervals", []))
     warnings = list(updated.get("warnings", []))
-    if invalid_count:
+    if invalid_onset_count:
         warnings.append(
-            f"Rejected {invalid_count} onset interval(s) without a fresh clear "
+            f"Rejected {invalid_onset_count} onset interval(s) without a fresh clear "
+            "pre-start observation"
+        )
+    if invalid_clear_count:
+        warnings.append(
+            f"Rejected {invalid_clear_count} clear interval(s) without a fresh occupied "
             "pre-start observation"
         )
     updated["warnings"] = warnings

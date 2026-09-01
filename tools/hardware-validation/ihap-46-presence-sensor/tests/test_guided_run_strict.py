@@ -182,6 +182,28 @@ class StrictGuidedRunTests(unittest.TestCase):
 
         self.assertEqual(("ld2410c_uart",), channels)
 
+    def test_selected_start_state_channels_are_limited_to_run_selection(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            run_dir = Path(directory)
+            ihap46.write_json(
+                run_dir / "run.json",
+                {"selected_sensor_channels": ["ld2410c_uart"]},
+            )
+            scenario = {
+                "id": "SEATED_STILL",
+                "required_start_state": "occupied",
+                "expected": {
+                    "ld2410c_uart": {},
+                    "ld2410c_out": {},
+                    "pir_out": {},
+                },
+            }
+            channels = strict.selected_start_state_sensor_ids(
+                run_dir, scenario, "occupied"
+            )
+
+        self.assertEqual(("ld2410c_uart",), channels)
+
     def test_clear_gate_lifecycle_events_use_selected_channels(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             run_dir = Path(directory)
@@ -377,6 +399,130 @@ class StrictGuidedRunTests(unittest.TestCase):
         self.assertEqual("PASS", metrics["status"])
         self.assertEqual(False, metrics["pre_start_presence"])
         self.assertEqual(650, metrics["first_true_latency_ms"])
+        self.assertEqual("PASS", updated["summary"]["status"])
+
+    def test_clear_integrity_rejects_preexisting_clear_state(self) -> None:
+        plan = {
+            "schema_version": "1.0.0",
+            "issue": "IHAP-46",
+            "scenarios": [
+                {
+                    "id": "EXIT_CLEAR",
+                    "title": "Exit",
+                    "duration_s": 60,
+                    "repetitions": 1,
+                    "ground_truth": "empty",
+                    "door_state": "closed",
+                    "expected": {
+                        "ld2410c_uart": {
+                            "max_presence_ratio": 0.25,
+                            "max_clear_ms": 10_000,
+                        }
+                    },
+                }
+            ],
+        }
+        results = {
+            "warnings": [],
+            "summary": {},
+            "intervals": [
+                {
+                    "scenario_id": "EXIT_CLEAR",
+                    "repetition": 1,
+                    "start_epoch_ms": 10_000,
+                    "sensors": {
+                        "ld2410c_uart": {
+                            "sample_count": 600,
+                            "presence_count": 0,
+                            "presence_ratio": 0.0,
+                            "first_true_latency_ms": None,
+                            "first_false_latency_ms": 0,
+                            "status": "PASS",
+                            "failures": [],
+                        }
+                    },
+                    "status": "PASS",
+                }
+            ],
+        }
+        records = [
+            {
+                "received_at_epoch_ms": 9_950,
+                "source": {
+                    "record_type": "sample",
+                    "ld2410c": {"uart_presence": False},
+                },
+            }
+        ]
+
+        updated = strict.apply_onset_integrity(results, records, plan)
+        metrics = updated["intervals"][0]["sensors"]["ld2410c_uart"]
+
+        self.assertEqual("FAIL", metrics["status"])
+        self.assertIsNone(metrics["first_false_latency_ms"])
+        self.assertEqual(0, metrics["raw_first_false_latency_ms"])
+        self.assertEqual("FAIL", updated["summary"]["status"])
+
+    def test_clear_integrity_accepts_fresh_occupied_precondition(self) -> None:
+        plan = {
+            "schema_version": "1.0.0",
+            "issue": "IHAP-46",
+            "scenarios": [
+                {
+                    "id": "EXIT_CLEAR",
+                    "title": "Exit",
+                    "duration_s": 60,
+                    "repetitions": 1,
+                    "ground_truth": "empty",
+                    "door_state": "closed",
+                    "expected": {
+                        "ld2410c_uart": {
+                            "max_presence_ratio": 0.25,
+                            "max_clear_ms": 10_000,
+                        }
+                    },
+                }
+            ],
+        }
+        results = {
+            "warnings": [],
+            "summary": {},
+            "intervals": [
+                {
+                    "scenario_id": "EXIT_CLEAR",
+                    "repetition": 1,
+                    "start_epoch_ms": 10_000,
+                    "sensors": {
+                        "ld2410c_uart": {
+                            "sample_count": 600,
+                            "presence_count": 20,
+                            "presence_ratio": 0.033,
+                            "first_true_latency_ms": 0,
+                            "first_false_latency_ms": 2_000,
+                            "status": "PASS",
+                            "failures": [],
+                        }
+                    },
+                    "status": "PASS",
+                }
+            ],
+        }
+        records = [
+            {
+                "received_at_epoch_ms": 9_950,
+                "source": {
+                    "record_type": "sample",
+                    "ld2410c": {"uart_presence": True},
+                },
+            }
+        ]
+
+        updated = strict.apply_onset_integrity(results, records, plan)
+        metrics = updated["intervals"][0]["sensors"]["ld2410c_uart"]
+
+        self.assertEqual("PASS", metrics["status"])
+        self.assertEqual(True, metrics["pre_start_presence"])
+        self.assertEqual(2_000, metrics["first_false_latency_ms"])
         self.assertEqual("PASS", updated["summary"]["status"])
 
 

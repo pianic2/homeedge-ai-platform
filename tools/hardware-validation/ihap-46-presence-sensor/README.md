@@ -12,7 +12,7 @@ AI_AGENT_METADATA:
   artifact_role: reproducible_physical_test_harness
   human_entrypoint: README.md
   detailed_human_procedure: docs/operator-test-procedure.md
-  runtime_entrypoint: host/guided_run.py
+  runtime_entrypoint: host/guided_run_strict.py
   numerical_test_plan: config/test-plan.json
   operator_action_source: config/operator-actions.json
   default_environment_source: config/default-environment.json
@@ -138,36 +138,49 @@ python -m pip install -r host/requirements.txt
 python -m unittest discover -s tests -v
 ```
 
-Preview the default environment and operator actions without opening the serial port:
+Preview the default environment and residual operator actions without opening the serial port:
 
 ```bash
-python host/guided_run.py --dry-run
+python host/guided_run_strict.py --dry-run
 ```
 
-Preview only the initial smoke scenarios:
+Preview one scenario before physical execution:
 
 ```bash
-python host/guided_run.py \
+python host/guided_run_strict.py \
   --dry-run \
-  --scenario ROOM_EMPTY_BASELINE \
-  --scenario ENTER_ROOM \
-  --scenario SEATED_STILL \
-  --scenario EXIT_CLEAR
+  --scenario SEATED_STILL
 ```
 
-## Execute the first real smoke run
+## Current residual decision gate
 
-Mount the sensor in the documented default position before starting the room scenarios.
+The reviewed `EMPTY-02` and strict `ENTER-02` runs already cover the controlled
+empty-room observation, moving-person detection, UART acquisition quality, and
+entry precondition integrity. Do not repeat them merely because they were part
+of the original matrix.
+
+Only these scenarios remain required by the canonical plan:
+
+| Scenario | Duration × repetitions | Decision question |
+|---|---:|---|
+| `SEATED_STILL` | 300 s × 1 | Does the owned specimen retain substantially stationary presence? |
+| `EXIT_CLEAR` | 60 s × 3 | Does it return to clear within 10 s after a valid occupied start? |
+| `ADJACENT_DOOR_CLOSED` | 120 s × 1 | Does closed-door adjacent movement remain outside the room state? |
+| `ADJACENT_DOOR_OPEN` | 120 s × 1 | What limitation appears with an open doorway? |
+
+Total controlled acquisition time is 12 minutes. The runner performs
+precondition gates, timestamps, repetition counting, classification,
+aggregation, and report generation automatically.
+
+Mount the sensor in the documented position before starting. Execute one
+scenario at a time so each result can be reviewed before proceeding:
 
 ```bash
-python host/guided_run.py \
+python host/guided_run_strict.py \
   --port /dev/ttyACM0 \
-  --run-id IHAP46-LD2410C-SMOKE-01 \
+  --run-id IHAP46-LD2410C-STILL-01 \
   --sensor ld2410c_uart \
-  --scenario ROOM_EMPTY_BASELINE \
-  --scenario ENTER_ROOM \
-  --scenario SEATED_STILL \
-  --scenario EXIT_CLEAR
+  --scenario SEATED_STILL
 ```
 
 The runtime:
@@ -179,11 +192,13 @@ The runtime:
 5. requires a valid firmware and UART pre-flight;
 6. prints the exact action for each repetition;
 7. waits for operator readiness;
-8. starts a five-second countdown;
-9. records scenario start and end automatically;
-10. repeats the current action and remaining time on screen;
-11. records anomaly notes;
-12. generates machine-readable results and a human-readable report.
+8. enforces the scenario-specific clear or occupied start state when required;
+9. starts a five-second countdown and cancels it if the precondition changes;
+10. records scenario start and end automatically;
+11. repeats the current action and remaining time on screen;
+12. records one optional anomaly note;
+13. calculates presence ratio, onset or clear latency when applicable;
+14. generates machine-readable results and a human-readable report.
 
 A second terminal is not required.
 
@@ -192,7 +207,7 @@ A second terminal is not required.
 Each value can be changed interactively or on the command line:
 
 ```bash
-python host/guided_run.py \
+python host/guided_run_strict.py \
   --port /dev/ttyACM0 \
   --run-id IHAP46-LD2410C-CORRECTED-01 \
   --sensor ld2410c_uart \
@@ -212,18 +227,10 @@ A separate environment file can be selected with:
 
 Every effective value is saved with the run.
 
-## Execute the complete required matrix
+## Optional original scenarios
 
-After the smoke run has valid evidence and no blocking electrical or firmware defect:
-
-```bash
-python host/guided_run.py \
-  --port /dev/ttyACM0 \
-  --run-id IHAP46-LD2410C-FULL-01 \
-  --sensor ld2410c_uart
-```
-
-Optional boundary and interference scenarios are added with:
+The original broader matrix remains available for later characterization, but
+it is not a closure gate for IHAP-46. Optional scenarios are added explicitly:
 
 ```bash
 --include-optional
@@ -236,7 +243,10 @@ The digital-output consistency scenario requires both:
 --sensor ld2410c_out
 ```
 
-Do not enable `ld2410c_out` until the output logic level is verified.
+Do not enable `ld2410c_out` until the output logic level is verified. GPIO OUT,
+PIR comparison hardware, reboot endurance, full placement sweeps, and
+interference characterization are not required when the residual decision gate
+is sufficient.
 
 ## Evidence produced by each run
 
@@ -286,4 +296,7 @@ This package does not:
 - change the production event contract;
 - authorize identity, tracking, behavioral history, alarm, intrusion-detection, safety, or security-grade claims.
 
-The production semantic remains the local non-identifying boolean `presence_detected` state `[UNVALIDATED]`.
+The maximum production semantic remains the local non-identifying boolean
+`presence_detected` state `[UNVALIDATED]`. Coordinates, trajectories, person
+count, identity, behavioral profiles, persistent raw radar data, alarm state,
+protection state, and occupancy guarantees are not authorized.

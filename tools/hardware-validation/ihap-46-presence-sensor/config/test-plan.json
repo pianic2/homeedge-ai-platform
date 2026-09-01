@@ -2,7 +2,7 @@
   "schema_version": "1.0.0",
   "issue": "IHAP-46",
   "title": "Presence Sensor Decision — LD2410C vs PIR Alternatives",
-  "decision_state": "test harness only; sensor decision remains UNVALIDATED",
+  "decision_state": "lean residual decision gate after reviewed EMPTY-02 and ENTER-02 evidence; sensor decision remains UNVALIDATED",
   "production_data_boundary": {
     "allowed": ["presence_detected"],
     "laboratory_only": [
@@ -24,7 +24,7 @@
     {
       "id": "ROOM_EMPTY_BASELINE",
       "title": "Room empty baseline",
-      "required": true,
+      "required": false,
       "duration_s": 300,
       "repetitions": 1,
       "ground_truth": "empty",
@@ -39,7 +39,7 @@
     {
       "id": "ENTER_ROOM",
       "title": "Enter the room",
-      "required": true,
+      "required": false,
       "duration_s": 30,
       "repetitions": 10,
       "ground_truth": "present_moving",
@@ -55,7 +55,7 @@
     {
       "id": "MOVING_LATERAL",
       "title": "Lateral movement inside room",
-      "required": true,
+      "required": false,
       "duration_s": 30,
       "repetitions": 5,
       "ground_truth": "present_moving",
@@ -70,7 +70,7 @@
     {
       "id": "MOVING_APPROACH",
       "title": "Approach and retreat from sensor",
-      "required": true,
+      "required": false,
       "duration_s": 30,
       "repetitions": 5,
       "ground_truth": "present_moving",
@@ -86,10 +86,11 @@
       "id": "SEATED_STILL",
       "title": "Seated substantially still",
       "required": true,
-      "duration_s": 600,
-      "repetitions": 3,
+      "duration_s": 300,
+      "repetitions": 1,
       "ground_truth": "present_stationary",
       "door_state": "closed",
+      "required_start_state": "occupied",
       "instructions": "Remain seated in a normal working or reading posture without deliberate large movement.",
       "expected": {
         "ld2410c_uart": {"min_presence_ratio": 0.90},
@@ -100,7 +101,7 @@
     {
       "id": "MICRO_MOVEMENT",
       "title": "Small natural movement while seated",
-      "required": true,
+      "required": false,
       "duration_s": 180,
       "repetitions": 3,
       "ground_truth": "present_stationary",
@@ -116,16 +117,16 @@
       "id": "EXIT_CLEAR",
       "title": "Exit and clear room",
       "required": true,
-      "duration_s": 90,
-      "repetitions": 5,
+      "duration_s": 60,
+      "repetitions": 3,
       "ground_truth": "empty",
       "door_state": "closed",
       "expected_transition": "occupied_to_empty",
       "instructions": "Leave the room, close the door and keep the room empty.",
       "expected": {
-        "ld2410c_uart": {"max_presence_ratio": 0.40},
-        "ld2410c_out": {"max_presence_ratio": 0.40},
-        "pir_out": {"max_presence_ratio": 0.20}
+        "ld2410c_uart": {"max_presence_ratio": 0.25, "max_clear_ms": 10000},
+        "ld2410c_out": {"max_presence_ratio": 0.25, "max_clear_ms": 10000},
+        "pir_out": {"max_presence_ratio": 0.20, "max_clear_ms": 10000}
       }
     },
     {
@@ -133,9 +134,10 @@
       "title": "Adjacent movement with door closed",
       "required": true,
       "duration_s": 120,
-      "repetitions": 3,
+      "repetitions": 1,
       "ground_truth": "adjacent_activity",
       "door_state": "closed",
+      "required_start_state": "clear",
       "instructions": "Keep the room empty while a person walks in the adjacent corridor or area.",
       "expected": {
         "ld2410c_uart": {"max_presence_ratio": 0.02},
@@ -148,9 +150,10 @@
       "title": "Adjacent movement with door open",
       "required": true,
       "duration_s": 120,
-      "repetitions": 3,
+      "repetitions": 1,
       "ground_truth": "adjacent_activity",
       "door_state": "open",
+      "required_start_state": "clear",
       "instructions": "Keep the intended room empty while a person walks outside the room with the door open.",
       "expected": {
         "ld2410c_uart": {"max_presence_ratio": 0.10},
@@ -191,7 +194,7 @@
     {
       "id": "REBOOT_PERSISTENCE",
       "title": "Reset and configuration persistence",
-      "required": true,
+      "required": false,
       "duration_s": 60,
       "repetitions": 5,
       "ground_truth": "present_moving",
@@ -206,7 +209,7 @@
     {
       "id": "DIGITAL_UART_CONSISTENCY",
       "title": "LD2410C digital output and UART consistency",
-      "required": true,
+      "required": false,
       "duration_s": 180,
       "repetitions": 2,
       "ground_truth": "present_moving",

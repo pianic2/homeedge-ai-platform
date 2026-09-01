@@ -3,17 +3,18 @@
 **Issue:** [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46)  
 **Evidence owner:** Project Owner  
 **Received:** 2026-07-15  
-**Repository purpose:** durable, human-readable physical evidence for one owned presence-sensor specimen
+**Repository purpose:** durable, human-readable physical and reviewed run evidence for one owned presence-sensor specimen
 
 <!--
 AI_AGENT_METADATA:
   document_type: hardware_evidence_manifest
   issue: IHAP-46
   evidence_scope: one_owned_hlk_ld2410c_v1_1_specimen
-  source: project_owner_supplied_photographs
+  source: project_owner_supplied_photographs_and_reviewed_local_runs
   original_files_committed: false
   published_files_sanitized: true
-  upload_status: pending_project_owner_binary_commit
+  upload_status: published
+  physical_test_evidence_status: partial_decision_evidence
   transformations:
     - crop
     - jpeg_reencode
@@ -30,7 +31,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 ## Evidence files
 
-The normalized JPEG files are prepared for the Project Owner's manual binary commit.
+The normalized JPEG files are published in this directory.
 
 | Evidence ID | File | View | Dimensions | Size | SHA-256 |
 |---|---|---|---:|---:|---|
@@ -107,3 +108,22 @@ The images do not prove:
 - production, commercial, reliability, safety, security, alarm, or certification maturity.
 
 Those claims remain `[UNVALIDATED]` unless supported by separate physical test evidence.
+
+## Reviewed run evidence
+
+The physical run checkpoint is recorded in:
+
+- [`reviewed-runs.md`](reviewed-runs.md) — human-readable interpretation;
+- [`existing-run-summary.json`](existing-run-summary.json) — machine-readable aggregate facts;
+- [`replacement-sourcing.md`](replacement-sourcing.md) — acquisition, inventory, reference quantity and dated replacement snapshot.
+
+Current reviewed evidence establishes:
+
+- a working receive-only 256000-baud UART path for the owned specimen;
+- one 300-second controlled empty-room run with zero reported presence and zero invalid radar frames;
+- strict moving-entry acquisition with valid clear preconditions for all ten repetitions and zero invalid radar frames;
+- eventual presence during all ten strict entry repetitions, while three exceeded the original 2000 ms operational threshold.
+
+It does not yet establish stationary-presence retention, release after exit, or
+adjacent-space behavior. Those three decision gaps remain `[UNVALIDATED]` and
+are the only required physical scenarios in the lean residual plan.
