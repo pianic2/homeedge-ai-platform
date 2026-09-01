@@ -3,7 +3,7 @@
 **Issue:** [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47)  
 **Decision document:** [`ADR-0003`](../../adr/ADR-0003-mvp-door-state-sensor.md)  
 **Evidence owner:** Project Owner  
-**Package state:** Physical execution complete; evidence reviewed; Project Owner decision pending  
+**Package state:** Physical execution complete; evidence reviewed; ADR accepted  
 **Default runner:** [`guided_run.py`](../../../tools/hardware-validation/ihap-47-door-state-sensor/scripts/guided_run.py)
 
 <!--
@@ -15,9 +15,16 @@ AI_AGENT_METADATA:
   reviewed_evidence_id: IHAP47-MC38-A-01
   tested_specimen: MC38-A
   physical_gate: PASS
-  project_owner_decision: pending
+  project_owner_decision: accepted_2026-09-01
   raw_serial_logs_committed: false
   raw_device_identifiers_committed: false
+  acquisition_evidence_level: E1
+  acquisition_supplier: Mega Semiconductor CO., Ltd.
+  acquisition_date: 2026-06-18
+  acquisition_pack: 10_pairs
+  acquisition_total_eur: 7.19
+  normalized_unit_price_eur_per_pair: 0.7190
+  shipping_eur: 0.00
   test_protocol: docs/evidence/IHAP-47/test-protocol.md
   validation_harness: tools/hardware-validation/ihap-47-door-state-sensor/
   unvalidated_claim_marker: "[UNVALIDATED]"
@@ -30,6 +37,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Final GPIO, pull network, cable and debounce remain IHAP-50.
   - Final mounting geometry remains IHAP-51.
   - Quantitative power impact remains IHAP-49.
+  - Acquisition supplier/price evidence does not establish a controlled manufacturer part number.
 -->
 
 ## 1. Reviewed Physical Result
@@ -55,6 +63,7 @@ Result for owned specimen `MC38-A`:
 | GPIO6 to GND bench check | raw `0` |
 | Internal pull-up adequacy | PASS for this temporary bench session |
 | Overall IHAP-47 physical decision gate | **PASS** |
+| Project Owner decision | **Accepted — 2026-09-01** |
 
 The observed FAR/NEAR behavior is consistent with **Form A / normally open relative to magnetic actuation** for `MC38-A`.
 
@@ -84,7 +93,7 @@ The guided runner produced local raw evidence including:
 - session metadata;
 - generated report artifacts.
 
-`serial.log` and `records.jsonl` remain local and must be preserved until IHAP-47 closure. They are intentionally not committed.
+`serial.log` and `records.jsonl` remain local until IHAP-47 closure. They are intentionally not committed.
 
 The generated HTML report was reviewed but is not published because the reviewed run record and compact summary contain the decision-relevant evidence without duplicating 40 capture rows.
 
@@ -95,15 +104,45 @@ The generated HTML report was reviewed but is not published because the reviewed
 | E-IHAP47-R01 | `IHAP47-MC38-A-01/run-record.md` | Human-readable reviewed physical run and claim boundary | Reviewed | `711ffa5ab799c31af1910d22deec273679608bbe1629f583d8373ae52aceaa04` |
 | E-IHAP47-R02 | `IHAP47-MC38-A-01/summary.json` | Machine-readable reviewed decision summary | Reviewed | `63fcad134fe0c97b2ee1247f4678f77c3635a7f2d28f3eea6f187146c12a4b5d` |
 
-No photograph is required to support the binary electrical decision gate. A later mounting task may collect geometry/installation photographs when they become decision-relevant.
+### 5.1 Supplied photograph evidence awaiting repository binary copy
 
-## 6. Inventory Context
+The Project Owner supplied two photographs on 2026-09-01. Sanitization review found no EXIF metadata and no visible account, order, address, device identifier or sensitive private-room information.
 
-The Project Owner previously reported ownership of ten contacts acquired for EUR 5.75 total, equivalent to EUR 0.575 per contact.
+| Evidence ID | Intended repository artifact | Supports | Current state | Source SHA-256 |
+|---|---|---|---|---|
+| E-IHAP47-P01 | `IHAP47-MC38-A-01/photo-overview.jpg` | Visible owned sensor/magnet pair and wired sensor housing | Supplied; repository binary copy pending | `c52db2c54c42e8f82ea034b63360c70103963365c196129d0e8035babc23d4dd` |
+| E-IHAP47-P02 | `IHAP47-MC38-A-01/photo-mounting.jpg` | Visible sensor housing, paired magnet and mounting openings/geometry | Supplied; repository binary copy pending | `7739c9b5ab223a8d959d84329c51ddd3ccdfae87085337fa8363446f6ae2ca0d` |
 
-This remains owner-declared historical inventory evidence. Exact seller, controlled part number, lot correspondence, current availability and replacement price remain `[UNVALIDATED]`.
+The photographs do **not** prove supplier, manufacturer, commercial listing, exact reed internals or replacement equivalence. No readable controlled manufacturer marking is established by these images.
 
-## 7. Claims Supported After Review
+## 6. Inventory and Procurement Context
+
+The strongest available acquisition evidence is the E1 order evidence already recorded under IHAP-17. It supersedes an earlier owner-declared historical price used in an older IHAP-47 draft.
+
+| Field | Verified acquisition evidence |
+|---|---|
+| Item | MC-38 magnetic contacts |
+| Supplier | **Mega Semiconductor CO., Ltd.** |
+| Order state/date | Closed order, **2026-06-18** |
+| Purchased quantity | **1 pack / 10 pairs** |
+| Total product price | **EUR 7.19** |
+| Normalized acquisition price | **EUR 0.7190 per pair** |
+| Shipping | **EUR 0.00** |
+| BOM acquisition evidence level | **E1** |
+| Reference MVP quantity | **1 pair** |
+
+The earlier owner-declared value `EUR 5.75 / EUR 0.575 per contact` is not used as the canonical BOM value because the dated closed-order evidence above is stronger and directly traceable.
+
+Still `[UNVALIDATED]`:
+
+- controlled manufacturer and manufacturer part number;
+- current replacement-market price and availability;
+- cross-lot or cross-seller equivalence;
+- whether another product marketed as `MC-38` or `DC-38` behaves identically.
+
+These gaps do not block use of the already-owned tested local specimen. A controlled fallback SKU is needed only if replacement reproducibility becomes a project requirement.
+
+## 7. Claims Supported After Review and Acceptance
 
 The evidence supports:
 
@@ -113,7 +152,9 @@ The evidence supports:
 - no additional transition observed in 40 movements at the `250 us` harness sampling resolution;
 - explicit open-circuit/disconnected-wire ambiguity;
 - temporary internal pull-up adequacy for this bench run;
-- suitability of the tested sensor technology for MVP binary door-state telemetry, pending Project Owner decision.
+- suitability of passive wired magnetic reed-contact technology for MVP binary door-state telemetry;
+- `MC38-A` as the accepted tested local reference specimen;
+- one reference-MVP BOM pair with E1 historical acquisition price evidence of EUR 0.7190/pair.
 
 ## 8. Claims Not Supported
 
@@ -134,7 +175,7 @@ The package does not support:
 - **IHAP-50:** final GPIO, pull network, cable/interface behavior and production debounce.
 - **IHAP-49:** quantitative power/current impact.
 - **IHAP-51:** mounting gap, alignment margin, attachment and enclosure integration.
-- **IHAP-17:** BOM/replacement procurement evidence when a controlled replacement SKU is required.
+- **IHAP-17 / IHAP-43:** propagate the accepted component decision into the canonical BOM/baseline; controlled replacement evidence only if required.
 
 ## 10. Execution Entry Point
 
