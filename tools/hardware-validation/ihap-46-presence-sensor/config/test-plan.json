@@ -122,7 +122,7 @@
       "ground_truth": "empty",
       "door_state": "closed",
       "expected_transition": "occupied_to_empty",
-      "instructions": "Leave the room, close the door and keep the room empty.",
+      "instructions": "Begin leaving immediately at the START NOW marker, close the door and keep the room empty. The operational clear-latency clock starts at that marker and includes normal exit travel.",
       "expected": {
         "ld2410c_uart": {"max_presence_ratio": 0.25, "max_clear_ms": 10000},
         "ld2410c_out": {"max_presence_ratio": 0.25, "max_clear_ms": 10000},

@@ -164,13 +164,18 @@ Only these scenarios remain required by the canonical plan:
 | Scenario | Duration × repetitions | Decision question |
 |---|---:|---|
 | `SEATED_STILL` | 300 s × 1 | Does the owned specimen retain substantially stationary presence? |
-| `EXIT_CLEAR` | 60 s × 3 | Does it return to clear within 10 s after a valid occupied start? |
+| `EXIT_CLEAR` | 60 s × 3 | Does it return to clear within 10 s of `START NOW`, including normal exit travel? |
 | `ADJACENT_DOOR_CLOSED` | 120 s × 1 | Does closed-door adjacent movement remain outside the room state? |
 | `ADJACENT_DOOR_OPEN` | 120 s × 1 | What limitation appears with an open doorway? |
 
 Total controlled acquisition time is 12 minutes. The runner performs
 precondition gates, timestamps, repetition counting, classification,
 aggregation, and report generation automatically.
+
+For `EXIT_CLEAR`, the ground-truth marker and clear-latency clock begin exactly
+at `START NOW`. The operator must begin leaving immediately at that signal.
+Waiting after the signal contaminates the release metric and makes the
+threshold result invalid even when the serial acquisition itself is valid.
 
 Mount the sensor in the documented position before starting. Execute one
 scenario at a time so each result can be reviewed before proceeding:

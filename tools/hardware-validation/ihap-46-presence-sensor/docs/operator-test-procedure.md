@@ -208,7 +208,7 @@ Do not start a scenario action before the runtime countdown.
 | `MOVING_APPROACH` | Walk between the far and near points | Moving person |
 | `SEATED_STILL` | Remain seated without deliberate large movement | Substantially still person |
 | `MICRO_MOVEMENT` | Type or turn pages while seated | Small human movement |
-| `EXIT_CLEAR` | Leave, close the door, and remain away | Occupied to empty |
+| `EXIT_CLEAR` | At `START NOW`, leave immediately, close the door, and remain away | Occupied to empty |
 | `ADJACENT_DOOR_CLOSED` | Walk along the fixed external path with the door closed | Empty room, adjacent activity |
 | `ADJACENT_DOOR_OPEN` | Walk outside without crossing the threshold | Empty room, open door |
 | `WALL_MOVEMENT` | Walk behind one documented adjacent wall | Empty room, movement beyond wall |
@@ -217,6 +217,12 @@ Do not start a scenario action before the runtime countdown.
 | `DIGITAL_UART_CONSISTENCY` | Alternate clearly occupied and empty periods | Alternating state |
 
 The runtime reads the detailed instructions from `config/operator-actions.json` and prints them before every repetition.
+
+For `EXIT_CLEAR`, the marker used for clear latency is emitted at `START NOW`,
+before the operator begins moving. Begin leaving immediately at that signal.
+Any deliberate or accidental delay after the signal contaminates the metric
+and invalidates the threshold result; retain the run as procedure evidence and
+use a new run ID.
 
 ## 11. Execution order
 

@@ -267,6 +267,25 @@ class GuidedRunTests(unittest.TestCase):
         self.assertNotIn("ENTER", action["start_action"])
         self.assertNotIn("LEAVE", action["start_action"])
 
+    def test_exit_clear_makes_latency_origin_and_immediate_action_explicit(self) -> None:
+        actions = guided_run.load_actions(
+            ROOT / "config" / "operator-actions.json",
+            ihap46.load_json(ROOT / "config" / "test-plan.json"),
+        )
+        action = actions["actions"]["EXIT_CLEAR"]
+        combined = " ".join(
+            [
+                action["purpose"],
+                action["start_action"],
+                *action["during_capture"],
+                *action["invalid_if"],
+            ]
+        ).lower()
+        self.assertIn("start now", combined)
+        self.assertIn("immediately", combined)
+        self.assertIn("clock", combined)
+        self.assertIn("delay", combined)
+
     def test_preflight_accepts_reconnect_with_valid_uart_without_boot(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             run_dir = Path(directory)

@@ -107,19 +107,20 @@
         "another person enters the room"
       ]
     },
-    "EXIT_CLEAR": {
-      "purpose": "Measure how the reported state clears after the person leaves the room.",
-      "start_action": "LEAVE THE ROOM AND CLOSE THE DOOR",
+  "EXIT_CLEAR": {
+    "purpose": "Measure the operational time from the START NOW marker until the reported state clears. The clock starts before you move, so begin leaving immediately at START NOW.",
+    "start_action": "LEAVE IMMEDIATELY, THEN CLOSE THE DOOR",
       "setup": [
         "Stand at the documented internal test point while the sensor is already reporting presence.",
         "Keep the path to the door clear."
       ],
-      "during_capture": [
-        "At the start signal, leave the room at a normal walking pace.",
-        "Close the door and remain away from the doorway and adjacent wall until the recording ends."
-      ],
-      "invalid_if": [
-        "you remain on the threshold",
+    "during_capture": [
+      "The clear-latency clock is already running: begin leaving immediately at START NOW and walk at a normal pace.",
+      "Close the door and remain away from the doorway and adjacent wall until the recording ends."
+    ],
+    "invalid_if": [
+      "you delay the start of your exit after START NOW",
+      "you remain on the threshold",
         "the door is reopened",
         "another person enters or passes close to the controlled area"
       ]
