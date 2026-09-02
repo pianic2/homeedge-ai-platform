@@ -1,99 +1,124 @@
 # IHAP-52 Central Node Hardware Validation Harness
 
-## Scope
+## Goal
 
-This harness collects reproducible hardware/resource evidence for the HomeEdge central-node profile without installing Docker, a database or an AI framework.
+Validate the bounded HomeEdge central-node hardware profile with the same operating model used for the mature IHAP-46/IHAP-47 hardware campaigns: one guided entrypoint, automatic gates, deterministic evidence, no manual command-by-command interpretation.
 
-First reference configuration:
+Reference profile:
 
 - Raspberry Pi 4 Model B;
 - >=4 GB RAM;
-- **32 GB A2 microSD**;
-- **Raspberry Pi OS Lite 64-bit**;
+- 32 GB A2 microSD;
+- Raspberry Pi OS Lite 64-bit;
 - Wi-Fi required;
 - Ethernet optional;
-- heatsinks/fan optional but recommended.
+- manufacturer-supported USB-C PSU;
+- cooling/enclosure recorded exactly as tested.
 
-It validates only a bounded hardware smoke-test envelope: architecture, CPU concurrency, RAM, local storage, Wi-Fi, graphics/render exposure, Raspberry Pi throttling/temperature observations and bounded CPU stress.
+This validates hardware/resource stability only. Final HomeEdge workload sufficiency, microSD endurance/retention, Docker/container behavior and AI acceleration remain `[UNVALIDATED]`.
 
-It does **not** prove final application performance, microSD endurance or AI acceleration.
+## Fast path
 
-## Install the reference OS first
-
-Use Raspberry Pi's official installation documentation:
-
-https://www.raspberrypi.com/documentation/computers/getting-started.html#install-an-operating-system
-
-Use Raspberry Pi Imager, choose **Raspberry Pi OS Lite (64-bit)**, configure Wi-Fi and enable SSH for headless access before first boot.
-
-Raspberry Pi officially recommends Raspberry Pi OS Lite for headless setups. Alpine Linux remains a compatible future candidate and has separate official installation guidance:
-
-https://wiki.alpinelinux.org/wiki/Raspberry_Pi
-
-## Requirements
-
-- supported 64-bit Linux;
-- Python 3.10+ recommended;
-- standard Linux utilities (`ip`, `lsblk`, optional `ping`);
-- on Raspberry Pi, `vcgencmd` is used when available.
-
-No third-party Python packages are required.
-
-## Run
+After installing Raspberry Pi OS Lite 64-bit and cloning/checking out the IHAP-52 branch:
 
 ```bash
-python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py \
-  --output-dir tools/hardware-validation/ihap-52-central-node/runs/pi4b-reference-01 \
-  --stress-seconds 300 \
-  --storage-mib 128
+cd ~/homeedge-ai-platform
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
 ```
 
-## Default automated gates
+That command:
 
-| Gate | Threshold |
+1. creates a unique run directory automatically;
+2. asks only for physical facts Linux cannot prove (A2 marking, PSU, case/cooling, OS image selected);
+3. records board, RAM, OS, kernel-facing hardware, repository commit and Wi-Fi state automatically;
+4. rejects stale/dirty repository state before the stress phase;
+5. requires a clean Raspberry Pi `vcgencmd get_throttled` baseline;
+6. performs the deterministic storage write/read/hash smoke test;
+7. runs the bounded 300-second CPU stress gate;
+8. checks worker exits, boot identity, OOM evidence when readable, and Raspberry Pi throttling/undervoltage state;
+9. writes `operator-notes.md`, `validation.json` and `validation.md`;
+10. exits `0` on PASS or `2` on a validation failure.
+
+Normal operator time after OS preparation is approximately the five-minute stress window plus a few prompts. No manual pre-flight or post-flight command list is required.
+
+## Pre-flight only
+
+Before committing to the five-minute run:
+
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
+```
+
+This performs the automatic mandatory pre-flight only and does not execute the storage write test or CPU stress.
+
+## Harness self-tests
+
+Run on any normal development machine; Raspberry Pi hardware is not required:
+
+```bash
+python3 -m unittest discover \
+  -s tools/hardware-validation/ihap-52-central-node/tests \
+  -p 'test_*.py' -v
+```
+
+These tests cover the pass/fail engine, Raspberry Pi-specific diagnostics, manual evidence gates, storage-integrity rejection, throttle-history rejection, equivalent-device behavior and non-overwriting run IDs.
+
+## Mandatory automated gates
+
+| Gate | Reference PASS condition |
 |---|---|
-| Architecture | `aarch64` / `arm64` / `x86_64` / `amd64` |
-| Logical CPUs | >=4 |
-| Physical RAM | >=4,000,000,000 bytes |
-| Root filesystem capacity | >=28,000,000,000 bytes, allowing partition/format overhead on nominal 32 GB media |
-| Wi-Fi | at least one wireless interface up with a non-link-local IP |
-| Graphics/compute exposure | at least one `/dev/dri/card*` or `/dev/dri/render*` device |
-| Storage smoke | deterministic write/read hashes match and temp file removed |
-| Stress workers | all workers exit successfully |
-| Pi current undervoltage | absent when `vcgencmd` is available |
-| Pi current throttling | absent when `vcgencmd` is available |
+| Architecture | 64-bit ARM64 for Pi 4 reference; ARM64/x86_64 for equivalent profile |
+| Board | Raspberry Pi 4 Model B for `pi4-reference` |
+| CPU | >=4 logical processors |
+| RAM | >=4,000,000,000 bytes |
+| Root filesystem | >=28,000,000,000 bytes for nominal 32 GB media |
+| Wi-Fi | wireless interface `up` with a non-link-local address |
+| Repository | tested commit recorded and worktree clean |
+| A2 / OS selection | confirmed by operator in guided mode |
+| PSU | rating recorded by operator |
+| Pi diagnostics | `vcgencmd` available and no current/historical throttle/undervoltage flags before the run |
+| Storage smoke | exact byte count and deterministic SHA-256 write/read match; temp file removed |
+| Stress | all workers exit successfully |
+| Stability | boot identity unchanged; no OOM pattern when kernel log is readable |
+| Post-stress Pi health | no current/historical throttle/undervoltage/frequency-cap/soft-temp flags |
 
-The 28 GB filesystem threshold is a practical gate for a nominal 32 GB card after partitioning/formatting. The manually recorded card capacity and A2 marking remain part of acceptance evidence.
+Graphics/render-device exposure is recorded as evidence but is **not** an MVP hardware gate. The current HomeEdge MVP does not require GPU acceleration.
 
 ## Outputs
 
+Each attempt gets a new directory automatically:
+
 ```text
-runs/<run-id>/
+tools/hardware-validation/ihap-52-central-node/runs/pi4b-YYYYMMDDTHHMMSSZ/
+├── operator-notes.md
 ├── validation.json
 └── validation.md
 ```
 
-The local `runs/` directory is ignored by Git.
+`runs/` is ignored by Git. Never overwrite a failed run.
 
-## Manual evidence
+## Failure handling
 
-Record separately:
+If the guided command stops at pre-flight, fix the reported condition first. Common causes:
 
-- exact board/RAM variant;
-- storage manufacturer/model, 32 GB capacity and A2 marking;
-- Raspberry Pi OS Lite 64-bit selected in Imager;
-- PSU manufacturer/model/rating;
-- enclosure;
-- heatsinks/fan;
-- approximate ambient temperature.
+- A2 or Raspberry Pi OS Lite 64-bit not confirmed;
+- worktree contains local edits;
+- Wi-Fi is not up;
+- wrong board/architecture;
+- `vcgencmd` is unavailable;
+- `get_throttled` already reports historical/current power or thermal flags.
 
-## Privacy / publication
+For a dirty throttle history, reboot once with the intended PSU/cooling configuration and run the pre-flight again. A history that reappears immediately is evidence to investigate, not something to suppress.
 
-Review raw output before publication. Publish only a sanitized summary under `docs/evidence/IHAP-52/summaries/`.
+## Privacy
 
-## Exit codes
+The harness intentionally avoids recording SSID, passwords, private IPs, MAC addresses, hostname or username. Raw run evidence remains local until reviewed and sanitized.
 
-- `0`: all applicable automated gates passed;
-- `2`: at least one applicable automated gate failed.
+## Canonical operator procedure
 
-A failed gate is evidence to investigate, not an automatic rejection of Raspberry Pi 4.
+See [`docs/evidence/IHAP-52/central-node-validation-plan.md`](../../../docs/evidence/IHAP-52/central-node-validation-plan.md).
+
+Official Raspberry Pi headless setup guidance:
+
+- https://www.raspberrypi.com/documentation/computers/getting-started.html
+- https://www.raspberrypi.com/software/operating-systems/
