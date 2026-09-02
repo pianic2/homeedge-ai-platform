@@ -1,0 +1,166 @@
+{
+  "schema_version": "1.1.0",
+  "issue": "IHAP-46",
+  "evidence_scope": "reviewed aggregates from Project Owner local archives",
+  "raw_radar_published": false,
+  "physical_campaign_status": "COMPLETE_FOR_DECISION_GATE",
+  "runs": [
+    {
+      "run_id": "IHAP46-LD2410C-EMPTY-01",
+      "classification": "INVALID_SENSOR_SCENARIO_VALID_HARNESS_DEFECT_EVIDENCE",
+      "sample_records": 293,
+      "valid_uart_samples": 293,
+      "invalid_radar_frames": 0,
+      "decision_use": "UART path and USB reconnect evidence only"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-EMPTY-02",
+      "classification": "VALID",
+      "scenario": "ROOM_EMPTY_BASELINE",
+      "duration_s": 300.007,
+      "samples": 3001,
+      "presence_samples": 0,
+      "presence_ratio": 0.0,
+      "maximum_presence_ratio": 0.02,
+      "invalid_radar_frames": 0,
+      "status": "PASS"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-ENTER-01",
+      "classification": "PARTIALLY_VALID_SUPERSEDED_FOR_ENTRY_GATE",
+      "accepted_repetitions": [1, 2, 3, 4, 5, 7],
+      "rejected_onset_repetitions": [6, 8, 9, 10],
+      "accepted_onset_range_ms": [450, 1566],
+      "accepted_median_onset_ms": 860,
+      "invalid_radar_frames": 0
+    },
+    {
+      "run_id": "IHAP46-LD2410C-ENTER-02",
+      "classification": "VALID_STRICT_ACQUISITION",
+      "scenario": "ENTER_ROOM",
+      "archive_sha256": "87b077dafa7767b72053e77ea4f416aa0fc39fd6251edb7a11ef46f4ab9ec07c",
+      "valid_uart_samples": 6535,
+      "invalid_radar_frames": 0,
+      "clear_state_gates_passed": 10,
+      "repetitions": 10,
+      "threshold_passed": 7,
+      "threshold_failed": 3,
+      "median_operational_onset_ms": 1129,
+      "presence_ratio_range": [0.917, 0.993],
+      "status": "FAIL",
+      "status_reason": "three operational onset values exceeded 2000 ms"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-STILL-02",
+      "classification": "VALID",
+      "scenario": "SEATED_STILL",
+      "archive_sha256": "357f0d606e871e617d2616bd3b16004e616b2140e2ef80dea3f0f4e7d0dd91a0",
+      "duration_s": 300.008,
+      "samples": 3000,
+      "presence_samples": 3000,
+      "presence_ratio": 1.0,
+      "valid_uart_samples_complete_run": 5392,
+      "invalid_radar_frames": 0,
+      "fresh_occupied_precondition_age_ms": 97,
+      "median_cadence_ms": 100,
+      "maximum_gap_ms": 134,
+      "status": "PASS"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-EXIT-03",
+      "classification": "PROCEDURE_DEFECT_EVIDENCE_THRESHOLD_UNCLASSIFIABLE",
+      "scenario": "EXIT_CLEAR",
+      "archive_sha256": "d0c033e31f0848a38001d28c5383e88df15856410be003a38a18850b9a4afa5c",
+      "recorded_first_clear_ms": [29982, 23245, 32814],
+      "eventual_clear_observed": true,
+      "status": "EXCLUDED",
+      "status_reason": "operator delayed departure after START NOW"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-EXIT-04",
+      "classification": "TWO_VALID_REPETITIONS_ONE_EXCLUDED",
+      "scenario": "EXIT_CLEAR",
+      "archive_sha256": "f026245914f815e24eb0cbea490a9e9b6c32b0bca3567d35973b1bfd14ad0c61",
+      "maximum_first_clear_ms": 10000,
+      "maximum_presence_ratio": 0.25,
+      "operator_exit_and_door_close_estimate_s": [5, 7],
+      "timing_origin": "START_NOW",
+      "repetitions": [
+        {
+          "repetition": 1,
+          "first_clear_ms": 17736,
+          "presence_ratio": 0.375,
+          "status": "EXCLUDED",
+          "reason": "operator re-entered with about five seconds remaining"
+        },
+        {
+          "repetition": 2,
+          "first_clear_ms": 18506,
+          "presence_ratio": 0.307,
+          "status": "FAIL"
+        },
+        {
+          "repetition": 3,
+          "first_clear_ms": 18754,
+          "presence_ratio": 0.312,
+          "status": "FAIL"
+        }
+      ],
+      "eventual_clear_observed": true,
+      "invalid_radar_frames": 0,
+      "status": "FAIL",
+      "status_reason": "both accepted repetitions exceeded the original operational release gate"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-ADJ-CLOSED-01",
+      "classification": "VALID",
+      "scenario": "ADJACENT_DOOR_CLOSED",
+      "archive_sha256": "3f35a623ca318a04d3d0fee8d293335e2ae7bc4dc52a981650ed2b69d5ce3ddb",
+      "duration_s": 120.009,
+      "samples": 1200,
+      "presence_samples": 0,
+      "presence_ratio": 0.0,
+      "invalid_radar_frames": 0,
+      "operator_path": "external corridor parallel to door wall, 0.5-2 m from threshold, approximately 3 m back and forth",
+      "door_state": "closed",
+      "status": "PASS"
+    },
+    {
+      "run_id": "IHAP46-LD2410C-ADJ-OPEN-01",
+      "classification": "VALID",
+      "scenario": "ADJACENT_DOOR_OPEN",
+      "archive_sha256": "cab63edffcdf52898c89ccc00d78980f7150b5d3b21bb184ed6569483694073a",
+      "duration_s": 120.01,
+      "samples": 1200,
+      "presence_samples": 0,
+      "presence_ratio": 0.0,
+      "invalid_radar_frames": 0,
+      "median_cadence_ms": 100,
+      "maximum_gap_ms": 120,
+      "operator_path": "same external corridor path, approximately 3 m",
+      "door_state": "open_about_30_degrees",
+      "threshold_crossed": false,
+      "status": "PASS"
+    }
+  ],
+  "remaining_required_scenarios": [],
+  "decision_limitations": [
+    "moving-entry onset met the original operational threshold in 7 of 10 strict repetitions",
+    "two accepted exit repetitions exceeded the original operational release gate",
+    "physical evidence applies to one owned specimen and the tested setups only",
+    "no occupancy or adjacent-space immunity guarantee is created"
+  ],
+  "product_boundary": {
+    "allowed": ["presence_detected"],
+    "blocked": [
+      "identity",
+      "person_count",
+      "coordinates",
+      "trajectory",
+      "behavioral_history",
+      "persistent_raw_radar",
+      "occupancy_guarantee",
+      "alarm_or_protection_claim"
+    ]
+  }
+}
