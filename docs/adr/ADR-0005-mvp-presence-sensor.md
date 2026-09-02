@@ -4,7 +4,7 @@
 **Date:** 2026-09-01
 **Project:** [ITS] [EDGE] HomeEdge AI Platform
 **Jira:** [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46)
-**PR:** [#25](https://github.com/pianic2/homeedge-ai-platform/pull/25)
+**PR:** [#25](https://github.com/pianic2/homeedge-ai-platform/pull/25); acceptance reconciliation [#33](https://github.com/pianic2/homeedge-ai-platform/pull/33)
 **Supersedes:** None
 **Superseded by:** None
 
@@ -141,8 +141,10 @@ the reviewed UART path is sufficient. Quantitative current, rail and autonomy
 remain IHAP-49.
 
 The Project Owner accepted this decision on 2026-09-01 after the physical gate
-and specialist review completed with no blocker or major finding. Merge and
-Jira closure remain separate workflow gates.
+and specialist review completed with no blocker or major finding. PR #25 merged
+the evidence checkpoint before the acceptance commit was attached; PR #33 is
+the minimal source-of-truth reconciliation. Jira closure remains a separate
+post-merge workflow gate.
 
 ---
 

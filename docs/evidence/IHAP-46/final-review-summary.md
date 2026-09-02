@@ -1,8 +1,9 @@
 # IHAP-46 — Final Review Summary
 
 **Issue:** [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46)  
-**PR:** [#25](https://github.com/pianic2/homeedge-ai-platform/pull/25)  
-**Decision state:** accepted by the Project Owner on 2026-09-01; merge pending
+**Evidence PR:** [#25](https://github.com/pianic2/homeedge-ai-platform/pull/25)  
+**Acceptance reconciliation:** [#33](https://github.com/pianic2/homeedge-ai-platform/pull/33)  
+**Decision state:** accepted by the Project Owner on 2026-09-01; reconciliation merge pending
 
 ## Recommendation
 
@@ -73,6 +74,8 @@ protection claims remain prohibited.
 
 ## Project Owner decision
 
-The Project Owner accepted the LD2410C selection on 2026-09-01. ADR-0005 is
-`Accepted`. PR #25 remains unmerged and Jira remains `In corso` until merge is
-confirmed and the post-merge source-of-truth checks are complete.
+The Project Owner accepted the LD2410C selection on 2026-09-01. PR #25 merged
+the complete evidence checkpoint before the acceptance commit was attached.
+PR #33 is limited to reconciling ADR-0005, the ADR index and this final review
+to the accepted state. Jira remains `In corso` until PR #33 is merged and the
+post-merge source-of-truth checks are complete.
