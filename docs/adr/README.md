@@ -33,9 +33,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 This folder contains Architecture Decision Records for HomeEdge AI Platform.
 
-ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work and evidence links.
-
-They do not approve themselves. ADR acceptance requires Project Owner approval.
+ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work and evidence links. They do not approve themselves: acceptance requires Project Owner approval.
 
 ---
 
@@ -47,13 +45,9 @@ Jira tracks work state and links evidence.
 Confluence summarizes and links only.
 ```
 
-Confluence must not duplicate full ADR content as a competing technical source of truth.
-
 ---
 
 ## 3. ADR Naming Convention
-
-Use this file format:
 
 ```text
 ADR-0001-short-kebab-title.md
@@ -85,17 +79,7 @@ Only the Project Owner can accept, reject or supersede an ADR.
 
 ## 5. Link Policy
 
-Every ADR should link:
-
-| Link | Required when |
-|---|---|
-| Jira issue | Always, when decision work is tracked in Jira. |
-| Pull request | Required when the ADR is added or changed through PR. |
-| Related ADRs | Required when superseding or depending on another ADR. |
-| Evidence | Required when a claim is treated as validated. |
-| Confluence | Optional; only for stakeholder navigation or report links. |
-
-Unproven claims must keep `[UNVALIDATED]`.
+Every ADR should link Jira work, PR evidence, related ADRs when relevant, and evidence for validated claims. Confluence is optional navigation only. Unproven claims keep `[UNVALIDATED]`.
 
 ---
 
@@ -103,11 +87,12 @@ Unproven claims must keep `[UNVALIDATED]`.
 
 | ADR | Title | Status | Jira | PR | Notes |
 |---|---|---|---|---|---|
-| [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Accepted | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Accepts ESP32-C3 as the MVP family, the purchased SuperMini-compatible board as preferred conditional implementation and ESP32-C3-DevKitC-02 as official control/fallback. Physical pinout is evidenced for one specimen; exact commercial SKU reproducibility and quantitative power remain `[UNVALIDATED]`. A local display is not accepted by this ADR and is decided separately by [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53). |
-| [ADR-0002](ADR-0002-environmental-sensor-profiles.md) | Environmental Sensor Profiles | Accepted | [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45) | [PR #28](https://github.com/pianic2/homeedge-ai-platform/pull/28) | Selects DHT11 as the standard indoor profile and BME280 as the precision / extended-environment profile. DHT22 is not selected. Absolute accuracy remains `[UNVALIDATED]`; pressure remains outside the MVP measurement contract. |
-| [ADR-0003](ADR-0003-mvp-door-state-sensor.md) | MVP Door State Sensor | **Accepted** | [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47) | [PR #26](https://github.com/pianic2/homeedge-ai-platform/pull/26) | Accepted by the Project Owner on 2026-09-01. Uses passive wired two-conductor magnetic reed-contact technology for MVP binary door-state telemetry. `MC38-A` is the tested local reference specimen: FAR=open/raw `1`, NEAR=closed/raw `0`, 20/20 complete cycles, 40/40 stable movements, 0 mismatches and 0 additional transitions observed at 250 us sampling. Open contact and interrupted conductor remain electrically indistinguishable; generic MC-38/DC-38 replacement equivalence remains `[UNVALIDATED]`. |
-| [ADR-0004](ADR-0004-local-status-display.md) | Local Status Display | **Accepted** | [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53) | [PR #31](https://github.com/pianic2/homeedge-ai-platform/pull/31) | Accepted by the Project Owner on 2026-08-31. The reference MVP includes one 0.96-inch-class 128×64 monochrome I2C local status/debug display. `IHAP53-DISPLAY-01` physically validated the owned blue `GME12864-11-12-13 V3.22` specimen at 3.3 V, address `0x3C`, with functional SSD1306-profile compatibility, one-hour update stability and controlled reboot/re-init. Exact controller die, provenance, quantitative power, final wiring and replacement reproducibility remain outside that evidence. |
-| [ADR-0005](ADR-0005-mvp-presence-sensor.md) | MVP Presence Sensor | **Accepted** | [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46) | [PR #25](https://github.com/pianic2/homeedge-ai-platform/pull/25), [PR #33](https://github.com/pianic2/homeedge-ai-platform/pull/33) | Accepted by the Project Owner on 2026-09-01. Selects HLK-LD2410C-class 24 GHz radar for local boolean presence only. PR #33 reconciles the acceptance state after PR #25 merged its evidence checkpoint. Onset/release limitations and replacement-equivalence boundaries remain explicit. |
+| [ADR-0001](ADR-0001-mvp-edge-compute-platform.md) | MVP Edge Compute Platform | Accepted | [IHAP-44](https://niccolopiazzi01.atlassian.net/browse/IHAP-44) | [PR #23](https://github.com/pianic2/homeedge-ai-platform/pull/23) | Accepts ESP32-C3 as the MVP family, the purchased SuperMini-compatible board as preferred conditional implementation and ESP32-C3-DevKitC-02 as official control/fallback. Exact commercial SKU reproducibility and quantitative power remain `[UNVALIDATED]`. |
+| [ADR-0002](ADR-0002-environmental-sensor-profiles.md) | Environmental Sensor Profiles | Accepted | [IHAP-45](https://niccolopiazzi01.atlassian.net/browse/IHAP-45) | [PR #29](https://github.com/pianic2/homeedge-ai-platform/pull/29) | Selects DHT11 as the standard indoor profile and BME280 as the precision/extended-environment profile. DHT22 is not selected. Absolute accuracy remains `[UNVALIDATED]`; pressure remains outside the MVP measurement contract. |
+| [ADR-0003](ADR-0003-mvp-door-state-sensor.md) | MVP Door State Sensor | **Accepted** | [IHAP-47](https://niccolopiazzi01.atlassian.net/browse/IHAP-47) | [PR #26](https://github.com/pianic2/homeedge-ai-platform/pull/26) | Accepted 2026-09-01. Passive wired two-conductor magnetic reed-contact technology for binary door-state telemetry; `MC38-A` is the tested local specimen. Open contact and interrupted conductor remain electrically indistinguishable. |
+| [ADR-0004](ADR-0004-local-status-display.md) | Local Status Display | **Accepted** | [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53) | [PR #31](https://github.com/pianic2/homeedge-ai-platform/pull/31) | Accepted 2026-08-31. Reference MVP includes a 0.96-inch-class 128×64 monochrome I2C local status/debug display; exact controller/provenance/power/replacement reproducibility remain bounded by evidence. |
+| [ADR-0005](ADR-0005-mvp-presence-sensor.md) | MVP Presence Sensor | **Accepted** | [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46) | [PR #25](https://github.com/pianic2/homeedge-ai-platform/pull/25), [PR #33](https://github.com/pianic2/homeedge-ai-platform/pull/33) | Accepted 2026-09-01. Selects HLK-LD2410C-class radar for local boolean presence only; onset/release and replacement-equivalence limitations remain explicit. |
+| [ADR-0006](ADR-0006-mvp-central-node-hardware-profile.md) | MVP Central Node Hardware Profile | **Accepted** | [IHAP-52](https://niccolopiazzi01.atlassian.net/browse/IHAP-52) | [PR #30](https://github.com/pianic2/homeedge-ai-platform/pull/30) | Accepted 2026-09-05. Vendor-neutral 64-bit Linux profile; Raspberry Pi 4 Model B >=4 GB is the reference implementation. The validated specimen uses 8 GB RAM, nominal 32 GB A1 microSD, Raspberry Pi OS Lite 64-bit, 5.1 V / 3 A PSU and case + heatsink + fan. Final workload sufficiency, storage endurance/retention and AI acceleration remain `[UNVALIDATED]`. |
 
 ---
 
