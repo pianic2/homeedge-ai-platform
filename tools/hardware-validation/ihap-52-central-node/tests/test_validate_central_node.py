@@ -33,6 +33,26 @@ def good_snapshot(throttle=0):
     }
 
 
+def good_final_payload(after=0, samples=None):
+    return {
+        "storage_smoke": {
+            "bytes_written": 128,
+            "bytes_requested": 128,
+            "bytes_read": 128,
+            "hash_match": True,
+            "temporary_file_removed": True,
+        },
+        "stress": {
+            "worker_exitcodes": [0, 0, 0, 0],
+            "samples": samples or [],
+        },
+        "raspberry_pi": {"throttled_after": {"value": after}},
+        "system": {"boot_id": "boot-a"},
+        "system_after": {"boot_id": "boot-a"},
+        "oom_observation": {"available": True, "oom_pattern_seen": False},
+    }
+
+
 class TestIHAP52Validation(unittest.TestCase):
     def test_pi4_preflight_happy_path_a1(self):
         manual = {"sd_application_class": "A1", "rpios_lite64_confirmed": True, "psu_rating": "5V 2.5A"}
@@ -93,28 +113,37 @@ class TestIHAP52Validation(unittest.TestCase):
         self.assertTrue(all(checks.values()))
 
     def test_final_rejects_storage_hash_mismatch(self):
-        payload = {
-            "storage_smoke": {"bytes_written": 128, "bytes_requested": 128, "bytes_read": 128, "hash_match": False, "temporary_file_removed": True},
-            "stress": {"worker_exitcodes": [0, 0, 0, 0]},
-            "raspberry_pi": {"throttled_after": {"value": 0}},
-            "system": {"boot_id": "boot-a"},
-            "system_after": {"boot_id": "boot-a"},
-            "oom_observation": {"available": False, "oom_pattern_seen": None},
-        }
+        payload = good_final_payload()
+        payload["storage_smoke"]["hash_match"] = False
         checks = mod.evaluate_final(payload, "pi4-reference")
         self.assertFalse(checks["storage_integrity"])
 
-    def test_final_rejects_any_throttle_history(self):
-        payload = {
-            "storage_smoke": {"bytes_written": 128, "bytes_requested": 128, "bytes_read": 128, "hash_match": True, "temporary_file_removed": True},
-            "stress": {"worker_exitcodes": [0, 0, 0, 0]},
-            "raspberry_pi": {"throttled_after": {"value": 1 << 18}},
-            "system": {"boot_id": "boot-a"},
-            "system_after": {"boot_id": "boot-a"},
-            "oom_observation": {"available": True, "oom_pattern_seen": False},
-        }
+    def test_final_separates_thermal_throttle_from_undervoltage(self):
+        payload = good_final_payload(after=1 << 18)
         checks = mod.evaluate_final(payload, "pi4-reference")
-        self.assertFalse(checks["no_pi_throttle_or_undervoltage"])
+        self.assertTrue(checks["no_pi_undervoltage"])
+        self.assertFalse(checks["no_pi_frequency_cap_or_throttle"])
+        self.assertTrue(checks["no_pi_soft_temperature_limit"])
+
+    def test_final_separates_undervoltage_from_thermal_throttle(self):
+        payload = good_final_payload(after=1 << 16)
+        checks = mod.evaluate_final(payload, "pi4-reference")
+        self.assertFalse(checks["no_pi_undervoltage"])
+        self.assertTrue(checks["no_pi_frequency_cap_or_throttle"])
+        self.assertTrue(checks["no_pi_soft_temperature_limit"])
+
+    def test_final_rejects_throttle_seen_during_stress_even_if_after_clear(self):
+        samples = [{"throttled": {"value": 1 << 1}}]
+        payload = good_final_payload(after=0, samples=samples)
+        checks = mod.evaluate_final(payload, "pi4-reference")
+        self.assertFalse(checks["no_pi_frequency_cap_or_throttle"])
+
+    def test_throttle_flag_decode(self):
+        value = (1 << 1) | (1 << 17)
+        flags = mod.throttle_flags(value)
+        self.assertIn("current_frequency_capped", flags)
+        self.assertIn("historical_frequency_capped", flags)
+        self.assertNotIn("current_undervoltage", flags)
 
     def test_run_directory_never_overwrites(self):
         with tempfile.TemporaryDirectory() as tmp:
