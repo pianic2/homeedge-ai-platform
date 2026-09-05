@@ -15,7 +15,8 @@ For the Raspberry Pi 4 reference run:
 - Raspberry Pi 4 supported ~5 V supply;
 - **5.1 V / 3 A is recommended**;
 - a good-quality **2.5 A** supply is the minimum accepted by this bounded test when USB peripheral load is low;
-- a supply below 2.5 A is not accepted for the reference stress run.
+- a supply below 2.5 A is not accepted for the reference stress run;
+- cooling/enclosure configuration must be recorded exactly.
 
 On the Pi:
 
@@ -75,7 +76,7 @@ Default physical workload:
 
 ### Live console progress
 
-The harness now prints the active phase and progress with flushed console output. During a normal run you will see messages similar to:
+The harness prints the active phase and progress with flushed console output. During a normal run you will see messages similar to:
 
 ```text
 [IHAP-52] PHASE 3/5: storage integrity smoke test (128 MiB)
@@ -84,12 +85,16 @@ The harness now prints the active phase and progress with flushed console output
 [IHAP-52] STORAGE: rilettura e verifica SHA-256...
 [IHAP-52] STORAGE: PASS; write=... read=... hash_match=True
 [IHAP-52] PHASE 4/5: CPU stress (300s, 4 worker)
-[IHAP-52] STRESS  33% | elapsed=  100s | remaining=  200s | temp=...C | load1=... | mem_avail=... MiB
-[IHAP-52] STRESS  67% | elapsed=  200s | remaining=  100s | temp=...C | load1=... | mem_avail=... MiB
+[IHAP-52] STRESS  33% | elapsed=  100s | remaining=  200s | temp=...C | load1=... | mem_avail=... MiB | throttle=0x0 (none)
+[IHAP-52] STRESS  67% | elapsed=  200s | remaining=  100s | temp=...C | load1=... | mem_avail=... MiB | throttle=0x0 (none)
 [IHAP-52] PHASE 5/5: post-flight power/throttle, boot stability e OOM checks
+[IHAP-52] POST-FLIGHT throttle=0x0 (none)
 [IHAP-52] POST-FLIGHT GATES
   [PASS] storage_integrity
   [PASS] stress_workers
+  [PASS] no_pi_undervoltage
+  [PASS] no_pi_frequency_cap_or_throttle
+  [PASS] no_pi_soft_temperature_limit
   ...
 [IHAP-52] FINAL RESULT: PASS
 ```
@@ -100,9 +105,10 @@ Stress progress is emitted approximately every **5 seconds** and includes:
 - elapsed and remaining seconds;
 - CPU temperature when readable;
 - 1-minute load average;
-- available RAM.
+- available RAM;
+- decoded Raspberry Pi `vcgencmd get_throttled` state.
 
-These console messages are observational only. They do not modify the test duration, thresholds or PASS/FAIL semantics.
+These console messages are observational only. They do not modify the test duration or acceptance envelope.
 
 The command prints the evidence directory when it finishes.
 
@@ -118,7 +124,48 @@ python3 -m json.tool "$RUN_DIR/validation.json" >/dev/null && echo 'JSON OK'
 
 Expected final result: `Overall gate: PASS`.
 
-## 7. Interpretation note
+## 7. If a run fails on Raspberry Pi throttle/power
+
+Before rebooting, capture the current/historical firmware flags:
+
+```bash
+vcgencmd get_throttled
+vcgencmd measure_temp
+```
+
+The revised harness separates:
+
+- `no_pi_undervoltage` — supply-voltage events;
+- `no_pi_frequency_cap_or_throttle` — frequency-cap/throttle events, including thermal throttling;
+- `no_pi_soft_temperature_limit` — generic soft-temperature flag when exposed.
+
+Raspberry Pi documentation states that between approximately **80 °C and 85 °C** the Arm cores are progressively throttled. A bounded run that reaches this regime and records frequency-cap/throttle flags does not reject the Pi 4 itself; it rejects that exact tested cooling/enclosure configuration.
+
+### Thermal rerun path
+
+If the previous run reached the thermal-throttling regime:
+
+1. improve airflow / install the intended case fan or otherwise change cooling;
+2. record the new cooling configuration exactly;
+3. reboot before the next acceptance run, because historical `vcgencmd` flags would otherwise contaminate pre-flight;
+4. after reboot verify:
+
+```bash
+vcgencmd get_throttled
+```
+
+Expected clean boot state:
+
+```text
+throttled=0x0
+```
+
+5. pull the latest IHAP-52 branch;
+6. rerun the host self-test;
+7. run `--guided --dry-run`;
+8. only after `PRE-FLIGHT PASS`, run the full `--guided` test.
+
+## 8. Interpretation notes
 
 Current Raspberry Pi OS Lite 64-bit is Debian-based. A summary such as `Debian GNU/Linux 13 (trixie)` is therefore not, by itself, an OS failure when the operator has confirmed Raspberry Pi OS Lite 64-bit was selected in Raspberry Pi Imager.
 
