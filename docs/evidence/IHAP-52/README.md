@@ -131,7 +131,7 @@ Quick commands:
 - `central-node-hardware-comparison.md` — alternative comparison/equivalence rules.
 - `central-node-validation-plan.md` — canonical physical runbook.
 - `PR-SUMMARY.md` — PR-level decision/remediation summary.
-- `pre-pr-review-summary.md` — specialist pre-physical-run review.
+- `pre-pr-review-summary.md` — specialist review.
 - `../../adr/ADR-0006-mvp-central-node-hardware-profile.md` — Proposed ADR.
 - `../../../tools/hardware-validation/ihap-52-central-node/` — harness, quick-start and host regression tests.
 
