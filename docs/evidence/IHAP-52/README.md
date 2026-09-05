@@ -8,12 +8,53 @@
 - PR: `#30`
 - reference candidate: Raspberry Pi 4 Model B >=4 GB
 - first specimen: owned Raspberry Pi 4 Model B 8 GB
-- storage baseline: **32 GB A2 microSD**
+- storage baseline: nominal **32 GB microSD; A1 or A2 accepted**
+- A2: recommended for new purchases/reference replication
 - reference OS: **Raspberry Pi OS Lite 64-bit**
 - Wi-Fi required; Ethernet optional
-- physical run: pending
+- reference PSU: 5.1 V / 3 A recommended; >=2.5 A accepted only for the bounded low-USB-load Pi 4 validation
+- full physical stress run: pending
 
 `ADR-0006` replaces the stale branch-local ADR-0003 number only. Current `main` already uses ADR-0003, ADR-0004 and ADR-0005 for accepted door/display/presence decisions.
+
+## First physical pre-flight — 2026-09-05
+
+The first guided pre-flight ran successfully up to the policy gates and intentionally did not start the storage/stress phase because pre-flight failed.
+
+Observed automated PASS evidence:
+
+| Gate / observation | Result |
+|---|---|
+| Raspberry Pi model | Raspberry Pi 4 Model B Rev 1.4 |
+| Architecture | `aarch64` |
+| Logical CPUs | 4 |
+| RAM | 8,199,639,040 bytes reported |
+| Root filesystem | 30,825,431,040 bytes |
+| Wi-Fi | PASS |
+| Repository commit recorded | PASS |
+| Repository clean | PASS |
+| Pi 4 identity | PASS |
+| `vcgencmd` available | PASS |
+| Current/historical pre-run throttle/undervoltage | clean / PASS |
+| Raspberry Pi OS Lite 64-bit Imager selection | operator confirmed |
+| Runtime base OS | Debian GNU/Linux 13 (trixie), expected current Raspberry Pi OS base |
+
+Physical facts discovered:
+
+- the owned 32 GB microSD is **A1**, not A2;
+- case installed;
+- heatsink installed;
+- fan not installed;
+- approximate ambient temperature: 28 °C;
+- tested PSU label: **5 V / 1.55 A**.
+
+### Pre-flight disposition
+
+The initial A2-only gate was a harness/profile defect: Raspberry Pi has documented A1 as a suitable application class, while current official cards are A2. The profile is therefore corrected to accept **A1 or A2**, with A2 recommended for new purchases.
+
+The 5 V / 1.55 A PSU is a real blocker for the acceptance stress run. Raspberry Pi specifies 5 V / 3 A for Pi 4 and permits a good-quality 2.5 A supply only when downstream USB load remains below 500 mA. IHAP-52 therefore requires >=2.5 A for its bounded low-peripheral validation and recommends 5.1 V / 3 A for replication.
+
+This pre-flight is evidence of configuration/profile discovery, **not** a rejection of Raspberry Pi 4.
 
 ## Decision/evidence boundary
 
@@ -21,7 +62,9 @@
 |---|---|
 | Pi 4 documented CPU/RAM/network/I/O capabilities | manufacturer fact |
 | >=4 GB RAM | HomeEdge minimum-profile decision |
-| 32 GB A2 microSD | HomeEdge first reference storage decision |
+| nominal 32 GB microSD | HomeEdge first reference capacity decision |
+| A1/A2 accepted for bounded validation | revised proposed profile based on manufacturer guidance + physical evidence |
+| A2 preferred for new purchase/reference replication | recommendation |
 | Wi-Fi required | HomeEdge profile decision |
 | Pi OS Lite 64-bit first reference image | HomeEdge reference-validation decision |
 | Pi 4 final HomeEdge workload sufficiency | `[UNVALIDATED]` |
@@ -31,7 +74,21 @@
 
 ## Validation model
 
-The operator does **not** manually execute a long checklist. The canonical path is:
+Self-test:
+
+```bash
+python3 -m unittest discover \
+  -s tools/hardware-validation/ihap-52-central-node/tests \
+  -p 'test_*.py' -v
+```
+
+Pre-flight:
+
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
+```
+
+Canonical physical run, only after pre-flight PASS:
 
 ```bash
 python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
@@ -44,40 +101,17 @@ Quick commands:
 - [`tools/hardware-validation/ihap-52-central-node/QUICKSTART.md`](../../../tools/hardware-validation/ihap-52-central-node/QUICKSTART.md)
 - [`central-node-validation-plan.md`](central-node-validation-plan.md)
 
-## Harness regression tests
-
-```bash
-python3 -m unittest discover \
-  -s tools/hardware-validation/ihap-52-central-node/tests \
-  -p 'test_*.py' -v
-```
-
-The remediation suite contains host-only tests so harness changes can be validated without spending physical test time.
-
-## Workload/resource assumptions
-
-| Dimension | Current assumption | Status |
-|---|---|---|
-| Initial physically validated edge nodes | 1 generic room/door node | known baseline |
-| Maximum MVP edge-node count | not fixed | `[UNVALIDATED]` |
-| Edge-to-central transport | HTTP/JSON direction | product direction |
-| Telemetry | temperature, humidity, local non-identifying presence, door state | MVP scope |
-| Event rate / payload size | not measured | `[UNVALIDATED]` |
-| Retention / log volume | not decided/measured | `[UNVALIDATED]` |
-| Backend/container count | not implemented | `[UNVALIDATED]` |
-| Database | not decided | `[UNVALIDATED]` |
-| AI workload | future direction only | `[UNVALIDATED]` |
-
 ## Reference replication profile
 
 | Item | Reference | Requirement |
 |---|---|---|
 | Compute | Raspberry Pi 4 Model B | reference implementation |
 | RAM | >=4 GB | mandatory |
-| Storage | 32 GB A2 microSD | first reference baseline |
+| Storage capacity | nominal >=32 GB | mandatory |
+| microSD application class | A1 or A2 | accepted for bounded run; A2 recommended for new purchase |
 | Wi-Fi | on-board wireless | mandatory |
 | Ethernet | Gigabit Ethernet | optional |
-| PSU | supported USB-C PSU; official 5.1 V / 3 A class preferred | mandatory stable supply |
+| PSU | approximately 5 V, >=2.5 A for bounded low-USB-load run; 5.1 V / 3 A recommended | mandatory stable supply |
 | Cooling | heatsink and/or fan | optional; exact tested setup recorded |
 | Enclosure | ventilated case or explicit bench setup | record exact setup |
 | OS | Raspberry Pi OS Lite 64-bit | first reference image |
@@ -88,10 +122,9 @@ The remediation suite contains host-only tests so harness changes can be validat
 - Raspberry Pi headless/getting started: https://www.raspberrypi.com/documentation/computers/getting-started.html
 - Raspberry Pi OS images: https://www.raspberrypi.com/software/operating-systems/
 - Raspberry Pi 4 specifications: https://www.raspberrypi.com/products/raspberry-pi-4-model-b/specifications/
+- Raspberry Pi SD cards: https://www.raspberrypi.com/documentation/accessories/sd-cards.html
 - Raspberry Pi 5 specifications: https://www.raspberrypi.com/products/raspberry-pi-5/
 - Alpine Raspberry Pi documentation: https://wiki.alpinelinux.org/wiki/Raspberry_Pi
-
-Do not freeze a Raspberry Pi OS image-size number into the architecture decision. Capture the actual version under test and keep final HomeEdge storage/endurance claims evidence-based.
 
 ## Files
 
