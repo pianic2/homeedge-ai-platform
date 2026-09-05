@@ -17,6 +17,7 @@ from typing import Any
 MIN_LOGICAL_CPUS = 4
 MIN_RAM_BYTES = 4_000_000_000
 MIN_STORAGE_BYTES = 28_000_000_000
+MIN_PI4_PSU_AMPS = 2.5
 DEFAULT_STRESS_SECONDS = 300
 DEFAULT_STORAGE_MIB = 128
 PI_CURRENT_MASK = 0xF
@@ -115,6 +116,18 @@ def decode_throttled(value: int | None) -> dict[str, bool | None]:
         "historical_throttled": bool(value & (1 << 18)),
         "historical_soft_temperature_limit": bool(value & (1 << 19)),
     }
+
+
+def parse_psu_rating(text: str) -> dict[str, Any]:
+    normalized = text.replace(",", ".")
+    voltage_match = re.search(r"(\d+(?:\.\d+)?)\s*V\b", normalized, re.IGNORECASE)
+    amps_match = re.search(r"(\d+(?:\.\d+)?)\s*A\b", normalized, re.IGNORECASE)
+    if not voltage_match or not amps_match:
+        return {"parsed": False, "volts": None, "amps": None, "supported_for_pi4_reference": False}
+    volts = float(voltage_match.group(1))
+    amps = float(amps_match.group(1))
+    supported = 4.9 <= volts <= 5.2 and amps >= MIN_PI4_PSU_AMPS
+    return {"parsed": True, "volts": volts, "amps": amps, "supported_for_pi4_reference": supported}
 
 
 def wifi_interfaces() -> list[dict[str, Any]]:
@@ -250,9 +263,12 @@ def evaluate_preflight(snapshot: dict[str, Any], profile: str, manual: dict[str,
         throttle_value = snapshot["raspberry_pi"]["throttled_before"]["value"]
         checks.update({"pi4_model": PI4_MODEL_TOKEN in model, "pi4_aarch64": system["architecture"].lower() in {"aarch64", "arm64"}, "vcgencmd_available": throttle_value is not None, "clean_throttle_history_before_run": throttle_value is not None and (throttle_value & (PI_CURRENT_MASK | PI_HISTORY_MASK)) == 0})
         if manual is not None:
-            checks["manual_a2_confirmed"] = manual.get("a2_confirmed") is True
+            sd_class = str(manual.get("sd_application_class", "")).strip().upper()
+            psu = parse_psu_rating(str(manual.get("psu_rating", "")))
+            checks["manual_sd_application_class_supported"] = sd_class in {"A1", "A2"}
             checks["manual_rpios_lite64_confirmed"] = manual.get("rpios_lite64_confirmed") is True
-            checks["manual_psu_recorded"] = bool(str(manual.get("psu_rating", "")).strip())
+            checks["manual_psu_rating_parseable"] = psu["parsed"] is True
+            checks["manual_psu_supported_for_pi4"] = psu["supported_for_pi4_reference"] is True
     return checks
 
 
@@ -284,20 +300,33 @@ def prompt_yes_no(label: str) -> bool:
         print("Rispondi y/n.")
 
 
+def prompt_sd_application_class() -> str:
+    while True:
+        value = input("Classe applicativa microSD [A1/A2/other/unknown]: ").strip().upper() or "UNKNOWN"
+        if value in {"A1", "A2", "OTHER", "UNKNOWN"}:
+            return value
+        print("Inserisci A1, A2, other oppure unknown.")
+
+
 def guided_manual_answers() -> dict[str, Any]:
     print("\n[IHAP-52] Servono solo le informazioni fisiche che Linux non può verificare da solo.")
-    a2 = prompt_yes_no("La microSD riporta visivamente la marcatura A2?")
+    sd_class = prompt_sd_application_class()
     rpios = prompt_yes_no("Hai installato Raspberry Pi OS Lite 64-bit con Raspberry Pi Imager?")
     card_model = input("Marca/modello microSD (invio = unknown): ").strip() or "unknown"
     psu = input("Alimentatore e rating elettrico (es. 5.1V 3A): ").strip()
     while not psu:
         print("Il rating dell'alimentatore è obbligatorio per la evidence.")
         psu = input("Alimentatore e rating elettrico: ").strip()
+    psu_eval = parse_psu_rating(psu)
+    if psu_eval["parsed"] and not psu_eval["supported_for_pi4_reference"]:
+        print(f"[IHAP-52] ATTENZIONE: {psu} non soddisfa il gate Pi 4 del runbook (>= {MIN_PI4_PSU_AMPS:.1f} A a circa 5 V).")
+    elif not psu_eval["parsed"]:
+        print("[IHAP-52] ATTENZIONE: rating PSU non interpretabile; il pre-flight fallirà.")
     case = input("Case (invio = none): ").strip() or "none"
     heatsink = prompt_yes_no("Heatsink installato?")
     fan = prompt_yes_no("Ventola installata?")
     ambient = input("Temperatura ambiente approssimativa (invio = unknown): ").strip() or "unknown"
-    return {"a2_confirmed": a2, "rpios_lite64_confirmed": rpios, "card_model": card_model, "psu_rating": psu, "case": case, "heatsink": heatsink, "fan": fan, "ambient_temperature": ambient}
+    return {"sd_application_class": sd_class, "rpios_lite64_confirmed": rpios, "card_model": card_model, "psu_rating": psu, "case": case, "heatsink": heatsink, "fan": fan, "ambient_temperature": ambient}
 
 
 def write_operator_notes(path: Path, manual: dict[str, Any], snapshot: dict[str, Any], run_id: str) -> None:
@@ -308,9 +337,9 @@ def write_operator_notes(path: Path, manual: dict[str, Any], snapshot: dict[str,
         f"Board/model: {system.get('raspberry_model') or 'not reported'}\n"
         f"Installed RAM bytes: {system['memory'].get('MemTotal')}\n"
         f"microSD manufacturer/model: {manual.get('card_model')}\n"
-        f"A2 marking visually confirmed: {'yes' if manual.get('a2_confirmed') else 'no'}\n"
+        f"microSD application class: {manual.get('sd_application_class')}\n"
         f"Raspberry Pi OS Lite 64-bit selected in Imager: {'yes' if manual.get('rpios_lite64_confirmed') else 'no'}\n"
-        f"Runtime OS: {system['os_release'].get('PRETTY_NAME', 'not reported')}\n"
+        f"Runtime base OS: {system['os_release'].get('PRETTY_NAME', 'not reported')}\n"
         f"PSU/rating: {manual.get('psu_rating')}\n"
         f"Case: {manual.get('case')}\n"
         f"Heatsinks installed: {'yes' if manual.get('heatsink') else 'no'}\n"
@@ -326,17 +355,21 @@ def write_summary(payload: dict[str, Any], output_dir: Path) -> None:
     rows = "\n".join(f"| {name} | {'PASS' if value else 'FAIL'} |" for name, value in checks.items())
     temps = [s["temperature_c"] for s in payload.get("stress", {}).get("samples", []) if s.get("temperature_c") is not None]
     max_temp = max(temps) if temps else None
+    manual = payload.get("manual_evidence") or {}
     (output_dir / "validation.json").write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
     (output_dir / "validation.md").write_text(
         "# IHAP-52 Central Node Validation Summary\n\n"
         f"- Run ID: `{payload['run_id']}`\n"
         f"- Profile: `{payload['profile']}`\n"
         f"- Model: `{payload['system']['raspberry_model'] or 'not reported'}`\n"
-        f"- OS: `{payload['system']['os_release'].get('PRETTY_NAME', 'not reported')}`\n"
+        f"- Runtime base OS: `{payload['system']['os_release'].get('PRETTY_NAME', 'not reported')}`\n"
+        f"- Imager selection: `{'Raspberry Pi OS Lite 64-bit (operator confirmed)' if manual.get('rpios_lite64_confirmed') else 'not confirmed'}`\n"
         f"- Architecture: `{payload['system']['architecture']}`\n"
         f"- CPUs: `{payload['system']['logical_cpus']}`\n"
         f"- RAM bytes: `{payload['system']['memory'].get('MemTotal')}`\n"
         f"- Root filesystem bytes: `{payload['storage']['filesystem_total_bytes']}`\n"
+        f"- microSD application class: `{manual.get('sd_application_class', 'not recorded')}`\n"
+        f"- PSU/rating: `{manual.get('psu_rating', 'not recorded')}`\n"
         f"- Max observed CPU temperature: `{max_temp if max_temp is not None else 'not reported'}`\n"
         f"- Overall gate: `{'PASS' if payload['evaluation']['overall_pass'] else 'FAIL'}`\n\n"
         "## Automated gates\n\n| Gate | Result |\n|---|---|\n"
@@ -374,7 +407,7 @@ def main() -> int:
         write_operator_notes(output_dir / "operator-notes.md", manual, snapshot, run_id)
 
     preflight = evaluate_preflight(snapshot, args.profile, manual)
-    payload: dict[str, Any] = {"schema_version": 3, "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_id": run_id, "profile": args.profile, **snapshot, "manual_evidence": manual, "preflight": {"checks": preflight, "pass": all(preflight.values())}}
+    payload: dict[str, Any] = {"schema_version": 4, "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_id": run_id, "profile": args.profile, **snapshot, "manual_evidence": manual, "preflight": {"checks": preflight, "pass": all(preflight.values())}}
 
     if args.dry_run or not payload["preflight"]["pass"]:
         payload["evaluation"] = {"checks": preflight, "overall_pass": all(preflight.values())}
