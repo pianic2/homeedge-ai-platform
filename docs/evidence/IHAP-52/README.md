@@ -12,58 +12,36 @@
 - A2: recommended for new purchases/reference replication
 - reference OS: **Raspberry Pi OS Lite 64-bit**
 - Wi-Fi required; Ethernet optional
-- reference PSU: 5.1 V / 3 A recommended; >=2.5 A accepted only for the bounded low-USB-load Pi 4 validation
-- first full physical stress run: **FAIL on combined Pi throttle/undervoltage gate** with 84.724 °C maximum observed CPU temperature
-- next candidate: same platform with improved airflow / fan enabled and clean post-reboot throttle history
+- reference PSU: **5.1 V / 3 A recommended**; >=2.5 A accepted only for the bounded low-USB-load Pi 4 validation
+- tested reference cooling: **case + heatsink + fan enabled**
+- latest full bounded physical run: **PASS** (`pi4b-20260905T112848Z`)
 
 `ADR-0006` replaces the stale branch-local ADR-0003 number only. Current `main` already uses ADR-0003, ADR-0004 and ADR-0005 for accepted door/display/presence decisions.
 
-## First physical pre-flight — 2026-09-05
+## Evidence timeline — 2026-09-05
 
-The first guided pre-flight ran successfully up to the policy gates and intentionally did not start the storage/stress phase because pre-flight failed.
+### 1. Initial pre-flight
 
-Observed automated PASS evidence:
+The first guided pre-flight established the board/OS/resource baseline but did not start stress because the operator evidence exposed two issues:
 
-| Gate / observation | Result |
-|---|---|
-| Raspberry Pi model | Raspberry Pi 4 Model B Rev 1.4 |
-| Architecture | `aarch64` |
-| Logical CPUs | 4 |
-| RAM | 8,199,639,040 bytes reported |
-| Root filesystem | 30,825,431,040 bytes |
-| Wi-Fi | PASS |
-| Repository commit recorded | PASS |
-| Repository clean | PASS |
-| Pi 4 identity | PASS |
-| `vcgencmd` available | PASS |
-| Current/historical pre-run throttle/undervoltage | clean / PASS |
-| Raspberry Pi OS Lite 64-bit Imager selection | operator confirmed |
-| Runtime base OS | Debian GNU/Linux 13 (trixie), expected current Raspberry Pi OS base |
+- owned microSD was **A1**, while the harness incorrectly required A2;
+- tested PSU was **5 V / 1.55 A**, below the Raspberry Pi 4 validation power envelope.
 
-Physical facts discovered:
+Observed automated PASS evidence included Raspberry Pi 4 Model B Rev 1.4, `aarch64`, 4 logical CPUs, ~8.2 GB RAM, ~30.8 GB root filesystem, Wi-Fi, clean repository state and clean pre-run `vcgencmd` diagnostics.
 
-- the owned 32 GB microSD is **A1**, not A2;
-- case installed;
-- heatsink installed;
-- fan not installed;
-- approximate ambient temperature: 28 °C;
-- tested PSU label: **5 V / 1.55 A**.
+Disposition:
 
-### Pre-flight disposition
+- A1/A2 policy corrected: A1 or A2 accepted, A2 recommended for new purchases;
+- 5 V / 1.55 A rejected for the stress phase;
+- no Raspberry Pi hardware rejection.
 
-The initial A2-only gate was a harness/profile defect: Raspberry Pi has documented A1 as a suitable application class, while current official cards are A2. The profile is therefore corrected to accept **A1 or A2**, with A2 recommended for new purchases.
-
-The 5 V / 1.55 A PSU is a real blocker for the acceptance stress run. Raspberry Pi specifies 5 V / 3 A for Pi 4 and permits a good-quality 2.5 A supply only when downstream USB load remains below 500 mA. IHAP-52 therefore requires >=2.5 A for its bounded low-peripheral validation and recommends 5.1 V / 3 A for replication.
-
-This pre-flight is evidence of configuration/profile discovery, **not** a rejection of Raspberry Pi 4.
-
-## First full bounded run — 2026-09-05
+### 2. First full bounded run — passive cooling FAIL
 
 Sanitized evidence:
 
 - [`summaries/pi4b-20260905T111348Z-summary.md`](summaries/pi4b-20260905T111348Z-summary.md)
 
-Configuration under test:
+Configuration:
 
 - Raspberry Pi 4 Model B Rev 1.4;
 - Raspberry Pi OS Lite 64-bit / Debian GNU/Linux 13 (trixie);
@@ -78,30 +56,41 @@ Result:
 
 - architecture/resource/network/repository gates: PASS;
 - storage integrity: PASS;
-- all stress workers: PASS;
+- stress workers: PASS;
 - boot stability: PASS;
 - no OOM pattern: PASS;
-- PSU manual policy gate: PASS;
 - maximum CPU temperature: **84.724 °C**;
-- combined `no_pi_throttle_or_undervoltage`: **FAIL**;
-- overall gate: **FAIL**.
+- combined Pi throttle/undervoltage gate: **FAIL**;
+- overall: **FAIL**.
 
-Raspberry Pi documentation states that the Arm cores are progressively throttled in the 80–85 °C range. The run is therefore strongly consistent with thermal throttling, but the v5 summary did not publish the exact `vcgencmd get_throttled` bitmask. The sanitized record does not claim bit-level confirmation that was not present in the supplied summary.
+Disposition: the tested passive configuration (`case + heatsink, no fan`) is rejected for the current 300-second bounded reference stress envelope. This run does not reject Pi 4, A1 storage, Raspberry Pi OS Lite 64-bit, the 5.1 V / 3 A PSU or storage/resource stability.
 
-### Full-run disposition
+### 3. Second full bounded run — fan cooling PASS
 
-The run does **not** reject Raspberry Pi 4, A1 storage, Raspberry Pi OS Lite 64-bit, the 5.1 V / 3 A PSU, storage integrity or basic resource stability.
+Sanitized evidence:
 
-It rejects the tested **passive cooling configuration** (`case + heatsink, no fan`) for the current bounded 300-second stress envelope.
+- [`summaries/pi4b-20260905T112848Z-summary.md`](summaries/pi4b-20260905T112848Z-summary.md)
 
-The harness is remediated after this run to:
+Configuration remained the same reference platform, storage and PSU, with the cooling configuration changed to **case + heatsink + fan enabled**.
 
-- sample/decode `vcgencmd get_throttled` during stress;
-- display the throttle word live every ~5 seconds;
-- separate final gates for undervoltage, frequency-cap/throttle and soft-temperature flags;
-- preserve the same overall clean-throttle acceptance requirement.
+Result:
 
-Before the next acceptance run, improve cooling, reboot to clear historical firmware flags, verify `vcgencmd get_throttled` is `0x0`, pull the updated branch, run the host suite and repeat pre-flight/full validation.
+- all architecture/resource/network/repository gates: PASS;
+- A1 application-class policy: PASS;
+- Raspberry Pi OS Lite 64-bit confirmation: PASS;
+- PSU policy: PASS;
+- storage integrity: PASS;
+- stress workers: PASS;
+- boot stability: PASS;
+- no OOM pattern: PASS;
+- no Pi undervoltage: PASS;
+- no Pi frequency cap/throttling: PASS;
+- no Pi soft-temperature limit: PASS;
+- maximum CPU temperature: **64.757 °C**;
+- post-run Pi throttle word: **`0x0 (none)`**;
+- overall: **PASS**.
+
+Disposition: **the fan-enabled cooling configuration is validated for the tested Raspberry Pi 4 reference enclosure and bounded 300-second stress envelope**. This does not create a universal active-cooling requirement for all equivalent hardware; an equivalent cooling solution may qualify when it passes the same gates.
 
 ## Decision/evidence boundary
 
@@ -110,20 +99,21 @@ Before the next acceptance run, improve cooling, reboot to clear historical firm
 | Pi 4 documented CPU/RAM/network/I/O capabilities | manufacturer fact |
 | >=4 GB RAM | HomeEdge minimum-profile decision |
 | nominal 32 GB microSD | HomeEdge first reference capacity decision |
-| A1/A2 accepted for bounded validation | revised proposed profile based on manufacturer guidance + physical evidence |
+| A1/A2 accepted for bounded validation | proposed profile + passing A1 physical evidence |
 | A2 preferred for new purchase/reference replication | recommendation |
 | Wi-Fi required | HomeEdge profile decision |
 | Pi OS Lite 64-bit first reference image | HomeEdge reference-validation decision |
-| passive `case + heatsink, no fan` configuration | **rejected for bounded reference stress** by run `pi4b-20260905T111348Z` |
-| active-fan cooling reference | pending next physical run |
-| Pi 4 final HomeEdge workload sufficiency | `[UNVALIDATED]` |
+| passive `case + heatsink, no fan` configuration | **rejected** for bounded reference stress by `pi4b-20260905T111348Z` |
+| `case + heatsink + fan enabled` reference configuration | **validated** by `pi4b-20260905T112848Z` |
+| Raspberry Pi 4 reference hardware/resource envelope | **physical validation PASS; pending Project Owner ADR acceptance** |
+| final HomeEdge workload sufficiency | `[UNVALIDATED]` |
 | microSD endurance / final retention | `[UNVALIDATED]` |
 | GPU/AI acceleration | `[UNVALIDATED]`; not an MVP hardware gate |
 | Alpine Linux HomeEdge validation | not established |
 
 ## Validation model
 
-Self-test:
+Host regression suite:
 
 ```bash
 python3 -m unittest discover \
@@ -137,18 +127,13 @@ Pre-flight:
 python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
 ```
 
-Canonical physical run, only after pre-flight PASS:
+Canonical physical run:
 
 ```bash
 python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
 ```
 
 The harness performs automated profile, Wi-Fi, repository-integrity, Raspberry Pi power/throttle, storage-integrity, CPU-stress, boot-stability and post-flight gates. Only physical attributes unavailable to Linux are prompted.
-
-Quick commands:
-
-- [`tools/hardware-validation/ihap-52-central-node/QUICKSTART.md`](../../../tools/hardware-validation/ihap-52-central-node/QUICKSTART.md)
-- [`central-node-validation-plan.md`](central-node-validation-plan.md)
 
 ## Reference replication profile
 
@@ -157,11 +142,11 @@ Quick commands:
 | Compute | Raspberry Pi 4 Model B | reference implementation |
 | RAM | >=4 GB | mandatory |
 | Storage capacity | nominal >=32 GB | mandatory |
-| microSD application class | A1 or A2 | accepted for bounded run; A2 recommended for new purchase |
+| microSD application class | A1 or A2 | accepted; A2 recommended for new purchase |
 | Wi-Fi | on-board wireless | mandatory |
 | Ethernet | Gigabit Ethernet | optional |
 | PSU | approximately 5 V, >=2.5 A for bounded low-USB-load run; 5.1 V / 3 A recommended | mandatory stable supply |
-| Cooling | exact configuration must pass bounded run without Pi throttle flags | passive case+heatsink/no-fan specimen failed; active-fan candidate pending |
+| Cooling | tested reference uses heatsink + active fan | equivalent cooling acceptable only after passing same gates |
 | Enclosure | ventilated case or explicit bench setup | record exact setup |
 | OS | Raspberry Pi OS Lite 64-bit | first reference image |
 | GPU/accelerator | none required | optional future capability |
@@ -181,7 +166,8 @@ Quick commands:
 - `central-node-validation-plan.md` — canonical physical runbook.
 - `PR-SUMMARY.md` — PR-level decision/remediation summary.
 - `pre-pr-review-summary.md` — specialist review.
-- `summaries/pi4b-20260905T111348Z-summary.md` — first full bounded physical run; passive cooling FAIL.
+- `summaries/pi4b-20260905T111348Z-summary.md` — passive-cooling full run; FAIL.
+- `summaries/pi4b-20260905T112848Z-summary.md` — fan-cooled full run; PASS.
 - `../../adr/ADR-0006-mvp-central-node-hardware-profile.md` — Proposed ADR.
 - `../../../tools/hardware-validation/ihap-52-central-node/` — harness, quick-start and host regression tests.
 
