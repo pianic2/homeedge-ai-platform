@@ -57,6 +57,8 @@ When prompted for the microSD application class, enter `A1` or `A2` exactly as p
 
 If the PSU is below the accepted Pi 4 reference threshold, stop here and replace the PSU before running the stress phase.
 
+The harness prints every pre-flight gate individually as `[PASS]` or `[FAIL]`.
+
 ## 5. Canonical validation — one command
 
 Only after `PRE-FLIGHT PASS`:
@@ -70,6 +72,37 @@ Default physical workload:
 - 128 MiB deterministic storage smoke test;
 - 300 seconds CPU stress;
 - automatic power/throttle/stability gates.
+
+### Live console progress
+
+The harness now prints the active phase and progress with flushed console output. During a normal run you will see messages similar to:
+
+```text
+[IHAP-52] PHASE 3/5: storage integrity smoke test (128 MiB)
+[IHAP-52] STORAGE write: 25% (32/128 MiB)
+[IHAP-52] STORAGE write: 50% (64/128 MiB)
+[IHAP-52] STORAGE: rilettura e verifica SHA-256...
+[IHAP-52] STORAGE: PASS; write=... read=... hash_match=True
+[IHAP-52] PHASE 4/5: CPU stress (300s, 4 worker)
+[IHAP-52] STRESS  33% | elapsed=  100s | remaining=  200s | temp=...C | load1=... | mem_avail=... MiB
+[IHAP-52] STRESS  67% | elapsed=  200s | remaining=  100s | temp=...C | load1=... | mem_avail=... MiB
+[IHAP-52] PHASE 5/5: post-flight power/throttle, boot stability e OOM checks
+[IHAP-52] POST-FLIGHT GATES
+  [PASS] storage_integrity
+  [PASS] stress_workers
+  ...
+[IHAP-52] FINAL RESULT: PASS
+```
+
+Stress progress is emitted approximately every **5 seconds** and includes:
+
+- percentage completed;
+- elapsed and remaining seconds;
+- CPU temperature when readable;
+- 1-minute load average;
+- available RAM.
+
+These console messages are observational only. They do not modify the test duration, thresholds or PASS/FAIL semantics.
 
 The command prints the evidence directory when it finishes.
 
