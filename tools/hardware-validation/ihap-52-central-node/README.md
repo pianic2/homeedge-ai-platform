@@ -8,52 +8,21 @@ Reference profile:
 
 - Raspberry Pi 4 Model B;
 - >=4 GB RAM;
-- 32 GB A2 microSD;
+- nominal 32 GB or larger microSD;
+- application class **A1 or A2** accepted;
+- A2 recommended for new purchases/reference replication;
 - Raspberry Pi OS Lite 64-bit;
 - Wi-Fi required;
 - Ethernet optional;
-- manufacturer-supported USB-C PSU;
+- approximately 5 V PSU rated >=2.5 A for the bounded low-USB-load run;
+- 5.1 V / 3 A recommended reference PSU;
 - cooling/enclosure recorded exactly as tested.
 
 This validates hardware/resource stability only. Final HomeEdge workload sufficiency, microSD endurance/retention, Docker/container behavior and AI acceleration remain `[UNVALIDATED]`.
 
 ## Fast path
 
-After installing Raspberry Pi OS Lite 64-bit and cloning/checking out the IHAP-52 branch:
-
-```bash
-cd ~/homeedge-ai-platform
-python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
-```
-
-That command:
-
-1. creates a unique run directory automatically;
-2. asks only for physical facts Linux cannot prove (A2 marking, PSU, case/cooling, OS image selected);
-3. records board, RAM, OS, kernel-facing hardware, repository commit and Wi-Fi state automatically;
-4. rejects stale/dirty repository state before the stress phase;
-5. requires a clean Raspberry Pi `vcgencmd get_throttled` baseline;
-6. performs the deterministic storage write/read/hash smoke test;
-7. runs the bounded 300-second CPU stress gate;
-8. checks worker exits, boot identity, OOM evidence when readable, and Raspberry Pi throttling/undervoltage state;
-9. writes `operator-notes.md`, `validation.json` and `validation.md`;
-10. exits `0` on PASS or `2` on a validation failure.
-
-Normal operator time after OS preparation is approximately the five-minute stress window plus a few prompts. No manual pre-flight or post-flight command list is required.
-
-## Pre-flight only
-
-Before committing to the five-minute run:
-
-```bash
-python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
-```
-
-This performs the automatic mandatory pre-flight only and does not execute the storage write test or CPU stress.
-
-## Harness self-tests
-
-Run on any normal development machine; Raspberry Pi hardware is not required:
+### 1. Self-test
 
 ```bash
 python3 -m unittest discover \
@@ -61,64 +30,76 @@ python3 -m unittest discover \
   -p 'test_*.py' -v
 ```
 
-These tests cover the pass/fail engine, Raspberry Pi-specific diagnostics, manual evidence gates, storage-integrity rejection, throttle-history rejection, equivalent-device behavior and non-overwriting run IDs.
+### 2. Pre-flight only
 
-## Mandatory automated gates
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
+```
 
-| Gate | Reference PASS condition |
-|---|---|
-| Architecture | 64-bit ARM64 for Pi 4 reference; ARM64/x86_64 for equivalent profile |
-| Board | Raspberry Pi 4 Model B for `pi4-reference` |
-| CPU | >=4 logical processors |
-| RAM | >=4,000,000,000 bytes |
-| Root filesystem | >=28,000,000,000 bytes for nominal 32 GB media |
-| Wi-Fi | wireless interface `up` with a non-link-local address |
-| Repository | tested commit recorded and worktree clean |
-| A2 / OS selection | confirmed by operator in guided mode |
-| PSU | rating recorded by operator |
-| Pi diagnostics | `vcgencmd` available and no current/historical throttle/undervoltage flags before the run |
-| Storage smoke | exact byte count and deterministic SHA-256 write/read match; temp file removed |
-| Stress | all workers exit successfully |
-| Stability | boot identity unchanged; no OOM pattern when kernel log is readable |
-| Post-stress Pi health | no current/historical throttle/undervoltage/frequency-cap/soft-temp flags |
+The operator supplies only facts Linux cannot prove directly: microSD application class, Raspberry Pi OS Lite 64-bit Imager selection, optional card model, PSU rating, case/cooling and ambient temperature.
 
-Graphics/render-device exposure is recorded as evidence but is **not** an MVP hardware gate. The current HomeEdge MVP does not require GPU acceleration.
+For the Pi 4 reference profile, `A1` and `A2` are accepted application classes. A2 remains the recommended replication class.
+
+The PSU rating is an actual gate. Raspberry Pi documents 5 V / 3 A as the normal Pi 4 requirement and permits a good-quality 2.5 A supply where downstream USB load remains below 500 mA. IHAP-52 therefore accepts >=2.5 A only for this bounded low-peripheral run and recommends 5.1 V / 3 A for reference replication.
+
+A 5 V / 1.55 A supply is below the accepted validation envelope and must not proceed to the stress phase.
+
+### 3. Canonical physical run
+
+Only after `PRE-FLIGHT PASS`:
+
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
+```
+
+Default workload:
+
+- 128 MiB deterministic storage write/read test with SHA-256 comparison;
+- 300 seconds CPU stress;
+- automatic worker, boot, OOM and `vcgencmd` post-run gates.
+
+## Automatic pre-flight gates
+
+- supported 64-bit architecture;
+- >=4 logical CPUs;
+- >=4 GB RAM;
+- root filesystem capacity compatible with nominal 32 GB media;
+- active Wi-Fi with an IP address;
+- repository commit recorded and clean worktree;
+- Pi 4 model/ARM64 for the reference profile;
+- `vcgencmd` available;
+- no current or historical Pi undervoltage/throttling flags;
+- microSD application class A1/A2;
+- Raspberry Pi OS Lite 64-bit operator confirmation;
+- parseable and supported PSU rating.
+
+GPU/render exposure is collected as observation only and is not an MVP PASS gate.
 
 ## Outputs
 
-Each attempt gets a new directory automatically:
-
 ```text
-tools/hardware-validation/ihap-52-central-node/runs/pi4b-YYYYMMDDTHHMMSSZ/
+runs/<run-id>/
 ├── operator-notes.md
 ├── validation.json
 └── validation.md
 ```
 
-`runs/` is ignored by Git. Never overwrite a failed run.
+Every run gets a unique directory. Previous attempts are never overwritten.
 
-## Failure handling
+## Current Raspberry Pi OS note
 
-If the guided command stops at pre-flight, fix the reported condition first. Common causes:
+Current Raspberry Pi OS Lite 64-bit is Debian-based. Seeing `Debian GNU/Linux 13 (trixie)` in `/etc/os-release` is compatible with the current Raspberry Pi OS Lite release when the operator confirms the Imager selection.
 
-- A2 or Raspberry Pi OS Lite 64-bit not confirmed;
-- worktree contains local edits;
-- Wi-Fi is not up;
-- wrong board/architecture;
-- `vcgencmd` is unavailable;
-- `get_throttled` already reports historical/current power or thermal flags.
-
-For a dirty throttle history, reboot once with the intended PSU/cooling configuration and run the pre-flight again. A history that reappears immediately is evidence to investigate, not something to suppress.
+A `--dry-run` does not execute CPU stress, so `Max observed CPU temperature: not reported` is expected there.
 
 ## Privacy
 
-The harness intentionally avoids recording SSID, passwords, private IPs, MAC addresses, hostname or username. Raw run evidence remains local until reviewed and sanitized.
+Raw runs remain local and ignored by Git. Before publishing any sanitized summary, remove hostname, username, SSID, private IP, MAC address and credentials.
 
-## Canonical operator procedure
+## Exit codes
 
-See [`docs/evidence/IHAP-52/central-node-validation-plan.md`](../../../docs/evidence/IHAP-52/central-node-validation-plan.md).
+- `0`: all applicable mandatory gates passed;
+- `2`: at least one mandatory gate failed;
+- other non-zero: execution/configuration error.
 
-Official Raspberry Pi headless setup guidance:
-
-- https://www.raspberrypi.com/documentation/computers/getting-started.html
-- https://www.raspberrypi.com/software/operating-systems/
+See [`QUICKSTART.md`](QUICKSTART.md) for the shortest operator command sequence and [`docs/evidence/IHAP-52/central-node-validation-plan.md`](../../../docs/evidence/IHAP-52/central-node-validation-plan.md) for the canonical runbook.
