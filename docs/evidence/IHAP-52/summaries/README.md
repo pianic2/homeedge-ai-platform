@@ -1,6 +1,6 @@
 # IHAP-52 Sanitized Validation Summaries
 
-This directory is reserved for reviewed aggregate summaries generated from Project Owner/community central-node validation runs.
+This directory is reserved for reviewed aggregate summaries generated from central-node validation runs.
 
 Raw harness output under `tools/hardware-validation/ihap-52-central-node/runs/` remains local and ignored by Git.
 
@@ -10,12 +10,15 @@ A summary may report:
 
 - device family/model;
 - architecture, logical CPU count and RAM capacity;
-- storage capacity/profile and integrity-smoke result;
+- storage capacity and microSD application class;
 - Wi-Fi gate pass/fail without private addressing;
+- PSU electrical rating and pass/fail disposition;
 - temperature aggregates and throttling/undervoltage flags;
 - stress duration and worker result;
 - overall automated gate;
-- manual PSU/cooling/enclosure configuration;
+- manual cooling/enclosure configuration;
 - explicit `[UNVALIDATED]` boundaries.
 
-A passing summary supports only the declared IHAP-52 validation envelope. It does not prove production readiness, final application sizing, microSD endurance or AI acceleration.
+The 2026-09-05 pre-flight is not yet a publishable final validation summary because the full stress phase did not execute. It is retained as task evidence in the IHAP-52 evidence index and Jira.
+
+A passing summary supports only the declared IHAP-52 validation envelope. It does not prove production readiness, final application sizing, microSD endurance/retention or AI acceleration.
