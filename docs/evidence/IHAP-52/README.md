@@ -4,16 +4,16 @@
 
 - Jira: `IHAP-52`
 - ADR: `ADR-0006 — MVP Central Node Hardware Profile`
-- ADR status: `Proposed`
-- PR: `#30`
-- reference candidate: Raspberry Pi 4 Model B >=4 GB
-- first specimen: owned Raspberry Pi 4 Model B 8 GB
+- ADR status: `Accepted` (Project Owner approval 2026-09-05)
+- PR: `#30` — open; **not merged**
+- reference implementation: Raspberry Pi 4 Model B >=4 GB
+- validated specimen: owned Raspberry Pi 4 Model B Rev 1.4, 8 GB
 - storage baseline: nominal **32 GB microSD; A1 or A2 accepted**
 - A2: recommended for new purchases/reference replication
 - reference OS: **Raspberry Pi OS Lite 64-bit**
 - Wi-Fi required; Ethernet optional
 - reference PSU: **5.1 V / 3 A recommended**; >=2.5 A accepted only for the bounded low-USB-load Pi 4 validation
-- tested reference cooling: **case + heatsink + fan enabled**
+- validated reference cooling: **case + heatsink + fan enabled**
 - latest full bounded physical run: **PASS** (`pi4b-20260905T112848Z`)
 
 `ADR-0006` replaces the stale branch-local ADR-0003 number only. Current `main` already uses ADR-0003, ADR-0004 and ADR-0005 for accepted door/display/presence decisions.
@@ -97,15 +97,15 @@ Disposition: **the fan-enabled cooling configuration is validated for the tested
 | Claim | State |
 |---|---|
 | Pi 4 documented CPU/RAM/network/I/O capabilities | manufacturer fact |
-| >=4 GB RAM | HomeEdge minimum-profile decision |
-| nominal 32 GB microSD | HomeEdge first reference capacity decision |
-| A1/A2 accepted for bounded validation | proposed profile + passing A1 physical evidence |
+| >=4 GB RAM | accepted HomeEdge minimum-profile decision |
+| nominal 32 GB microSD | accepted HomeEdge first reference capacity decision |
+| A1/A2 accepted for bounded validation | **Accepted**; A1 has passing physical evidence |
 | A2 preferred for new purchase/reference replication | recommendation |
-| Wi-Fi required | HomeEdge profile decision |
-| Pi OS Lite 64-bit first reference image | HomeEdge reference-validation decision |
+| Wi-Fi required | accepted HomeEdge profile decision |
+| Pi OS Lite 64-bit first reference image | accepted HomeEdge reference decision |
 | passive `case + heatsink, no fan` configuration | **rejected** for bounded reference stress by `pi4b-20260905T111348Z` |
 | `case + heatsink + fan enabled` reference configuration | **validated** by `pi4b-20260905T112848Z` |
-| Raspberry Pi 4 reference hardware/resource envelope | **physical validation PASS; pending Project Owner ADR acceptance** |
+| Raspberry Pi 4 reference hardware/resource envelope | **PASS; ADR-0006 Accepted 2026-09-05** |
 | final HomeEdge workload sufficiency | `[UNVALIDATED]` |
 | microSD endurance / final retention | `[UNVALIDATED]` |
 | GPU/AI acceleration | `[UNVALIDATED]`; not an MVP hardware gate |
@@ -168,7 +168,7 @@ The harness performs automated profile, Wi-Fi, repository-integrity, Raspberry P
 - `pre-pr-review-summary.md` — specialist review.
 - `summaries/pi4b-20260905T111348Z-summary.md` — passive-cooling full run; FAIL.
 - `summaries/pi4b-20260905T112848Z-summary.md` — fan-cooled full run; PASS.
-- `../../adr/ADR-0006-mvp-central-node-hardware-profile.md` — Proposed ADR.
+- `../../adr/ADR-0006-mvp-central-node-hardware-profile.md` — **Accepted ADR**.
 - `../../../tools/hardware-validation/ihap-52-central-node/` — harness, quick-start and host regression tests.
 
 ## Publication boundary
