@@ -2,75 +2,45 @@
 
 ## Purpose
 
-Canonical operator procedure for the first HomeEdge central-node hardware validation.
+This is the canonical operator procedure for the Raspberry Pi 4 reference validation. It is deliberately short: the harness performs the checks, storage smoke test, stress phase and evidence generation.
 
-The procedure intentionally minimizes operator work. All checks that can be established by software are executed by the harness. The operator supplies only physical facts that the operating system cannot prove.
+A PASS validates only the bounded IHAP-52 hardware envelope. Final HomeEdge workload capacity, microSD endurance/retention, container/database behavior and AI acceleration remain `[UNVALIDATED]`.
 
-Reference configuration:
+## Reference configuration
 
-- Raspberry Pi 4 Model B >=4 GB; first specimen: owned 8 GB board;
-- 32 GB A2 microSD;
-- Raspberry Pi OS Lite 64-bit;
-- Wi-Fi required; Ethernet optional;
-- manufacturer-supported USB-C PSU;
-- tested enclosure/cooling recorded exactly.
+- Raspberry Pi 4 Model B, >=4 GB RAM;
+- nominal 32 GB or larger microSD;
+- application class **A1 or A2** accepted for this bounded test;
+- A2 recommended for new purchases/reference replication;
+- Raspberry Pi OS Lite 64-bit installed with Raspberry Pi Imager;
+- Wi-Fi active;
+- approximately 5 V PSU rated **>=2.5 A** for the low-USB-load bounded run;
+- **5.1 V / 3 A recommended** reference PSU;
+- exact case/heatsink/fan configuration recorded.
 
-A PASS proves only this bounded hardware/resource smoke-test envelope. Final service capacity, microSD endurance/retention, Docker/container behavior, database behavior and AI acceleration remain `[UNVALIDATED]`.
+Raspberry Pi documents 5 V / 3 A as the normal Pi 4 input requirement and allows a good-quality 2.5 A supply when downstream USB devices consume less than 500 mA. A supply below 2.5 A is not accepted for the IHAP-52 stress run.
 
----
+## 1. Prepare Raspberry Pi OS Lite
 
-## 1. Install Raspberry Pi OS Lite 64-bit
-
-Use the current Raspberry Pi Imager and official headless guidance:
+Use Raspberry Pi Imager and the official setup guidance:
 
 - https://www.raspberrypi.com/documentation/computers/getting-started.html
 - https://www.raspberrypi.com/software/operating-systems/
 
-In Imager:
+Select **Raspberry Pi OS Lite 64-bit**, configure Wi-Fi and SSH, then boot the Raspberry Pi.
 
-1. select Raspberry Pi 4;
-2. select the current Raspberry Pi OS Lite 64-bit image;
-3. select the 32 GB A2 card;
-4. configure a non-default user/credential;
-5. configure Wi-Fi and wireless country;
-6. enable SSH;
-7. write and verify the image.
+Current Raspberry Pi OS is Debian-based. A runtime identification such as `Debian GNU/Linux 13 (trixie)` is compatible with a correctly installed current Raspberry Pi OS Lite 64-bit image.
 
-Do not hard-code a Raspberry Pi OS release number into the validation. The harness records the actual OS under test so later reproductions remain comparable when the official image changes.
-
-Raspberry Pi's current documentation recommends Lite for headless setups and supports Wi-Fi/SSH customisation through Imager. The 32 GB decision is a HomeEdge storage baseline; OS installation size does not prove final HomeEdge retention or card endurance.
-
-Alpine Linux remains a future compatible candidate and is not part of this acceptance run:
-
-https://wiki.alpinelinux.org/wiki/Raspberry_Pi
-
----
-
-## 2. First boot and minimal prerequisites
-
-Boot using the exact PSU/case/cooling configuration to be validated and connect over Wi-Fi/SSH.
-
-Install only the prerequisites needed by the committed harness:
+Install only the validation prerequisites:
 
 ```bash
 sudo apt update
 sudo apt install -y git python3 iproute2 util-linux
 ```
 
-A full `apt full-upgrade` is **not** an IHAP-52 test prerequisite. Avoid spending time changing the software baseline merely to run a hardware gate. The exact installed OS/kernel is evidence.
+A full OS upgrade is not required solely for IHAP-52.
 
-Verify Raspberry Pi diagnostics once:
-
-```bash
-command -v vcgencmd
-vcgencmd get_throttled
-```
-
-For the Pi 4 reference profile `vcgencmd` is mandatory. The guided harness also checks it automatically.
-
----
-
-## 3. Retrieve the exact IHAP-52 branch
+## 2. Pull the canonical task branch
 
 ```bash
 cd ~
@@ -81,126 +51,9 @@ git checkout ihap-52-central-node-hardware-decision
 git pull --ff-only origin ihap-52-central-node-hardware-decision
 ```
 
-The harness records the tested Git commit and rejects a dirty worktree. Do not edit validation code locally before a run.
+Do not edit the harness locally. A harness fix belongs on this same IHAP-52 branch/PR before a new attempt.
 
----
-
-## 4. Fast pre-flight
-
-Recommended before the full test:
-
-```bash
-python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
-```
-
-The guided prompts request only:
-
-- A2 marking confirmation;
-- confirmation that Raspberry Pi OS Lite 64-bit was selected in Imager;
-- microSD model when known;
-- PSU/rating;
-- case;
-- heatsink/fan;
-- optional approximate ambient temperature.
-
-The script automatically checks board identity, architecture, CPU, RAM, root capacity, Wi-Fi, repository state and Raspberry Pi power/throttle diagnostics. A mandatory failure stops before storage/stress work.
-
-For the reference Pi 4 run, `get_throttled=0x0` is required before stress. Existing historical throttle/undervoltage/frequency-cap/soft-temperature bits make the run ambiguous, so reboot with the intended PSU/cooling configuration and repeat the pre-flight. If the history immediately reappears, investigate the hardware/power condition.
-
----
-
-## 5. Canonical physical validation
-
-Run exactly:
-
-```bash
-python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
-```
-
-Defaults:
-
-- unique run ID generated automatically;
-- 128 MiB deterministic write/read/hash storage test;
-- 300-second bounded CPU stress;
-- up to 8 workers, with Pi 4 naturally using its four logical CPUs;
-- automatic boot-identity and OOM observation;
-- automatic post-stress `vcgencmd` gate;
-- automatic Markdown/JSON evidence.
-
-Do not change PSU, network path, storage, case or cooling while the stress phase is active.
-
-Expected duration after prompts is approximately five minutes plus storage I/O, not hours.
-
----
-
-## 6. Automated PASS gates
-
-A canonical Pi 4 run is PASS only if every mandatory check is true:
-
-| Gate | Condition |
-|---|---|
-| Reference board | Raspberry Pi 4 Model B |
-| Architecture | ARM64/AArch64 |
-| CPU | >=4 logical processors |
-| RAM | >=4,000,000,000 bytes |
-| Root capacity | >=28,000,000,000 bytes |
-| Wi-Fi | wireless interface `up` with non-link-local address |
-| Repository | commit recorded; worktree clean |
-| Physical evidence | A2 + Raspberry Pi OS Lite 64-bit confirmed; PSU rating recorded |
-| Pi pre-flight | `vcgencmd` available; throttle/power history clean |
-| Storage | exact requested bytes; SHA-256 write/read match; temp file removed |
-| CPU stress | every worker exits `0` |
-| Boot stability | boot ID unchanged |
-| OOM | no OOM signature when kernel log is readable |
-| Pi post-flight | no current/historical undervoltage, throttle, frequency-cap or soft-temp flags |
-
-CPU temperature is recorded as evidence but no invented HomeEdge temperature threshold is imposed. Graphics/render-device exposure is also recorded but is not an MVP hardware acceptance gate because GPU acceleration is outside the current MVP requirement.
-
----
-
-## 7. Evidence
-
-Every attempt receives a new directory; existing runs are never overwritten:
-
-```text
-tools/hardware-validation/ihap-52-central-node/runs/<generated-run-id>/
-├── operator-notes.md
-├── validation.json
-└── validation.md
-```
-
-Read the latest result:
-
-```bash
-RUN_DIR=$(find tools/hardware-validation/ihap-52-central-node/runs -mindepth 1 -maxdepth 1 -type d | sort | tail -n1)
-cat "$RUN_DIR/validation.md"
-python3 -m json.tool "$RUN_DIR/validation.json" >/dev/null && echo 'JSON OK'
-```
-
-Raw run directories stay local and are ignored by Git.
-
----
-
-## 8. Failure classification
-
-Use the first applicable category:
-
-- `CONFIGURATION` — wrong OS/setup/repository state;
-- `PSU_UNDERVOLTAGE` — Raspberry Pi power diagnostics fail;
-- `WIFI` — required wireless path unavailable;
-- `THERMAL` — repeatable thermal throttling/soft-limit evidence;
-- `STORAGE` — capacity or write/read integrity failure;
-- `MINIMUM_PROFILE` — board/CPU/RAM/storage profile mismatch;
-- `HARNESS_DEFECT` — validation logic is wrong;
-- `HARDWARE_OR_WORKLOAD_BLOCKER` — reproducible bounded-test failure not explained by setup/tooling.
-
-A failed run is retained. Do not rerun into the same directory.
-
----
-
-## 9. Harness regression tests
-
-Before or after hardware execution, validate the decision engine without a Raspberry Pi:
+## 3. Run the harness self-test
 
 ```bash
 python3 -m unittest discover \
@@ -208,19 +61,94 @@ python3 -m unittest discover \
   -p 'test_*.py' -v
 ```
 
-These tests must stay green whenever the harness is changed.
+Proceed only when the suite reports `OK`.
 
----
+## 4. Run pre-flight only
 
-## 10. Privacy and publication
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided --dry-run
+```
 
-The harness does not intentionally persist SSID, Wi-Fi credentials, hostname, username, MAC address or private IP. Review local evidence before publishing a sanitized summary.
+The harness asks only for facts Linux cannot prove directly:
 
-The profile may move to `Community validated` / `Recommended reference` only after:
+- microSD application class: `A1`, `A2`, `other` or `unknown`;
+- Raspberry Pi OS Lite 64-bit Imager selection confirmation;
+- optional card model;
+- PSU electrical rating, for example `5.1V 3A`;
+- case;
+- heatsink/fan;
+- approximate ambient temperature.
 
-1. canonical guided run PASS;
-2. evidence integrity/privacy review;
-3. required specialist review;
-4. Project Owner acceptance of ADR-0006.
+The pre-flight automatically checks:
 
-Until then the Raspberry Pi 4 remains the reference/validation candidate and workload/endurance claims remain `[UNVALIDATED]`.
+- Raspberry Pi 4 identity;
+- ARM64 architecture;
+- >=4 logical CPUs;
+- >=4 GB RAM;
+- >=28 GB root filesystem capacity for nominal 32 GB media;
+- active Wi-Fi with an IP address;
+- repository commit recorded and clean worktree;
+- `vcgencmd` availability;
+- no current or historical Pi undervoltage/throttling flags;
+- microSD class A1/A2;
+- Raspberry Pi OS Lite 64-bit operator confirmation;
+- parseable/supported PSU rating.
+
+Do **not** run the stress phase after a `PRE-FLIGHT FAIL`.
+
+## 5. Run the canonical physical validation
+
+Only after `PRE-FLIGHT PASS`:
+
+```bash
+python3 tools/hardware-validation/ihap-52-central-node/validate_central_node.py --guided
+```
+
+The default workload is:
+
+- 128 MiB deterministic storage write/read test with SHA-256 comparison;
+- 300 seconds CPU stress;
+- temperature samples when the kernel exposes them;
+- worker exit validation;
+- boot-ID stability check;
+- OOM observation when readable;
+- post-stress `vcgencmd` power/throttle validation.
+
+The harness creates a unique run directory automatically and never overwrites a previous run.
+
+## 6. Read the result
+
+```bash
+RUN_DIR=$(find tools/hardware-validation/ihap-52-central-node/runs \
+  -mindepth 1 -maxdepth 1 -type d | sort | tail -n1)
+
+cat "$RUN_DIR/validation.md"
+python3 -m json.tool "$RUN_DIR/validation.json" >/dev/null && echo 'JSON OK'
+```
+
+A valid candidate PASS requires `Overall gate: PASS`.
+
+A `not reported` maximum CPU temperature is expected on a `--dry-run`, because the stress phase did not run.
+
+## Failure rule
+
+Keep every failed attempt as local evidence. Do not rerun into the same directory and do not weaken a gate just to obtain PASS.
+
+Use these primary classifications:
+
+- `CONFIGURATION`
+- `PSU_UNDERVOLTAGE`
+- `WIFI`
+- `THERMAL`
+- `STORAGE`
+- `MINIMUM_PROFILE`
+- `HARNESS_DEFECT`
+- `HARDWARE_OR_WORKLOAD_BLOCKER`
+
+The 2026-09-05 first physical pre-flight is classified as **configuration/profile discovery**, not a hardware rejection: the owned A1 microSD is now accepted by the corrected profile, while the observed 5 V / 1.55 A PSU is below the accepted Pi 4 validation envelope and must be replaced before stress testing.
+
+## Publication/privacy
+
+Raw run directories remain local by default. Before publishing a sanitized summary, ensure it contains no hostname, username, SSID, private IP, MAC address or credentials.
+
+Promotion to `Community validated` / `Recommended reference` requires a clean physical PASS, evidence review and explicit Project Owner acceptance of ADR-0006.
