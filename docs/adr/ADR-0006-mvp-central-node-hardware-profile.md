@@ -1,7 +1,8 @@
 # ADR-0006 — MVP Central Node Hardware Profile
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-09-02  
+**Accepted:** 2026-09-05  
 **Last evidence update:** 2026-09-05  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** IHAP-52  
@@ -29,7 +30,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Do not promote A2 from recommendation to mandatory without evidence that A1 fails the HomeEdge validation envelope.
   - Do not weaken Raspberry Pi 4 power requirements because a lower-current supply merely boots the board.
   - The tested Pi 4 reference enclosure requires the fan-enabled cooling configuration that passed the bounded run; this is not a universal active-cooling requirement for equivalent hardware.
-  - Do not mark Accepted without explicit Project Owner approval after physical-evidence review.
+  - Accepted status is authorized by explicit Project Owner approval on 2026-09-05 after physical-evidence review.
 -->
 
 ---
@@ -130,7 +131,7 @@ Alpine Linux remains a compatible future candidate and requires separate reprodu
 | Community validated | Reproducible HomeEdge validation run passes reviewed gates |
 | Recommended reference | Community-validated profile recommended for reproduction/onboarding |
 
-The Raspberry Pi 4 reference configuration now has passing physical evidence. Formal promotion/ADR acceptance remains pending explicit Project Owner approval.
+The fan-enabled Raspberry Pi 4 reference configuration has passing reviewed physical evidence and is the accepted HomeEdge reference implementation for this ADR. Equivalent hardware remains eligible through the vendor-neutral minimum profile and equivalent validation gates.
 
 ---
 
@@ -194,7 +195,7 @@ It does **not** prove final HomeEdge service workload sufficiency, database/cont
 
 | Alternative | Outcome | Reason |
 |---|---|---|
-| Raspberry Pi 4 Model B >=4 GB | Proposed reference with passing physical evidence | Available specimen, mature Linux support, no new board purchase required |
+| Raspberry Pi 4 Model B >=4 GB | Accepted reference with passing physical evidence | Available specimen, mature Linux support, no new board purchase required |
 | Raspberry Pi 5 >=4 GB | Compatible newer candidate | More headroom; no HomeEdge physical evidence yet |
 | Raspberry Pi 3 Model B+ | Not recommended | 1 GB RAM below minimum |
 | Raspberry Pi Zero 2 W | Rejected for central node | 512 MB RAM below minimum |
@@ -254,7 +255,7 @@ No residual application/runtime risk is accepted by this ADR.
 
 | Item | Tracking |
 |---|---|
-| Project Owner accept/reject ADR-0006 after evidence review | IHAP-52 |
+| ADR-0006 accepted by Project Owner on 2026-09-05 | IHAP-52 |
 | Propagate accepted central-node BOM/cost profile | IHAP-17 / IHAP-43 |
 | Validate Pi 5 / x86_64 references when useful | Future hardware validation |
 | Validate Alpine Linux as alternate reference distro | Future infrastructure/runtime validation |
@@ -302,5 +303,5 @@ No residual application/runtime risk is accepted by this ADR.
 [x] Docker, database, orchestration, Kafka and final AI runtime remain separate decisions.
 [x] Workload sufficiency, storage endurance/retention and AI acceleration remain [UNVALIDATED].
 [x] Physical Raspberry Pi 4 validation evidence has passed technical review.
-[ ] Project Owner has explicitly accepted this ADR.
+[x] Project Owner explicitly accepted ADR-0006 on 2026-09-05.
 ```
