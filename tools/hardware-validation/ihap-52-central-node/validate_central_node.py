@@ -20,9 +20,26 @@ MIN_STORAGE_BYTES = 28_000_000_000
 MIN_PI4_PSU_AMPS = 2.5
 DEFAULT_STRESS_SECONDS = 300
 DEFAULT_STORAGE_MIB = 128
+PROGRESS_INTERVAL_SECONDS = 5
 PI_CURRENT_MASK = 0xF
 PI_HISTORY_MASK = 0xF0000
 PI4_MODEL_TOKEN = "Raspberry Pi 4 Model B"
+
+
+def log(message: str) -> None:
+    print(f"[IHAP-52] {message}", flush=True)
+
+
+def format_bytes(value: int | None) -> str:
+    if value is None:
+        return "n/a"
+    return f"{value / (1024 ** 2):.0f} MiB"
+
+
+def print_gate_results(title: str, checks: dict[str, bool]) -> None:
+    log(title)
+    for name, passed in checks.items():
+        print(f"  [{'PASS' if passed else 'FAIL'}] {name}", flush=True)
 
 
 def command(args: list[str], timeout: int = 10) -> dict[str, Any]:
@@ -105,7 +122,16 @@ def throttled() -> dict[str, Any]:
 
 def decode_throttled(value: int | None) -> dict[str, bool | None]:
     if value is None:
-        return {"current_undervoltage": None, "current_frequency_capped": None, "current_throttled": None, "current_soft_temperature_limit": None, "historical_undervoltage": None, "historical_frequency_capped": None, "historical_throttled": None, "historical_soft_temperature_limit": None}
+        return {
+            "current_undervoltage": None,
+            "current_frequency_capped": None,
+            "current_throttled": None,
+            "current_soft_temperature_limit": None,
+            "historical_undervoltage": None,
+            "historical_frequency_capped": None,
+            "historical_throttled": None,
+            "historical_soft_temperature_limit": None,
+        }
     return {
         "current_undervoltage": bool(value & (1 << 0)),
         "current_frequency_capped": bool(value & (1 << 1)),
@@ -174,18 +200,27 @@ def storage_smoke(output_dir: Path, size_mib: int) -> dict[str, Any]:
     block = hashlib.sha256(b"IHAP-52-storage-smoke").digest() * 4096
     write_hash = hashlib.sha256()
     written = 0
+
+    log(f"STORAGE: scrittura deterministica di {size_mib} MiB...")
     started = time.monotonic()
+    next_report = max(requested // 4, 1)
     with target.open("wb", buffering=0) as fh:
         while written < requested:
             chunk = block[: min(len(block), requested - written)]
             fh.write(chunk)
             write_hash.update(chunk)
             written += len(chunk)
+            if written >= next_report or written == requested:
+                log(f"STORAGE write: {written * 100 // requested}% ({written // (1024 ** 2)}/{size_mib} MiB)")
+                next_report += max(requested // 4, 1)
         os.fsync(fh.fileno())
     write_seconds = time.monotonic() - started
+
+    log("STORAGE: rilettura e verifica SHA-256...")
     read_hash = hashlib.sha256()
     read_bytes = 0
     started = time.monotonic()
+    next_report = max(requested // 4, 1)
     with target.open("rb", buffering=0) as fh:
         while True:
             chunk = fh.read(1024 * 1024)
@@ -193,9 +228,24 @@ def storage_smoke(output_dir: Path, size_mib: int) -> dict[str, Any]:
                 break
             read_hash.update(chunk)
             read_bytes += len(chunk)
+            if read_bytes >= next_report or read_bytes == requested:
+                log(f"STORAGE read: {min(read_bytes * 100 // requested, 100)}% ({read_bytes // (1024 ** 2)}/{size_mib} MiB)")
+                next_report += max(requested // 4, 1)
     read_seconds = time.monotonic() - started
     target.unlink(missing_ok=True)
-    return {"bytes_requested": requested, "bytes_written": written, "bytes_read": read_bytes, "write_sha256": write_hash.hexdigest(), "read_sha256": read_hash.hexdigest(), "hash_match": write_hash.digest() == read_hash.digest(), "write_seconds": round(write_seconds, 4), "read_seconds": round(read_seconds, 4), "temporary_file_removed": not target.exists()}
+    hash_match = write_hash.digest() == read_hash.digest()
+    log(f"STORAGE: {'PASS' if hash_match and written == requested and read_bytes == requested else 'FAIL'}; write={write_seconds:.2f}s read={read_seconds:.2f}s hash_match={hash_match}")
+    return {
+        "bytes_requested": requested,
+        "bytes_written": written,
+        "bytes_read": read_bytes,
+        "write_sha256": write_hash.hexdigest(),
+        "read_sha256": read_hash.hexdigest(),
+        "hash_match": hash_match,
+        "write_seconds": round(write_seconds, 4),
+        "read_seconds": round(read_seconds, 4),
+        "temporary_file_removed": not target.exists(),
+    }
 
 
 def worker(stop_at: float) -> None:
@@ -205,21 +255,45 @@ def worker(stop_at: float) -> None:
 
 
 def stress(seconds: int, workers: int) -> dict[str, Any]:
-    stop_at = time.monotonic() + seconds
+    started = time.monotonic()
+    stop_at = started + seconds
     procs = [mp.Process(target=worker, args=(stop_at,)) for _ in range(workers)]
+    log(f"STRESS: avvio {workers} worker CPU per {seconds}s")
     for proc in procs:
         proc.start()
+
     samples: list[dict[str, Any]] = []
     while any(proc.is_alive() for proc in procs):
+        now = time.monotonic()
+        elapsed = min(seconds, max(0.0, now - started))
+        remaining = max(0.0, stop_at - now)
         memory = meminfo()
-        samples.append({"at_monotonic": round(time.monotonic(), 3), "temperature_c": cpu_temperature(), "loadavg": list(os.getloadavg()) if hasattr(os, "getloadavg") else None, "mem_available_bytes": memory.get("MemAvailable")})
-        remaining = stop_at - time.monotonic()
+        temp = cpu_temperature()
+        loadavg = list(os.getloadavg()) if hasattr(os, "getloadavg") else None
+        available = memory.get("MemAvailable")
+        samples.append({
+            "at_monotonic": round(now, 3),
+            "elapsed_seconds": round(elapsed, 3),
+            "temperature_c": temp,
+            "loadavg": loadavg,
+            "mem_available_bytes": available,
+        })
+        percent = min(100, int((elapsed / seconds) * 100)) if seconds else 100
+        temp_text = f"{temp:.1f}C" if temp is not None else "n/a"
+        load_text = f"{loadavg[0]:.2f}" if loadavg else "n/a"
+        log(
+            f"STRESS {percent:3d}% | elapsed={elapsed:5.0f}s | remaining={remaining:5.0f}s | "
+            f"temp={temp_text} | load1={load_text} | mem_avail={format_bytes(available)}"
+        )
         if remaining <= 0:
             break
-        time.sleep(min(5, remaining))
+        time.sleep(min(PROGRESS_INTERVAL_SECONDS, remaining))
+
     for proc in procs:
         proc.join(timeout=5)
-    return {"duration_seconds": seconds, "workers": workers, "samples": samples, "worker_exitcodes": [proc.exitcode for proc in procs]}
+    exitcodes = [proc.exitcode for proc in procs]
+    log(f"STRESS: completato; worker exit codes={exitcodes}")
+    return {"duration_seconds": seconds, "workers": workers, "samples": samples, "worker_exitcodes": exitcodes}
 
 
 def oom_observation() -> dict[str, Any]:
@@ -239,10 +313,26 @@ def collect_snapshot() -> dict[str, Any]:
     repo_status = command(["git", "status", "--porcelain"])
     return {
         "repository": {"commit": repo_commit, "branch": repo_branch, "status": repo_status},
-        "system": {"raspberry_model": read_text(Path("/proc/device-tree/model")), "architecture": platform.machine(), "logical_cpus": cpu_count, "memory": meminfo(), "os_release": os_release(), "graphics_devices": graphics_devices(), "boot_id": read_text(Path("/proc/sys/kernel/random/boot_id")), "uptime_seconds": float((read_text(Path("/proc/uptime")) or "0").split()[0])},
-        "storage": {"filesystem_total_bytes": usage.total, "filesystem_free_bytes": usage.free, "lsblk": command(["lsblk", "-J", "-b", "-o", "NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,MODEL"])},
+        "system": {
+            "raspberry_model": read_text(Path("/proc/device-tree/model")),
+            "architecture": platform.machine(),
+            "logical_cpus": cpu_count,
+            "memory": meminfo(),
+            "os_release": os_release(),
+            "graphics_devices": graphics_devices(),
+            "boot_id": read_text(Path("/proc/sys/kernel/random/boot_id")),
+            "uptime_seconds": float((read_text(Path("/proc/uptime")) or "0").split()[0]),
+        },
+        "storage": {
+            "filesystem_total_bytes": usage.total,
+            "filesystem_free_bytes": usage.free,
+            "lsblk": command(["lsblk", "-J", "-b", "-o", "NAME,SIZE,TYPE,FSTYPE,MOUNTPOINTS,MODEL"]),
+        },
         "network": {"wifi_interfaces": wifi_interfaces()},
-        "raspberry_pi": {"throttled_before": before_throttle, "throttled_before_decoded": decode_throttled(before_throttle["value"])},
+        "raspberry_pi": {
+            "throttled_before": before_throttle,
+            "throttled_before_decoded": decode_throttled(before_throttle["value"]),
+        },
     }
 
 
@@ -261,7 +351,12 @@ def evaluate_preflight(snapshot: dict[str, Any], profile: str, manual: dict[str,
     if profile == "pi4-reference":
         model = system.get("raspberry_model") or ""
         throttle_value = snapshot["raspberry_pi"]["throttled_before"]["value"]
-        checks.update({"pi4_model": PI4_MODEL_TOKEN in model, "pi4_aarch64": system["architecture"].lower() in {"aarch64", "arm64"}, "vcgencmd_available": throttle_value is not None, "clean_throttle_history_before_run": throttle_value is not None and (throttle_value & (PI_CURRENT_MASK | PI_HISTORY_MASK)) == 0})
+        checks.update({
+            "pi4_model": PI4_MODEL_TOKEN in model,
+            "pi4_aarch64": system["architecture"].lower() in {"aarch64", "arm64"},
+            "vcgencmd_available": throttle_value is not None,
+            "clean_throttle_history_before_run": throttle_value is not None and (throttle_value & (PI_CURRENT_MASK | PI_HISTORY_MASK)) == 0,
+        })
         if manual is not None:
             sd_class = str(manual.get("sd_application_class", "")).strip().upper()
             psu = parse_psu_rating(str(manual.get("psu_rating", "")))
@@ -319,14 +414,23 @@ def guided_manual_answers() -> dict[str, Any]:
         psu = input("Alimentatore e rating elettrico: ").strip()
     psu_eval = parse_psu_rating(psu)
     if psu_eval["parsed"] and not psu_eval["supported_for_pi4_reference"]:
-        print(f"[IHAP-52] ATTENZIONE: {psu} non soddisfa il gate Pi 4 del runbook (>= {MIN_PI4_PSU_AMPS:.1f} A a circa 5 V).")
+        log(f"ATTENZIONE: {psu} non soddisfa il gate Pi 4 del runbook (>= {MIN_PI4_PSU_AMPS:.1f} A a circa 5 V).")
     elif not psu_eval["parsed"]:
-        print("[IHAP-52] ATTENZIONE: rating PSU non interpretabile; il pre-flight fallirà.")
+        log("ATTENZIONE: rating PSU non interpretabile; il pre-flight fallirà.")
     case = input("Case (invio = none): ").strip() or "none"
     heatsink = prompt_yes_no("Heatsink installato?")
     fan = prompt_yes_no("Ventola installata?")
     ambient = input("Temperatura ambiente approssimativa (invio = unknown): ").strip() or "unknown"
-    return {"sd_application_class": sd_class, "rpios_lite64_confirmed": rpios, "card_model": card_model, "psu_rating": psu, "case": case, "heatsink": heatsink, "fan": fan, "ambient_temperature": ambient}
+    return {
+        "sd_application_class": sd_class,
+        "rpios_lite64_confirmed": rpios,
+        "card_model": card_model,
+        "psu_rating": psu,
+        "case": case,
+        "heatsink": heatsink,
+        "fan": fan,
+        "ambient_temperature": ambient,
+    }
 
 
 def write_operator_notes(path: Path, manual: dict[str, Any], snapshot: dict[str, Any], run_id: str) -> None:
@@ -401,37 +505,66 @@ def main() -> int:
     output_dir.mkdir(parents=True, exist_ok=True)
     run_id = output_dir.name
 
+    log(f"RUN START: {run_id} | profile={args.profile} | dry_run={args.dry_run}")
+    log("PHASE 1/5: raccolta automatica snapshot hardware/OS/rete/repository")
     snapshot = collect_snapshot()
+    log(
+        f"Snapshot: model={snapshot['system']['raspberry_model'] or 'n/a'} | arch={snapshot['system']['architecture']} | "
+        f"cpu={snapshot['system']['logical_cpus']} | ram={format_bytes(snapshot['system']['memory'].get('MemTotal'))}"
+    )
+
+    log("PHASE 2/5: raccolta evidence fisica operatore")
     manual = guided_manual_answers() if args.guided else None
     if manual is not None:
         write_operator_notes(output_dir / "operator-notes.md", manual, snapshot, run_id)
 
     preflight = evaluate_preflight(snapshot, args.profile, manual)
-    payload: dict[str, Any] = {"schema_version": 4, "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()), "run_id": run_id, "profile": args.profile, **snapshot, "manual_evidence": manual, "preflight": {"checks": preflight, "pass": all(preflight.values())}}
+    print_gate_results("PRE-FLIGHT GATES", preflight)
+    payload: dict[str, Any] = {
+        "schema_version": 5,
+        "generated_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "run_id": run_id,
+        "profile": args.profile,
+        **snapshot,
+        "manual_evidence": manual,
+        "preflight": {"checks": preflight, "pass": all(preflight.values())},
+    }
 
     if args.dry_run or not payload["preflight"]["pass"]:
         payload["evaluation"] = {"checks": preflight, "overall_pass": all(preflight.values())}
         write_summary(payload, output_dir)
-        print(f"[IHAP-52] PRE-FLIGHT {'PASS' if all(preflight.values()) else 'FAIL'}")
-        print(f"Evidence: {output_dir}")
+        log(f"PRE-FLIGHT {'PASS' if all(preflight.values()) else 'FAIL'}")
+        log(f"Evidence: {output_dir}")
         return 0 if all(preflight.values()) else 2
 
+    log(f"PHASE 3/5: storage integrity smoke test ({args.storage_mib} MiB)")
     payload["storage_smoke"] = storage_smoke(output_dir, args.storage_mib)
+
     worker_count = min(max(snapshot["system"]["logical_cpus"], 1), 8)
+    log(f"PHASE 4/5: CPU stress ({args.stress_seconds}s, {worker_count} worker)")
     payload["stress"] = stress(args.stress_seconds, worker_count)
+
+    log("PHASE 5/5: post-flight power/throttle, boot stability e OOM checks")
     payload["raspberry_pi"]["throttled_after"] = throttled()
     payload["raspberry_pi"]["throttled_after_decoded"] = decode_throttled(payload["raspberry_pi"]["throttled_after"]["value"])
-    payload["system_after"] = {"boot_id": read_text(Path("/proc/sys/kernel/random/boot_id")), "uptime_seconds": float((read_text(Path("/proc/uptime")) or "0").split()[0]), "memory": meminfo(), "temperature_c": cpu_temperature()}
+    payload["system_after"] = {
+        "boot_id": read_text(Path("/proc/sys/kernel/random/boot_id")),
+        "uptime_seconds": float((read_text(Path("/proc/uptime")) or "0").split()[0]),
+        "memory": meminfo(),
+        "temperature_c": cpu_temperature(),
+    }
     payload["oom_observation"] = oom_observation()
     if args.wifi_host:
+        log(f"Optional LAN ping: {args.wifi_host}")
         payload["network"]["optional_local_ping"] = command(["ping", "-c", "3", "-W", "2", args.wifi_host])
 
     final_checks = evaluate_final(payload, args.profile)
+    print_gate_results("POST-FLIGHT GATES", final_checks)
     all_checks = {**preflight, **final_checks}
     payload["evaluation"] = {"checks": all_checks, "overall_pass": all(all_checks.values())}
     write_summary(payload, output_dir)
-    print(f"[IHAP-52] {'PASS' if payload['evaluation']['overall_pass'] else 'FAIL'}")
-    print(f"Evidence: {output_dir}")
+    log(f"FINAL RESULT: {'PASS' if payload['evaluation']['overall_pass'] else 'FAIL'}")
+    log(f"Evidence: {output_dir}")
     return 0 if payload["evaluation"]["overall_pass"] else 2
 
 
