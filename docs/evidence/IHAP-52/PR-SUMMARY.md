@@ -77,7 +77,7 @@ Disposition:
 
 ## Harness regression coverage
 
-Host-only tests cover the pass/fail engine without Raspberry Pi hardware. The suite now includes explicit regression cases for A1/A2 storage classes and rejection of a 5 V / 1.55 A PSU.
+Host-only tests cover the pass/fail engine without Raspberry Pi hardware. The suite includes explicit regression cases for A1/A2 storage classes and rejection of a 5 V / 1.55 A PSU.
 
 ```bash
 python3 -m unittest discover \
