@@ -8,7 +8,7 @@
 **Jira:** [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49)  
 **PR:** [#34](https://github.com/pianic2/homeedge-ai-platform/pull/34)  
 **Implementation follow-up:** [IHAP-55](https://niccolopiazzi01.atlassian.net/browse/IHAP-55)  
-**Supersedes:** None  
+**Supersedes:** follow-up ownership only from ADR-0001, ADR-0002, ADR-0004 and ADR-0005 where quantitative final-node power measurements were assigned to IHAP-49  
 **Superseded by:** None
 
 <!--
@@ -31,9 +31,13 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Rechargeable 1S Li-ion remains backup only, not primary multi-day supply.
   - Selected cell remains LG INR18650-MJ1 unless explicitly superseded.
   - Final reference implementation converges to a custom core PCB, not stacked charger/boost/mux breakouts.
+  - MP2636 is the preferred charger/power-path/battery-boost PMIC candidate, not evidence by itself of a regulated 5.0 V USB-powered SYS rail.
+  - The final board must include post-regulation or an equivalent reviewed topology that keeps the product SYS rail regulated in both USB and battery modes.
+  - Quantitative power measurements transferred from prior ADRs remain mandatory in IHAP-55; they are not waived.
+  - Reverse-cell procedure alone is not an acceptable control.
   - Do not infer validated autonomy from capacity arithmetic.
   - Do not claim safe, certified, fire-safe, compliant, production-ready or installable from prototype evidence.
-  - IHAP-55 owns custom-board schematic/layout/fabrication/bring-up.
+  - IHAP-55 owns custom-board schematic/layout/fabrication/bring-up and transferred quantitative power validation.
   - IHAP-50 owns the canonical connection/interface matrix consumed by the PCB.
   - IHAP-51 owns final enclosure/mounting/serviceability.
   - IHAP-17 receives definitive board-level BOM/replication cost only after downstream implementation evidence.
@@ -69,8 +73,9 @@ Selected reference cell:
 
 Final reference implementation direction:
     one custom core PCB integrating USB-C input, 1S charging,
-    battery/system power-path management, battery-to-5 V backup conversion,
-    required protections and the downstream 3.3 V rail.
+    battery/system power-path management, battery backup conversion,
+    a regulated 5.0 V product SYS rail, required protections
+    and the downstream 3.3 V rail.
 
 External sensors remain modular where placement/serviceability requires it.
 ```
@@ -88,12 +93,20 @@ USB-C 5 V normal input
 Type-C sink termination + input protection
         |
         v
-integrated 1S charger / system power path / battery boost
+MP2636-class 1S charger / system power path / battery boost
         |                         |
         |                         +----> LG INR18650-MJ1
         |                                  in serviceable holder
         v
-regulated 5 V SYS bus
+intermediate SYS / pass-through-or-boost node
+        |
+        v
+5 V post-regulation stage
+(buck-boost or reviewed equivalent able to regulate across
+both the USB pass-through and battery-boost intermediate range)
+        |
+        v
+regulated 5.0 V product SYS bus
         |
         +----> LD2410C external module
         |
@@ -104,6 +117,8 @@ regulated 5 V SYS bus
                     +----> DHT11/BME280 profile interface
                     +----> reed input network
 ```
+
+The post-regulation requirement is intentional. MPS documents an **IN-to-SYS pass-through path when input power is present** and programmable SYS voltage in battery boost mode. Therefore MP2636 alone must not be treated as evidence that the USB-powered SYS node is regulated to exactly 5.0 V. IHAP-55 must either implement the downstream regulation stage or explicitly supersede the MP2636 topology with another reviewed design that satisfies the same product-bus contract.
 
 Final physical implementation is owned by IHAP-55 and must preserve the module boundaries established by the accepted sensor decisions.
 
@@ -127,7 +142,7 @@ The cell is unprotected, therefore protection is a **system responsibility**. Th
 
 ### 2.3 Integrated PMIC direction
 
-The preferred first custom-board implementation is **Monolithic Power Systems MP2636GR-P**.
+The preferred first charger / power-path / battery-boost PMIC candidate is **Monolithic Power Systems MP2636GR-P**.
 
 It is selected because one active, orderable IC covers the coupled functions that otherwise require multiple breakout boards:
 
@@ -137,15 +152,15 @@ It is selected because one active, orderable IC covers the coupled functions tha
 - selectable 4.2 V battery-full setting;
 - programmable charge current;
 - NTC battery-temperature input;
-- reverse boost from battery to a programmable SYS rail;
+- reverse boost from battery to a programmable intermediate SYS rail;
 - programmable boost current limit;
 - pass-through OCP/OVP;
 - boost short-circuit/OVP controls;
 - battery-current monitoring.
 
-Its boost SYS voltage is programmable from 4.2 V to 6 V; the reference target is **5.0 V**.
+**Implementation caveat:** MP2636's programmable SYS voltage applies in battery boost mode; with valid input present it uses an IN-to-SYS pass-through path. The preferred first implementation is therefore **MP2636 plus a downstream 5 V regulation stage, or a reviewed equivalent topology**. The exact post-regulator SKU is intentionally left to IHAP-55 schematic/BOM review.
 
-**ETA9740** remains a cost-down alternative for a later revision. Its very low unit price and integrated bidirectional charger/boost are attractive, but the current evidence provides a weaker match to the first-revision requirements for separated input/SYS behavior and battery-temperature monitoring. It is not selected for the first reference PCB.
+**ETA9740** remains a cost-down alternative for a later revision. Its very low unit price and integrated bidirectional charger/boost are attractive, but the current evidence provides a weaker match to the first-revision requirements for battery-temperature monitoring and a cleanly bounded first implementation. It is not selected for the first reference PCB.
 
 ### 2.4 USB-C input contract
 
@@ -164,12 +179,13 @@ Its boost SYS voltage is programmable from 4.2 V to 6 V; the reference target is
 - Charging while operating remains **prohibited for the owned stand-alone 4056E breakout path** because it is not a validated load-sharing controller.
 - Battery-temperature monitoring via NTC or an explicitly reviewed equivalent control is mandatory on the custom board.
 
-### 2.6 SYS and load-headroom contract
+### 2.6 Product SYS and load-headroom contract
 
-Reference 5 V SYS target:
+Reference product 5 V SYS target:
 
 - nominal: **5.0 V regulated**;
-- minimum design capability: **>=0.5 A continuous** across the accepted battery range;
+- steady-state validation band: **4.75–5.25 V**, unless a downstream selected component requires a tighter limit;
+- minimum design capability: **>=0.5 A continuous** across the accepted battery range and valid USB input range;
 - transient/headroom target: **>=1.0 A** without reset or uncontrolled rail collapse.
 
 These figures are **design-capability requirements**, not expected continuous node consumption.
@@ -189,7 +205,8 @@ The custom 3.3 V regulator must cover the accepted ESP32-C3 supply requirement p
 - The design must not intentionally operate the cell below the accepted manufacturer discharge boundary.
 - A higher graceful low-battery warning/shutdown threshold is preferred where practical.
 - The current holder is retained as the mechanical candidate; no replacement holder purchase is required at this decision stage.
-- Because the holder is not mechanically keyed, reversed-cell insertion must be mitigated electrically and/or prevented by the final enclosure/service procedure.
+- Because the holder is not mechanically keyed, **procedure alone is not an acceptable reverse-polarity control**.
+- The final implementation must provide either electrical reverse-battery blocking/protection or a mechanically keyed interface/enclosure that physically prevents reverse insertion. Polarity labels and service instructions are supplementary only.
 - Actual MJ1 fit/contact pressure remains physical evidence for IHAP-55/IHAP-51 after cell receipt.
 
 ---
@@ -223,7 +240,8 @@ Because this module is **rejected as the final reference implementation**, its u
 | LG INR18650-MJ1 unprotected | **Selected cell** | Meets capacity/current requirement with favorable landed cost and identifiable provenance. |
 | Owned 4056E + separate boost + mux breakouts | Rejected as final implementation | Useful for bench characterization but increases board stacking, wiring, cost and failure points. |
 | TPS61023 + TPS2116 modular path | Rejected as final implementation | Technically viable but redundant once custom PCB integration is the declared target. |
-| MP2636 integrated custom-board path | **Selected first implementation direction** | Integrates charger, PPM and boost with NTC and separated SYS behavior in one PMIC. |
+| MP2636 + downstream 5 V regulation on custom PCB | **Selected first implementation direction** | Retains integrated charger/PPM/battery boost/NTC while explicitly regulating the product 5 V bus in both USB and battery modes. |
+| Alternative PMIC/topology satisfying the same contract | Allowed only by explicit IHAP-55 review/supersession | Prevents lock-in if layout or physical evidence reveals a better implementation. |
 | ETA9740 integrated custom-board path | Cost-down alternative | Much lower IC price but weaker fit to first-revision monitoring/power-path requirements. |
 | LiPo pouch | Rejected | No product requirement justifies the different mechanical profile. |
 | Replaceable primary cells | Rejected | Poor fit for always-on 5 V radar/Wi-Fi node. |
@@ -234,16 +252,17 @@ Because this module is **rejected as the final reference implementation**, its u
 
 ### Positive
 
-- Stable 5 V product power contract regardless of normal or backup source.
+- Stable regulated 5 V product power contract regardless of normal or backup source.
 - Backup requirement is bounded to blackout/cable-fault continuity rather than multi-day operation.
-- Final hardware can eliminate redundant breakout boards, connectors and wiring.
+- Final hardware eliminates redundant breakout boards, connectors and loose wiring.
 - Custom PCB direction improves compactness, installability and modular sensor interfaces.
-- Integrated switch-mode charger/boost should improve efficiency relative to a linear charger + separate boost path.
+- MP2636 still consolidates charging, power-path and battery boost while the post-regulator closes the normal-input SYS regulation gap identified in review.
 - Cost-down remains possible through later PMIC/BOM substitution without changing the product power contract.
 
 ### Negative / Trade-offs
 
 - A custom PCB introduces schematic, layout, DFM, fabrication and bring-up work.
+- Maintaining a regulated 5 V product bus requires an additional on-board regulation function beyond MP2636's input pass-through behavior.
 - Battery safety-related behavior depends on the integrated design and must be physically validated.
 - No-reset transfer, thermal behavior, charge current and measured runtime remain implementation evidence.
 - The unprotected MJ1 requires system-level controls and disciplined enclosure/serviceability.
@@ -262,6 +281,7 @@ IHAP-55 owns:
 
 - exact schematic resistor/inductor/capacitor values;
 - final PMIC footprint/layout and thermal design;
+- exact 5 V post-regulator topology/SKU;
 - exact 3.3 V regulator selection;
 - USB-C ESD/input-protection implementation;
 - battery reverse-polarity implementation;
@@ -270,10 +290,24 @@ IHAP-55 owns:
 - fabrication outputs;
 - staged bring-up;
 - charge-current/voltage/temperature validation;
-- SYS rail/load/headroom measurements;
+- SYS rail/load/headroom measurements including mandatory 1 A load-step evidence;
 - no-reset switchover and restoration tests;
 - measured backup endurance;
 - assembled-board replication cost.
+
+### 6.1 Explicit ownership transfer from prior accepted ADRs
+
+Earlier accepted hardware ADRs assigned quantitative final-node power work to IHAP-49. ADR-0007 explicitly **supersedes only that follow-up task ownership** and transfers the still-mandatory measurements to IHAP-55 because the Project Owner selected a custom-board final implementation.
+
+The obligations are not waived:
+
+- **ADR-0001:** quantitative rail, regulator, board current/peak and autonomy-related validation for the final ESP32-C3 implementation;
+- **ADR-0002:** quantitative environmental-profile current contribution in the integrated node;
+- **ADR-0004:** display current measurement and resulting sleep/power policy;
+- **ADR-0005:** LD2410C quantitative current/rail contribution and autonomy impact;
+- integrated complete-node rail/current/brownout evidence.
+
+IHAP-55 cannot close custom-board validation without these measurements.
 
 IHAP-50 owns the final signal/connector matrix consumed by the PCB. IHAP-51 owns enclosure, battery retention, service access and sensor placement. IHAP-17 consumes final board-level cost after downstream implementation evidence.
 
@@ -309,9 +343,12 @@ The results of IHAP-55 may supersede this ADR if physical evidence shows the sel
 [x] Cost-first selection rule recorded.
 [x] Owned 4056E module physically characterized enough to bound its use and rejected as final implementation.
 [x] Custom-PCB final direction recorded.
-[x] Integrated charger / power-path / boost PMIC direction selected: MP2636GR-P.
-[x] USB-C, charge, SYS-current, source-transfer and protection contracts defined.
-[x] Validation and physical implementation explicitly handed to IHAP-55/IHAP-51.
+[x] MP2636 retained as preferred charger/power-path/battery-boost PMIC candidate.
+[x] USB-powered SYS pass-through limitation remediated by mandatory downstream 5 V regulation or reviewed equivalent topology.
+[x] USB-C, charge, product-SYS-current, source-transfer and protection contracts defined.
+[x] Reverse-polarity control strengthened: procedure alone prohibited.
+[x] Prior ADR quantitative power obligations explicitly transferred to IHAP-55 rather than waived.
+[x] Mandatory 1 A load-step validation handed to IHAP-55.
 [x] No redundant breakout procurement required for closure.
 [x] Autonomy remains `[UNVALIDATED]` until measured downstream.
 [x] Project Owner explicitly accepted ADR-0007 on 2026-09-07.
