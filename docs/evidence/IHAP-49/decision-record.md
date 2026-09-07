@@ -2,7 +2,8 @@
 
 **Initial power-source decision:** 2026-09-05  
 **Cell-selection update:** 2026-09-07  
-**Custom-PCB / procurement update:** 2026-09-07
+**Custom-PCB / procurement update:** 2026-09-07  
+**Final ADR / PR acceptance:** 2026-09-07
 
 ## 1. Power role decision
 
@@ -52,7 +53,7 @@ Consequences:
 
 ## 4. Integrated PMIC direction
 
-For the first custom-board revision, the Proposed reference implementation direction is **Monolithic Power Systems MP2636GR-P**.
+For the first custom-board revision, the accepted reference implementation direction is **Monolithic Power Systems MP2636GR-P**.
 
 It is preferred because it integrates the coupled functions required by the final power contract:
 
@@ -116,6 +117,16 @@ IHAP-55 owns fabricated-board validation of:
 
 IHAP-51 owns final holder retention, battery accessibility and enclosure/serviceability constraints.
 
-## Project Owner review gate
+## 8. Final Project Owner acceptance
 
-This record authorizes completion of the IHAP-49 decision package and downstream handoff. It does **not** by itself authorize ADR acceptance, PR merge or final Jira completion. Those remain gated on explicit Project Owner acceptance of the updated ADR-0007 / PR #34.
+On **2026-09-07**, the Project Owner explicitly stated:
+
+> “Approvo ADR-0007 e PR #34”
+
+This authorizes:
+
+- ADR-0007 status change to **Accepted**;
+- merge of PR #34;
+- final Jira completion of IHAP-49 after successful merge.
+
+It does **not** convert downstream physical claims into validated facts. Custom-board charging, thermal, switchover, no-reset behavior, autonomy and assembled-board cost remain owned by IHAP-55 / IHAP-51 / IHAP-17 as documented above.
