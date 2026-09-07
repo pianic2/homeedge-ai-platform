@@ -1,40 +1,87 @@
-# IHAP-49 — Proposed Review Summary
+# IHAP-49 — Final Review Summary
 
-## Proposed subsystem decision
+## Decision ready for Project Owner acceptance
 
-Use regulated **5 V USB-C as the normal operating source** for the reference MVP edge node and retain a **rechargeable single-cell battery path only as backup** for blackout or cable/input interruption.
+IHAP-49 now closes the **power architecture decision** rather than forcing a temporary breakout-stack implementation.
 
-This resolves the previous primary-source question: battery operation is required in the MVP only as continuity/backup capability, not as the normal source and not as a multi-day off-grid requirement.
+Proposed reference contract:
 
-## What is decided now
+- normal source: **regulated 5 V USB-C**;
+- battery role: **backup only** for blackout/cable-input interruption;
+- selected cell: **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650;
+- final hardware direction: **one custom modular core PCB**;
+- preferred first integrated PMIC: **MPS MP2636GR-P**;
+- battery CV target: **4.2 V**;
+- nominal charge-current target: **~1.0 A**;
+- reference USB input: **5 V, >=1.5 A available/advertised**;
+- SYS target: **5.0 V regulated, >=0.5 A continuous, >=1.0 A transient/headroom**;
+- USB priority + automatic battery takeover;
+- backfeed into upstream USB prohibited;
+- **no-reset transfer is the reference target**;
+- NTC battery-temperature monitoring required;
+- unprotected cell means system-level protection is mandatory;
+- multi-day battery-only operation is not an MVP requirement;
+- planning autonomy remains ~12–20 h / ~16 h central and `[UNVALIDATED]`.
 
-- normal source class: regulated 5 V USB-C;
-- backup battery remains in scope;
-- battery role is backup only;
-- selected cell candidate for procurement/validation: **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion;
-- cell selection policy: cost-first after minimum compatibility/provenance/evidence thresholds are met;
-- planned order decision: 10 cells, EUR 19.90 subtotal + EUR 6.33 shipping = EUR 26.23 landed total; purchase completion still pending Project Owner confirmation;
-- owned 18650 holder retained as reference-holder candidate with no new holder purchase; actual MJ1 fit/contact pressure remains `[UNVALIDATED]` until receipt;
-- node load remains one regulated 5 V domain feeding LD2410C and ESP32-C3 board input, with accepted 3.3 V peripherals downstream;
-- backup path requires 1S-to-regulated-5 V conversion;
-- source switchover/isolation and backfeed behavior must be explicit;
-- charger module alone is not treated as a complete UPS/power-path solution;
-- charging while operating from the battery path remains prohibited until an explicit load-sharing/power-path implementation is selected and validated;
-- autonomy arithmetic is planning evidence only and remains `[UNVALIDATED]` until a controlled discharge run.
+## Procurement direction
 
-## What remains open before acceptance
+Purchase only hardware that persists in the final architecture or removes a specific blocker.
 
-- confirm completed procurement and inspect received MJ1 markings/condition;
-- validate MJ1 mechanical fit/contact pressure in the owned holder;
-- select exact 1S-to-5 V converter;
-- select exact source-selection/isolation implementation;
-- verify charger current configuration and protection-controller identity/thresholds;
-- freeze normal source/cable reference profile;
-- complete integrated current/rail/brownout measurements;
-- validate backup transfer/restoration behavior;
-- measure backup runtime;
-- freeze complete replication cost.
+Current decision:
 
-## Recommendation
+- LG MJ1 cells: **retain purchase**;
+- existing holder: **retain**, no new holder purchase now;
+- existing 4056E: bench/control evidence only;
+- TPS61023 breakout: **do not purchase solely for final architecture**;
+- TPS2116 breakout: **do not purchase solely for final architecture**;
+- additional charger/boost/mux modules: **do not purchase without a specific blocker**.
 
-Continue IHAP-49 in the current branch/PR. Cell model selection is closed for procurement/validation; the next immediately actionable bench step, while the cells are in procurement, is **unpowered characterization of the owned 4056E charger/protection board**, starting with the charge-current programming resistor and terminal mapping. Then close the 1S-to-5 V converter and source-selection implementation in the same PR. Do not create a second remediation branch or PR. Keep the ADR Proposed until explicit Project Owner acceptance.
+## Why the 4056E gaps no longer block closure
+
+The owned 4056E module was characterized enough to bound its use:
+
+- `4056E` and `8205A` observed;
+- protection controller exists but exact identity/thresholds remain unknown;
+- legacy 5 V USB-A-to-C input sanity passed;
+- tested C-to-C fast-charge input did not work;
+- R3 in-circuit measurement was inconclusive.
+
+The module is now **rejected as the final reference power implementation**, so unresolved RPROG/protection-controller details are inventory limitations, not blockers to the architecture decision.
+
+## Implementation handoff
+
+**IHAP-55 — Integrated Modular Edge PCB — Custom Mainboard Design and Prototype** owns:
+
+- schematic/layout/DFM;
+- MP2636 implementation or explicit reviewed supersession;
+- 3.3 V regulator;
+- USB-C input protection/CC implementation;
+- NTC/reverse-polarity implementation;
+- PCB fabrication/bring-up;
+- charge current / thermal evidence;
+- 5 V / 3.3 V rail measurements;
+- USB-to-battery switchover/restoration;
+- no-reset validation;
+- measured backup runtime;
+- final custom-board BOM and replication cost.
+
+IHAP-50 owns the connection matrix. IHAP-51 owns enclosure, holder retention and serviceability.
+
+## Review result by lane
+
+- **Power Electronics:** PASS for architecture decision; implementation evidence handed to IHAP-55.
+- **Battery Safety boundary:** PASS with residual physical validation explicit; no unsupported safety claim.
+- **Hardware Compatibility:** PASS at contract level; final board must preserve accepted sensor domains.
+- **Testing & Evidence:** PASS; planning arithmetic remains separated from measured runtime.
+- **Security / Privacy:** PASS; no new sensing/data scope introduced.
+- **Architecture Regression:** PASS; ESP32-C3, LD2410C, environmental profiles, reed and OLED decisions preserved.
+- **Cost Governance:** PASS; redundant breakout purchases eliminated and board-level cost deferred to real BOM evidence.
+- **Source of Truth:** PASS; ADR/evidence in GitHub, Jira workflow/handoff, Confluence not duplicated.
+
+## Remaining gate
+
+Only one IHAP-49 decision gate remains:
+
+> **Project Owner explicit acceptance of ADR-0007 / PR #34.**
+
+After acceptance, the PR can be merged and Jira IHAP-49 completed. Physical custom-board validation proceeds in IHAP-55 and may supersede ADR-0007 if evidence contradicts the contract.
