@@ -25,7 +25,7 @@ AI_AGENT_METADATA:
 HIDDEN_ANTI_REGRESSION_RULES:
   - Keep one stable architectural decision: normal regulated 5 V USB-C supply with rechargeable single-cell battery backup only.
   - Do not convert planning current or capacity arithmetic into a validated autonomy claim.
-  - Do not accept an exact cell, holder, charger/protection threshold, converter or source-selection implementation without traceable evidence.
+  - Do not accept the selected cell, holder, charger/protection thresholds, converter or source-selection implementation without traceable physical evidence where required.
   - Do not infer seamless UPS/load-sharing behavior from a generic 4056-family charger board.
   - Do not claim safe, certified, fire-safe, compliant, production-ready or installable from prototype evidence.
   - IHAP-50 owns final interconnect implementation; IHAP-51 owns final enclosure/mounting implementation.
@@ -45,7 +45,9 @@ A single 3.5 Ah-class 1S Li-ion cell is therefore an hours-scale source for this
 The owned hardware includes:
 
 - a USB-C charger/protection board with charger IC visibly marked `4056E`, an `8205A` dual MOSFET and a separate six-pin protection-controller device whose exact identity/thresholds remain `[UNVALIDATED]`;
-- an 18650 holder measured by the Project Owner at approximately 70 mm maximum useful length with the spring fully compressed and approximately 18 mm maximum cell width/diameter. Compatibility with an exact reference cell remains `[UNVALIDATED]` and the owned holder is not accepted as the reference holder at this stage.
+- an 18650 holder measured by the Project Owner at approximately 70 mm maximum useful length with the spring fully compressed and approximately 18 mm maximum cell width/diameter. The holder body is reported by the Project Owner as slightly compliant and is retained as the reference-holder candidate, but actual fit/contact pressure with the selected cell remains `[UNVALIDATED]` until the cell arrives.
+
+The selected cell candidate is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, 18650 flat-top unprotected Li-ion, selected on a cost-first basis after meeting the minimum provenance, electrical-envelope and reproducibility threshold. Seller evidence lists 3.6 V nominal, 3500 mAh typical, 3400 mAh minimum, 10 A discharge capability and approximately 18.2 mm × 65 mm dimensions. Procurement/received-specimen evidence and physical integration remain pending.
 
 The power subsystem is safety-sensitive. Component ownership or low purchase price does not prove electrical compatibility, adequate protection, acceptable thermal behavior or valid runtime.
 
@@ -58,6 +60,9 @@ We will power the reference MVP edge node normally from a regulated 5 V USB-C so
 
 We will retain a rechargeable single-cell Li-ion battery subsystem only as backup
 for blackout or normal-input/cable interruption.
+
+The backup cell selected for procurement and validation is LG INR18650-MJ1,
+EAN/GTIN 8438493099829, flat-top unprotected 18650 Li-ion.
 
 The backup path will feed the same regulated 5 V node domain through an explicit
 conversion and source-selection/isolation design. The battery is not the primary
@@ -89,7 +94,7 @@ regulated 5 V USB-C normal source
               |                           /      |       \
               |                    DHT11/BME280 OLED  reed network
               |
-              +--> 4056E-family charger/protection --> 1S Li-ion cell
+              +--> 4056E-family charger/protection --> LG INR18650-MJ1
                                       |
                                       v
                                protected output
@@ -103,9 +108,20 @@ regulated 5 V USB-C normal source
 
 The exact source-selection/isolation topology remains `[UNVALIDATED]` and must prevent prohibited backfeed between the normal source and battery path.
 
-### 2.2 Battery role
+### 2.2 Battery role and selected cell
 
 The backup battery exists for continuity through blackout or cable/input interruption. It is not intended to make the node a multi-day off-grid device.
+
+The selected cell candidate for procurement/validation is **LG INR18650-MJ1**:
+
+- EAN/GTIN `8438493099829`;
+- 18650 flat-top, unprotected Li-ion;
+- seller-listed 3.6 V nominal;
+- seller-listed 3500 mAh typical / 3400 mAh minimum;
+- seller-listed 10 A discharge capability;
+- seller-listed approximately 18.2 mm diameter × 65 mm height.
+
+Selection is cost-first: once minimum compatibility, provenance and evidence thresholds are satisfied, lower total procurement/replication cost is preferred over stronger documentation that does not materially improve the node requirement.
 
 A 3.5 Ah-class 1S cell has a current planning estimate of approximately 12–20 h backup runtime, with roughly 16 h as a central arithmetic estimate under the current load model. **Backup autonomy remains `[UNVALIDATED]` until a controlled discharge run is completed with the frozen implementation.**
 
@@ -121,10 +137,12 @@ Until an explicit power-path implementation is selected and validated:
 
 ### 2.4 Exact component acceptance remains open
 
+The ADR has selected the **LG INR18650-MJ1** cell model for procurement and validation, but physical acceptance of the received specimen remains pending.
+
 The ADR does **not** yet accept:
 
-- an exact Li-ion cell SKU or protected/unprotected cell policy;
-- the owned 18 mm holder as the reference holder;
+- the received cell specimen/lot as conforming before markings/condition are checked;
+- the owned holder/cell fit as physically validated;
 - an exact 1S-to-5 V converter;
 - an exact source-selection/isolation circuit;
 - the exact protection-controller identity or trip thresholds on the owned 4056E board;
@@ -142,8 +160,9 @@ Those details must be closed with evidence inside the same IHAP-49 branch and PR
 | Regulated 5 V USB-C only | Rejected as complete subsystem; retained as normal source | Lowest complexity but does not satisfy the Project Owner requirement for blackout/cable-fault backup. |
 | Rechargeable 1S battery as primary source | Rejected | Current load model makes a single 18650 an hours-scale source; multi-day standalone operation is not an MVP requirement. |
 | Normal 5 V USB-C + rechargeable 1S backup | **Selected architecture class, Proposed** | Matches the actual continuity requirement while keeping the stable node domain at regulated 5 V. |
-| Protected 18650 + charger/regulator | Deferred implementation alternative | Viable, but mechanical envelope and duplicated protection may complicate the owned hardware path. Exact SKU evidence is required. |
-| Branded unprotected 18650 + verified charger/protection + regulator | Preferred implementation direction, not yet accepted | Potentially coherent with the owned charger/protection topology, but only after exact protection behavior, cell/holder compatibility and failure modes are validated. |
+| Protected 18650 + charger/regulator | Rejected for current reference direction | Duplicated cell-level protection adds cost/length without a demonstrated need if the system-level protection stage is qualified. |
+| LG INR18650-MJ1 unprotected + verified charger/protection + regulator | **Selected implementation direction for procurement/validation** | Meets the required capacity/current envelope at lower cost than higher-priced branded alternatives while retaining identifiable model/provenance. Physical and protection validation remain mandatory. |
+| Other branded 3.4–3.5 Ah unprotected 18650 cells | Acceptable alternatives, not selected | Samsung/LG/Molicel/EVE-class alternatives can meet the electrical requirement, but the selected MJ1 had the preferred cost/value balance for the current order. |
 | Unprotected cell + separate additional BMS/protection | Not preferred | Adds components and interfaces without a demonstrated need if the owned charger/protection stage can be qualified. |
 | LiPo pouch | Rejected for current reference direction | Does not remove charging/protection/regulation/power-path constraints and adds a different mechanical handling profile without a current product requirement. |
 | Replaceable primary cells | Rejected | Poor fit for an always-on 5 V radar/Wi-Fi node and does not simplify the required regulated 5 V domain. |
@@ -158,6 +177,7 @@ Those details must be closed with evidence inside the same IHAP-49 branch and PR
 - The node can retain a bounded local continuity capability for blackout or cable/input interruption.
 - The accepted 5 V LD2410C domain does not change between normal and backup operation.
 - Battery capacity can be sized for backup duration rather than multi-day primary autonomy.
+- Cost remains the first differentiator after minimum technical/provenance thresholds are met.
 - A USB power meter is not required as a prerequisite; ordinary multimeter measurements plus reset/brownout evidence are sufficient for the initial validation plan, with escalation to higher-bandwidth instrumentation only if transient behavior cannot otherwise be bounded.
 
 ### Negative / Trade-offs
@@ -165,7 +185,8 @@ Those details must be closed with evidence inside the same IHAP-49 branch and PR
 - Battery backup still introduces cell, holder, charging, protection, conversion, source-selection, reverse-polarity, backfeed and enclosure constraints.
 - The backup path requires conversion from a 1S Li-ion voltage range to regulated 5 V.
 - The source-transition behavior must be deliberately designed and tested.
-- The owned holder may not be mechanically compatible with a selected branded cell.
+- The selected LG MJ1 is an unprotected cell, so system-level protection is mandatory and must be validated.
+- The owned holder fit is still a physical hypothesis until the selected cell arrives.
 - The exact protection behavior of the owned generic charger/protection board is not yet known.
 - Battery autonomy must be physically measured; capacity arithmetic alone is insufficient.
 
@@ -188,11 +209,12 @@ No existing canonical Risk Record was found that should be silently repurposed a
 | Risk | Treatment | Effect | Remaining exposure |
 |---|---|---|---|
 | Normal-source loss / node reset | IHAP-49 source-selection and recovery validation | Partially mitigates | Transfer/reboot behavior `[UNVALIDATED]` |
-| Battery over-charge / over-discharge / over-current | Charger/protection qualification + exact cell policy | Partially mitigates | Protection-controller identity/thresholds `[UNVALIDATED]` |
+| Battery over-charge / over-discharge / over-current | Charger/protection qualification + selected unprotected-cell policy | Partially mitigates | Protection-controller identity/thresholds `[UNVALIDATED]` |
 | Reverse cell insertion | Electrical and/or IHAP-51 mechanical mitigation | Leaves unresolved pending design | Mitigation not frozen |
 | Backfeed between sources | Explicit isolation/source-selection design | Leaves unresolved pending design | Topology not frozen |
 | Brownout from load/transients | Current/rail measurements + reset logging + headroom | Partially mitigates | Integrated transient peak `[UNVALIDATED]` |
 | Unsupported autonomy expectation | Backup-only product boundary + controlled discharge test | Avoids false claim | Measured runtime `[UNVALIDATED]` |
+| Holder mechanical interference/contact stress | Non-destructive fit/contact inspection of received MJ1 | Leaves unresolved pending test | Physical fit `[UNVALIDATED]` |
 
 ---
 
@@ -200,8 +222,8 @@ No existing canonical Risk Record was found that should be silently repurposed a
 
 | Item | Tracking |
 |---|---|
-| Select exact cell SKU, chemistry, provenance and protection policy | IHAP-49, same branch/PR |
-| Select mechanically compatible holder | IHAP-49, same branch/PR |
+| Confirm procurement and inspect received LG INR18650-MJ1 cell markings/condition | IHAP-49, same branch/PR |
+| Validate selected MJ1 fit/contact pressure in the owned holder | IHAP-49, same branch/PR |
 | Select 1S-to-regulated-5 V converter | IHAP-49, same branch/PR |
 | Select source-selection/isolation implementation | IHAP-49, same branch/PR |
 | Verify charger current configuration and protection behavior | IHAP-49, same branch/PR |
@@ -233,7 +255,7 @@ No existing canonical Risk Record was found that should be silently repurposed a
 | Review checklist | `docs/evidence/IHAP-49/review-checklist.md` |
 | Related ADRs | ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005 |
 
-Primary manufacturer sources used for planning are registered in `docs/evidence/IHAP-49/source-register.md`.
+Primary manufacturer/seller sources used for planning are registered in `docs/evidence/IHAP-49/source-register.md`.
 
 ---
 
@@ -246,11 +268,13 @@ Primary manufacturer sources used for planning are registered in `docs/evidence/
 [x] The ADR is not treated as risk acceptance or closure evidence.
 [x] Source-of-truth boundaries are preserved.
 [x] MVP boundary is explicit: normal wired 5 V + backup battery only.
+[x] LG INR18650-MJ1 selected for procurement/validation on a cost-first basis.
 [x] [UNVALIDATED] is preserved on unproven claims.
 [x] No production-ready, commercial-ready, security-grade, certified, safety-critical,
     fire-safe, alarm-grade, antifurto, access-control, intrusion-detection or protection
     claim is introduced.
-[ ] Exact cell/holder/converter/source-selection implementation validated.
+[ ] Received cell provenance/condition and holder fit validated.
+[ ] Converter/source-selection implementation validated.
 [ ] Integrated normal-source and backup-path validation complete.
 [ ] Backup autonomy measured.
 [ ] Complete replication cost frozen.
