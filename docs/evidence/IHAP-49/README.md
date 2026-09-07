@@ -1,83 +1,91 @@
 # IHAP-49 — Edge Power Subsystem Decision Evidence
 
-**Status:** Execution evidence — Project Owner review ongoing
+**Status:** architecture decision package ready for Project Owner acceptance
 
-This directory contains the evidence package for IHAP-49. The decision under review is to use regulated 5 V USB-C as the normal node supply and retain a rechargeable single-cell battery subsystem only as backup for blackout or cable/input interruption.
+This directory contains the canonical evidence supporting ADR-0007.
 
-No battery, charger, holder, converter, autonomy, safety, certification, compliance, production-readiness or installation claim is accepted by this evidence package unless explicitly supported by a completed validation record.
+## Final Proposed decision
 
-## Current Project Owner direction
+- Normal operating source: **regulated 5 V via USB-C**.
+- Battery role: **backup only** for blackout / cable-input interruption.
+- Selected cell: **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion.
+- Final hardware direction: **small, efficient, installable, modular custom core PCB**, not a permanent breakout stack.
+- Preferred first integrated power PMIC: **MPS MP2636GR-P**.
+- USB-C input: 5 V only, correct Type-C sink termination, reference source >=1.5 A available/advertised.
+- Charge target: 4.2 V CV, ~1.0 A nominal.
+- 5 V SYS target: >=0.5 A continuous and >=1.0 A transient/headroom capability.
+- Battery-temperature monitoring required.
+- USB priority; automatic battery takeover required; no-reset transfer is the target.
+- Backfeed into upstream USB is prohibited.
+- Multi-day battery-only operation is not an MVP requirement.
+- Backup estimate remains ~12–20 h / ~16 h central and `[UNVALIDATED]` until IHAP-55 measures it.
 
-- Normal operating source: regulated 5 V via USB-C.
-- Battery role: backup only, for blackout or cable/input failure.
-- Battery is not the normal continuous energy source.
-- Multi-day standalone operation is not an MVP requirement.
-- Selected cell candidate for procurement/validation: **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion.
-- Cost is the first differentiator after minimum compatibility/provenance/evidence thresholds are met.
-- Owned 18650 holder remains the reference-holder candidate; no replacement holder purchase is planned. Actual MJ1 fit/contact pressure remains `[UNVALIDATED]` until receipt.
-- USB power meter is not currently required; ordinary multimeter measurements plus brownout/reset evidence are the minimum planned instrumentation, with higher-bandwidth instrumentation required only if transient failures cannot otherwise be bounded.
+## Procurement direction
 
-## Current procurement decision
-
-Planned NKON order:
+Selected/planned NKON cell order:
 
 - 10 × LG INR18650-MJ1;
-- product subtotal: EUR 19.90;
-- shipping: EUR 6.33;
-- planned landed total: **EUR 26.23**;
-- landed average: **EUR 2.623/cell**.
+- product subtotal EUR 19.90;
+- shipping EUR 6.33;
+- planned landed total **EUR 26.23**;
+- planned landed average **EUR 2.623/cell**.
 
-Purchase completion is not recorded until the Project Owner explicitly confirms the completed order.
+Purchase completion is recorded only after explicit Project Owner confirmation.
 
-## Evidence captured
+No new power breakout is required solely to emulate the final custom board:
 
-- Owned holder is marked for 18650 use and has red/black leads. User-measured maximum useful cell length with spring fully compressed: approximately 70 mm. User-measured maximum cell diameter/width: approximately 18 mm. Project Owner reports slight plastic compliance; seller-listed MJ1 diameter is approximately 18.2 mm. Physical fit remains `[UNVALIDATED]`.
-- Owned USB-C charger board exposes `B+`, `B-`, `OUT+`, and `OUT-` terminals.
-- Macro evidence shows a charger IC marked `4056E`, a dual MOSFET marked `8205A`, and a separate six-pin protection-controller device whose exact identity is not yet verified.
-- The owned charger board therefore has a discrete downstream protection stage in addition to the charger function, but the exact protection-controller identity and trip thresholds remain `[UNVALIDATED]`.
-- `IHAP49-CHARGER-C0-C1-01/run-record.md` records the first executed charger characterization: in-circuit R3 resistance was polarity-dependent and therefore inconclusive; the board accepted a legacy 5 V / 1.55 A USB-A-to-USB-C source at 4.95 V input, with unloaded B/OUT readings of approximately 4.19/4.18 V. A tested USB-C-to-USB-C fast-charge source did not produce usable board input voltage and is not accepted as compatible with this charger module.
+- TPS61023: do not purchase for final-architecture emulation;
+- TPS2116: do not purchase for final-architecture emulation;
+- extra 4056E/TP4056 boards: do not purchase without a specific blocker;
+- existing holder remains the mechanical candidate;
+- existing charger modules remain bench/control inventory.
 
-## Remaining decision / validation work
+## Evidence captured in IHAP-49
 
-1. Confirm completed cell procurement and inspect received cell markings/condition.
-2. Validate LG MJ1 fit/contact pressure in the owned holder.
-3. Complete charger/protection validation with the received cell: actual charge current, terminal voltage, termination behavior and thermal observations.
-4. Select the 1S-to-regulated-5 V conversion topology/component and demonstrate sufficient steady-state and transient headroom.
-5. Resolve normal-source/backup-source switchover and backfeed isolation. A charger board with `B/OUT` terminals is not by itself evidence of seamless system power-path management.
-6. Freeze the rule for whether charging while the node is operating is permitted. Until demonstrated with an explicit power-path design, it remains prohibited.
-7. Measure integrated node input current and rail voltages under representative operation and check for resets/brownout.
-8. Validate backup transfer/recovery and an actual discharge run before making an autonomy claim.
-9. Record whole-subsystem replication cost after exact components are selected.
+- voltage/current-domain and autonomy planning budget;
+- exact cell selection/procurement rationale;
+- holder measurements and reverse-insertion limitation;
+- owned charger board visual evidence (`4056E`, `8205A`, separate protection controller);
+- C0 R3 in-circuit measurement correctly recorded as inconclusive;
+- C1 legacy 5 V input sanity: VIN 4.95 V; unloaded B/OUT ~4.19/4.18 V;
+- tested USB-C-to-USB-C fast-charge input limitation on the owned breakout;
+- wired-only / battery / cell / PMIC / breakout alternatives;
+- custom-PCB power contract;
+- risk assessment;
+- cost governance;
+- downstream handoff;
+- physical validation plan for IHAP-55.
 
-## Planning power estimate
+## Key documents
 
-The planning estimate is intentionally not a validation result. For the accepted reference node profile, a working central estimate is approximately 0.625 W of 5 V load power, dominated by the always-on LD2410C presence radar. With an assumed 90% boost efficiency, this corresponds to about 0.694 W from a 1S battery path. A nominal 3.5 Ah, 3.6 V cell therefore has about 12.6 Wh nominal energy; using a conservative 90% planning-use factor yields approximately 11.34 Wh and about 16.3 h estimated backup runtime at the central load assumption.
+- `../../adr/ADR-0007-edge-power-subsystem.md` — Proposed subsystem ADR.
+- `decision-record.md` — Project Owner decisions accumulated during execution.
+- `custom-pcb-power-contract.md` — frozen electrical contract consumed by IHAP-55.
+- `power-tree.md` — final Proposed power-domain structure.
+- `power-budget.md` — planning load/autonomy model.
+- `alternatives.md` — architecture / PMIC / breakout comparisons.
+- `owned-hardware-evidence.md` — visual/user-measured evidence for existing components.
+- `charger-characterization-runbook.md` — staged owned-module characterization method.
+- `IHAP49-CHARGER-C0-C1-01/run-record.md` — executed charger evidence.
+- `validation-plan.md` — custom-board validation handoff to IHAP-55.
+- `risk-assessment.md` — residual risk ownership.
+- `cost-governance.md` — procurement and cost-down boundaries.
+- `downstream-contracts.md` — IHAP-50/55/51/17/43 handoffs.
+- `source-register.md` — canonical/manufacturer/supplier source register.
+- `review-checklist.md` — final review gate.
+- `review-summary.md` — concise acceptance summary.
 
-Planning range before physical measurement: approximately 12–20 h for a 3.5 Ah-class cell depending on actual ESP32-C3/Wi-Fi duty cycle, OLED content, converter efficiency, cell usable energy and cutoff behavior.
+## Closure boundary
 
-**Autonomy remains `[UNVALIDATED]`.** Capacity arithmetic does not satisfy the acceptance criterion for measured autonomy.
+IHAP-49 is a **hardware architecture decision task**, not the custom-PCB fabrication task.
 
-## Runbooks / plans
+It is ready for acceptance when the Project Owner approves ADR-0007 and this evidence package. Physical implementation evidence moves to:
 
-- `validation-plan.md` — overall IHAP-49 physical-validation plan.
-- `charger-characterization-runbook.md` — staged runbook for the owned 4056E charger/protection board.
-- `IHAP49-CHARGER-C0-C1-01/run-record.md` — executed C0/C1 evidence: R3 in-circuit HOLD/inconclusive; legacy 5 V charger-input sanity PASS; USB-C-to-USB-C compatibility not demonstrated.
+- **IHAP-55** — custom board schematic, PCB, bring-up, charging, rails, transfer, runtime and final BOM;
+- **IHAP-51** — battery retention/serviceability/enclosure and sensor placement.
 
-## Required physical validation sequence
-
-- charger-board unpowered characterization;
-- received-cell identity/condition and cell/holder fit;
-- normal 5 V USB-C operation with the complete reference load;
-- 5 V and 3.3 V rail measurement under representative load;
-- integrated steady-state current measurement;
-- brownout/reset logging during Wi-Fi activity, radar operation and display activity;
-- battery-path regulation check across representative cell voltage range;
-- normal-source interruption and backup takeover behavior;
-- restoration of normal source and recovery behavior;
-- charging behavior with the operating-load rule enforced;
-- protection/failure cases that can be exercised without bypassing component ratings;
-- controlled backup-runtime discharge run after the exact cell and power path are frozen.
+If those downstream tests contradict ADR-0007, the architecture must be explicitly superseded/reopened rather than silently weakened.
 
 ## Claim boundary
 
-Until those tests are complete, the subsystem must not be described as safe, certified, fire-safe, compliant, production-ready, fault-tolerant, seamless-UPS capable, or validated for a stated number of hours. The current artifacts define a Proposed architecture and the evidence still needed to accept it.
+Nothing in this package establishes `safe`, `certified`, `fire-safe`, `compliant`, `production-ready`, `commercial-ready` or measured-runtime status. Those claims require specific downstream evidence and, where relevant, formal certification outside this MVP task.
