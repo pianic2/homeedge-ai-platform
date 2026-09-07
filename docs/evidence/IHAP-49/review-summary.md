@@ -1,10 +1,10 @@
 # IHAP-49 — Final Review Summary
 
-## Decision ready for Project Owner acceptance
+## Decision accepted by Project Owner
 
-IHAP-49 now closes the **power architecture decision** rather than forcing a temporary breakout-stack implementation.
+IHAP-49 closes the **power architecture decision** rather than forcing a temporary breakout-stack implementation.
 
-Proposed reference contract:
+Accepted reference contract:
 
 - normal source: **regulated 5 V USB-C**;
 - battery role: **backup only** for blackout/cable-input interruption;
@@ -46,7 +46,7 @@ The owned 4056E module was characterized enough to bound its use:
 - tested C-to-C fast-charge input did not work;
 - R3 in-circuit measurement was inconclusive.
 
-The module is now **rejected as the final reference power implementation**, so unresolved RPROG/protection-controller details are inventory limitations, not blockers to the architecture decision.
+The module is **rejected as the final reference power implementation**, so unresolved RPROG/protection-controller details are inventory limitations, not blockers to the architecture decision.
 
 ## Implementation handoff
 
@@ -78,10 +78,8 @@ IHAP-50 owns the connection matrix. IHAP-51 owns enclosure, holder retention and
 - **Cost Governance:** PASS; redundant breakout purchases eliminated and board-level cost deferred to real BOM evidence.
 - **Source of Truth:** PASS; ADR/evidence in GitHub, Jira workflow/handoff, Confluence not duplicated.
 
-## Remaining gate
+## Project Owner outcome
 
-Only one IHAP-49 decision gate remains:
+On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**.
 
-> **Project Owner explicit acceptance of ADR-0007 / PR #34.**
-
-After acceptance, the PR can be merged and Jira IHAP-49 completed. Physical custom-board validation proceeds in IHAP-55 and may supersede ADR-0007 if evidence contradicts the contract.
+The architectural decision is therefore accepted. PR merge and Jira completion are authorized. Physical custom-board validation proceeds in IHAP-55 and may supersede ADR-0007 only if downstream evidence contradicts the accepted contract.
