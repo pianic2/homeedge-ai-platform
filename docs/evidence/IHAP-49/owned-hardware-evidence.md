@@ -1,6 +1,6 @@
 # IHAP-49 — Owned Hardware Evidence
 
-**Status:** visual/user-measured evidence; component qualification incomplete
+**Status:** bounded physical evidence; owned modules retained as bench/control inventory
 
 ## Owned 18650 holder
 
@@ -16,54 +16,74 @@ User measurements:
 - maximum useful length with spring fully compressed: approximately **70 mm**;
 - maximum cell diameter/width: approximately **18 mm**.
 
-Project Owner disposition update — 2026-09-07:
+Project Owner disposition — 2026-09-07:
 
 - do **not** procure a replacement holder;
-- retain this owned holder as the reference-holder candidate;
-- the holder body is reported as slightly elastic/compliant;
-- the selected LG INR18650-MJ1 seller listing gives approximately **18.2 mm diameter × 65 mm height**, so the current mechanical hypothesis is that the ~0.2 mm nominal interference can be accommodated by elastic deformation of the holder body;
-- this hypothesis is **not yet physical evidence** and must be checked non-destructively when the selected cell arrives.
+- retain this owned holder as the reference mechanical candidate;
+- holder body is reported as slightly elastic/compliant;
+- selected LG INR18650-MJ1 seller listing gives approximately **18.2 mm diameter × 65 mm height**;
+- expected fit via slight elastic deformation is a hypothesis only and remains `[UNVALIDATED]` until receipt.
 
-Acceptance boundary:
+Downstream acceptance conditions:
 
-- actual insertion must not require excessive force;
-- the cell wrapper must not be cut, pinched or abraded by the holder;
-- contacts must maintain reliable pressure without visibly deforming/damaging the cell;
+- insertion must not require excessive force;
+- wrapper must not be cut, pinched or abraded;
+- contacts must maintain reliable pressure without visible cell damage;
 - removal must remain controlled;
-- reverse-insertion risk must still be addressed by electrical protection and/or enclosure/access constraints.
+- reverse-insertion risk must be addressed electrically and/or by enclosure/service procedure.
 
-Holder fit/contact pressure remains `[UNVALIDATED]` until the received LG MJ1 specimen is tested.
+Final fit/retention evidence belongs to IHAP-55 / IHAP-51.
 
 ## Owned USB-C charger/protection board
 
-Observed board markings and topology:
+Observed markings/topology:
 
 - USB-C input connector;
-- charger IC marking visibly consistent with `4056E`;
-- battery pads labeled `B+` and `B-`;
-- load/output pads labeled `OUT+` and `OUT-`;
-- dual MOSFET marking visibly `8205A`;
-- separate six-pin IC adjacent to the 8205A stage; exact marking/identity not reliably readable from current photographic evidence.
+- charger IC marked `4056E`;
+- battery pads `B+` / `B-`;
+- output pads `OUT+` / `OUT-`;
+- dual MOSFET marked `8205A`;
+- separate six-pin protection-controller IC; exact identity/marking not reliably readable.
 
 Supported statement:
 
 > The tested specimen is a 4056E-family single-cell charger board with a discrete downstream protection stage including an 8205A dual MOSFET and a separate protection-controller IC.
 
-Unsupported statements at this stage:
+Executed C0/C1 evidence:
 
-- that the charger IC is an original TP4056 rather than a compatible 4056E-family device;
-- exact protection-controller identity;
-- exact over-charge, over-discharge, over-current or short-circuit thresholds;
-- suitability for simultaneous system load and charging;
-- seamless normal-source/battery-source power-path behavior;
-- safety certification or production suitability.
+- in-circuit R3 readings: approximately 0.814 kΩ and 0.345 kΩ with probes reversed on the 2 kΩ range;
+- result: **inconclusive**, so no RPROG or charge-current value was inferred;
+- legacy 5 V / 1.55 A USB-A-to-USB-C source: VIN **4.95 V**;
+- unloaded `B+/B-`: approximately **4.19 V**;
+- unloaded `OUT+/OUT-`: approximately **4.18 V**;
+- tested USB-C-to-USB-C fast-charge source did not produce usable board input in the tested configuration.
 
-These remain `[UNVALIDATED]` until supported by exact component identification and/or physical tests.
+Unsupported statements remain:
+
+- original TP4056 identity;
+- exact protection-controller identity/thresholds;
+- exact programmed charge current;
+- validated charge termination with LG MJ1;
+- simultaneous load/charge power-path behavior;
+- seamless UPS behavior;
+- safety/certification/production suitability.
+
+## Final disposition
+
+The owned `4056E + 8205A` breakout is **REJECTED as the final reference power implementation** because the product direction now requires a custom integrated core PCB and because this board does not establish the required system power-path / USB-C-to-USB-C behavior.
+
+It remains useful as:
+
+- historical procurement evidence;
+- component-characterization evidence;
+- optional bench/control hardware.
+
+Its unresolved exact RPROG and protection-controller thresholds are therefore **not IHAP-49 architecture-acceptance blockers**.
 
 ## Selected cell relation
 
-The selected procurement/validation candidate is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because the cell is unprotected, continued use of this cell in the reference subsystem depends on successful qualification of system-level charge/discharge protection and failure behavior.
+The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because it is unprotected, the final custom PCB must provide the required system-level charging, low-voltage, current, thermal and polarity controls defined by ADR-0007.
 
 ## Evidence handling
 
-The photographs were supplied directly by the Project Owner during IHAP-49 planning. This markdown file records only what can be read or measured from those specimens; it does not infer hidden component specifications from visually similar marketplace modules.
+The photographs and measurements were supplied directly by the Project Owner during IHAP-49. This file records only observed/measured facts and explicit owner decisions; it does not infer hidden specifications from visually similar marketplace modules.
