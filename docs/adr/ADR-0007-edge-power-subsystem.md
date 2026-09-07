@@ -221,9 +221,7 @@ The custom 3.3 V regulator must cover the accepted ESP32-C3 supply requirement p
 - The final implementation must provide either electrical reverse-battery blocking/protection or a mechanically keyed interface/enclosure that physically prevents reverse insertion. Polarity labels and service instructions are supplementary only.
 - Actual MJ1 fit/contact pressure remains physical evidence for IHAP-55/IHAP-51 after cell receipt.
 
----
-
-## 3. Owned 4056E Module Disposition
+### 2.9 Owned 4056E module disposition
 
 The owned charger/protection board is **not selected as the final custom-PCB power implementation**.
 
@@ -241,7 +239,7 @@ Because this module is **rejected as the final reference implementation**, its u
 
 ---
 
-## 4. Alternatives Considered
+## 3. Alternatives Considered
 
 | Alternative | Outcome | Reason |
 |---|---|---|
@@ -260,7 +258,7 @@ Because this module is **rejected as the final reference implementation**, its u
 
 ---
 
-## 5. Consequences
+## 4. Consequences
 
 ### Positive
 
@@ -279,13 +277,18 @@ Because this module is **rejected as the final reference implementation**, its u
 - No-reset transfer, thermal behavior, charge current and measured runtime remain implementation evidence.
 - The unprotected MJ1 requires cell-side protection, charging/temperature controls and disciplined enclosure/serviceability.
 
+### Neutral / Operational
+
+- The owned 4056E board remains useful only as historical/bench evidence and is not a final implementation dependency.
+- Exact post-regulator, protection-element and NTC component values remain IHAP-55 implementation decisions constrained by this ADR.
+
 ### Claim boundary
 
 This ADR does not establish certification, fire safety, production readiness, commercial readiness or universal reliability. Physical implementation claims remain `[UNVALIDATED]` until IHAP-55 evidence exists.
 
 ---
 
-## 6. Related Risks and Treatments
+## 5. Related Risks and Treatments
 
 ADR-0007 affects two canonical power risks. The ADR defines required treatments but **does not close, accept, defer or verify either risk**.
 
@@ -298,30 +301,25 @@ Inverse links and the full treatment dossiers live in the Risk Records. IHAP-55 
 
 ---
 
-## 7. Implementation / Validation Handoff
+## 6. Follow-up Work
 
-IHAP-49 owns **the decision and electrical contract**.
+| Item | Tracking |
+|---|---|
+| Freeze MP2636 implementation or explicitly reviewed superseding topology | IHAP-55 |
+| Select and justify downstream regulated 5 V stage and 3.3 V regulator | IHAP-55 |
+| Implement cell-side over-current interruption and reverse-insertion prevention | IHAP-55 / IHAP-51 for physical keying if used |
+| Freeze NTC part/network and execute normal/hot/cold/open/short functional checks | IHAP-55 |
+| Execute PCB ERC/DRC/DFM, fabrication and staged bring-up | IHAP-55 |
+| Execute 0.5 A continuous and mandatory 1 A instrumented load-step tests | IHAP-55 |
+| Execute USB loss/restoration, backfeed and no-reset target validation | IHAP-55 |
+| Execute final-node quantitative power measurements transferred from ADR-0001/0002/0003/0004/0005 | IHAP-55 |
+| Measure backup endurance before any measured autonomy claim | IHAP-55 |
+| Update R-012/R-013 treatment effectiveness from implementation/verification evidence | IHAP-57 |
+| Freeze final signal/connector matrix consumed by PCB | IHAP-50 |
+| Verify enclosure, battery retention/service access and sensor placement | IHAP-51 |
+| Reconcile final assembled-board BOM/replication cost | IHAP-17 after IHAP-55 evidence |
 
-IHAP-55 owns:
-
-- exact schematic resistor/inductor/capacitor values;
-- final PMIC footprint/layout and thermal design;
-- exact 5 V post-regulator topology/SKU;
-- exact 3.3 V regulator selection;
-- USB-C ESD/input-protection implementation;
-- cell-side over-current interruption implementation and rating rationale;
-- battery reverse-polarity implementation;
-- NTC part/placement and mandatory fault-state functional validation;
-- PCB ERC/DRC and DFM;
-- fabrication outputs;
-- staged bring-up;
-- charge-current/voltage/temperature validation;
-- SYS rail/load/headroom measurements including mandatory 1 A load-step evidence;
-- no-reset switchover and restoration tests;
-- measured backup endurance;
-- assembled-board replication cost.
-
-### 7.1 Explicit ownership transfer from prior accepted ADRs
+### 6.1 Explicit ownership transfer from prior accepted ADRs
 
 Earlier accepted hardware ADRs assigned quantitative final-node power work to IHAP-49. ADR-0007 explicitly **supersedes only that follow-up task ownership** and transfers the still-mandatory measurements to IHAP-55 because the Project Owner selected a custom-board final implementation.
 
@@ -336,16 +334,16 @@ The obligations are not waived:
 
 IHAP-55 cannot close custom-board validation without these measurements.
 
-IHAP-50 owns the final signal/connector matrix consumed by the PCB. IHAP-51 owns enclosure, battery retention, service access and sensor placement. IHAP-17 consumes final board-level cost after downstream implementation evidence.
-
 The results of IHAP-55 may supersede this ADR if physical evidence shows the selected implementation direction cannot satisfy the frozen contract.
 
 ---
 
-## 8. Evidence Links
+## 7. Evidence Links
 
 | Evidence | Link |
 |---|---|
+| Jira decision issue | [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49) |
+| Jira remediation issue | [IHAP-56](https://niccolopiazzi01.atlassian.net/browse/IHAP-56) |
 | Project Owner decision record | `docs/evidence/IHAP-49/decision-record.md` |
 | Custom-PCB power contract | `docs/evidence/IHAP-49/custom-pcb-power-contract.md` |
 | Owned hardware evidence | `docs/evidence/IHAP-49/owned-hardware-evidence.md` |
@@ -355,35 +353,35 @@ The results of IHAP-55 may supersede this ADR if physical evidence shows the sel
 | Alternatives | `docs/evidence/IHAP-49/alternatives.md` |
 | Validation handoff | `docs/evidence/IHAP-49/validation-plan.md` |
 | Risk assessment summary | `docs/evidence/IHAP-49/risk-assessment.md` |
-| Canonical battery risk | `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md` |
-| Canonical rail/transfer risk | `docs/risks/records/R-013-edge-power-rail-transfer-integrity.md` |
+| Related Risk Record R-012 | `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md` |
+| Related treatment | `RT-R012-01` |
+| Related Risk Record R-013 | `docs/risks/records/R-013-edge-power-rail-transfer-integrity.md` |
+| Related treatment | `RT-R013-01` |
 | Cost governance | `docs/evidence/IHAP-49/cost-governance.md` |
 | Downstream contracts | `docs/evidence/IHAP-49/downstream-contracts.md` |
 | Source register | `docs/evidence/IHAP-49/source-register.md` |
-| Original acceptance PR | `https://github.com/pianic2/homeedge-ai-platform/pull/34` |
-| Post-merge remediation PR | `https://github.com/pianic2/homeedge-ai-platform/pull/35` |
+| Original acceptance PR | [PR #34](https://github.com/pianic2/homeedge-ai-platform/pull/34) |
+| Post-merge remediation PR | [PR #35](https://github.com/pianic2/homeedge-ai-platform/pull/35) |
+| Related ADRs | ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005 |
 
 ---
 
-## 9. Review Gate
+## 8. Review Notes
 
 ```text
-[x] Battery role decided: backup only.
-[x] Normal 5 V USB-C source decided.
-[x] Exact reference cell selected.
-[x] Cost-first selection rule recorded.
-[x] Owned 4056E module physically characterized enough to bound its use and rejected as final implementation.
-[x] Custom-PCB final direction recorded.
-[x] MP2636 retained as preferred charger/power-path/battery-boost PMIC candidate.
-[x] USB-powered SYS pass-through limitation remediated by mandatory downstream 5 V regulation or reviewed equivalent topology.
-[x] USB-C, charge, product-SYS-current, source-transfer and protection contracts defined.
-[x] Cell-side over-current interruption is mandatory for BAT-side faults upstream of PMIC SYS limiting.
-[x] Reverse-polarity control strengthened: procedure alone prohibited.
-[x] NTC functional/fault-state validation is mandatory downstream.
-[x] Canonical R-012/R-013 treatments and inverse ADR links are recorded without claiming risk acceptance.
-[x] Prior ADR quantitative power obligations, including ADR-0003, explicitly transfer to IHAP-55 rather than being waived.
-[x] Mandatory 1 A load-step validation handed to IHAP-55.
-[x] No redundant breakout procurement required for closure.
-[x] Autonomy remains `[UNVALIDATED]` until measured downstream.
-[x] Project Owner explicitly accepted ADR-0007 on 2026-09-07.
+[x] One stable architectural decision only.
+[x] ADR necessity and remediation boundary are explicit.
+[x] Canonical sections follow docs/adr/template.md in the required order.
+[x] Human-visible text contains context, decision, alternatives, consequences, risks, follow-up work and evidence.
+[x] AI metadata is limited to routing and anti-regression constraints.
+[x] R-012/R-013 and RT-R012-01/RT-R013-01 are explicitly linked with effect and remaining exposure.
+[x] Linked Risk Records contain the inverse ADR link.
+[x] The ADR is not treated as risk acceptance or closure evidence.
+[x] Source-of-truth boundaries are preserved.
+[x] MVP boundary is not silently expanded.
+[x] [UNVALIDATED] is preserved on unproven implementation, transfer, current and autonomy claims.
+[x] No production-ready, commercial-ready, security-grade, certified, safety-critical, fire-safe or compliance claim is introduced.
+[x] Project Owner acceptance is recorded before status Accepted.
+[x] Post-merge remediation does not silently redesign the accepted product direction.
+[ ] Independent PR #35 review must complete on the final head with no unresolved blocking finding before merge.
 ```
