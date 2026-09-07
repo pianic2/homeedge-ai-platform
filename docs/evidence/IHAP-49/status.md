@@ -1,6 +1,6 @@
 # IHAP-49 — Execution Status
 
-- Jira: **In revisione — final completion pending merge**
+- Jira: **In revisione — final completion pending successful PR merge**
 - GitHub branch: `ihap-49-edge-power-subsystem-decision`
 - Pull request: **#34 — Project Owner approved**
 - ADR: **ADR-0007 — Accepted 2026-09-07**
@@ -16,7 +16,7 @@
 - Enclosure / holder serviceability validation: **IHAP-51**
 - Backup autonomy: **`[UNVALIDATED]` until IHAP-55 endurance run**
 - Project Owner acceptance: **recorded 2026-09-07**
-- Merge: **authorized by Project Owner approval of PR #34**
+- Merge: **authorized**
 - Jira completion: **authorized after successful merge**
 - Definitive assembled-board replication cost: **deferred to IHAP-55 / IHAP-17 reconciliation**
 
