@@ -1,73 +1,93 @@
 # IHAP-49 — Cost Governance Notes
 
-**Status:** cell selected for procurement/validation; subsystem replication total still incomplete
+**Status:** decision-level cost baseline frozen; final assembled-board replication cost deferred to IHAP-55
 
-## Cost-first selection rule
+## Cost-first rule
 
-For IHAP-49, **cost is the first differentiator among options that already meet the minimum compatibility, provenance and evidence threshold**. Stronger documentation alone does not justify a higher-cost component when it does not materially improve the reference-node requirement.
+For IHAP-49, **cost is the first differentiator among options that already meet minimum compatibility, provenance and evidence thresholds**.
 
-The rule does not authorize anonymous/reclaimed/ambiguous cells merely because their sticker price is lower.
+This rule does not authorize anonymous/reclaimed/ambiguous batteries or components whose missing controls would shift cost/risk elsewhere in the system.
 
-## Owned inventory evidence
+## Selected battery procurement basis
 
-The project already owns:
-
-- USB-C 4056E-family charger/protection boards;
-- single-cell 18650 holders with leads.
-
-Historical ownership does not make either component automatically acceptable for the reference implementation.
-
-The owned holder is retained as the **reference-holder candidate**. User measurements are approximately 70 mm useful length with the spring fully compressed and approximately 18 mm maximum opening. The Project Owner reports that the plastic body is slightly elastic and expects it to accommodate the selected cell's seller-listed approximately 18.2 mm diameter. **No new holder purchase is planned.** Physical fit/contact pressure remains `[UNVALIDATED]` until the cell arrives.
-
-The owned charger/protection board remains a **candidate** because the exact protection-controller identity and quantitative trip thresholds are not yet verified.
-
-## Selected cell procurement candidate
-
-**LG INR18650-MJ1**  
+Reference cell: **LG INR18650-MJ1**  
 EAN / GTIN: `8438493099829`  
-Seller: NKON  
-Planned quantity: **10**
+Selected seller: NKON
 
-Order-decision values supplied/confirmed by the Project Owner:
+Project Owner order-decision values:
 
 | Item | Amount |
 |---|---:|
-| 10 × cell product subtotal | EUR 19.90 |
+| 10 × cells product subtotal | EUR 19.90 |
 | Shipping | EUR 6.33 |
 | Planned landed order total | **EUR 26.23** |
 | Product price per cell | EUR 1.99 |
-| Landed average per cell across this order | **EUR 2.623** |
+| Planned landed average | **EUR 2.623/cell** |
 
-The order is **not recorded as completed yet**. Procurement completion must be recorded only after explicit Project Owner confirmation.
+Purchase completion is recorded only after explicit Project Owner confirmation.
 
-### Cost accounting boundary
+Accounting after purchase must distinguish:
 
-Do not charge all 10 cells to one reference node.
+- cash-out procurement total;
+- one installed cell per reference node unless the design changes;
+- remaining cells as shared inventory;
+- landed acquisition cost per conforming cell;
+- final replication cost under the accepted procurement assumptions.
 
-After purchase/receipt, cost surfaces should distinguish:
+## Owned inventory disposition
 
-- **cash-out procurement:** actual order total paid;
-- **reference-node installed quantity:** 1 cell per node unless the final design changes;
-- **remaining cells:** shared/project inventory;
-- **landed unit acquisition cost:** total landed order / received conforming quantity;
-- **replication cost:** the cost to reproduce the accepted subsystem under the stated procurement assumptions, not an arbitrary allocation of unused inventory.
+The project already owns:
 
-## Replication-cost rule
+- `4056E` USB-C charger/protection breakout boards;
+- single-cell 18650 holders with leads.
 
-The final power-subsystem replication cost must include every required component needed to reproduce the accepted architecture, including as applicable:
+The holder remains the mechanical candidate and creates **no new holder purchase** at this stage. Actual fit remains physical downstream evidence.
 
-- regulated 5 V USB-C source/cable if part of the reference kit;
-- exact backup cell;
-- compatible holder;
-- charger/protection board;
-- DC/DC converter;
-- source-selection/isolation components;
-- switch;
-- fuse/protection/polarity components;
-- connectors and wiring attributable to the power subsystem.
+The 4056E board is retained as bench/control inventory but is **rejected as the final custom-PCB power implementation**.
 
-A low individual part price must not be used to characterize the subsystem as inexpensive before this complete cost is known.
+## Breakout procurement decision
 
-## Current disposition
+The Project Owner explicitly chose a custom integrated mainboard as the final hardware direction.
 
-Cell model selection is closed for procurement/validation, while procurement receipt/conformance and all remaining power-path components are still open. Definitive IHAP-17 BOM propagation and final replication totals remain deferred until the complete implementation is validated and Project Owner acceptance is obtained.
+Therefore do **not** purchase, solely for final-architecture emulation:
+
+- TPS61023 boost modules;
+- TPS2116 power-mux modules;
+- additional TP4056/4056E chargers;
+- other duplicated charger/boost/mux breakouts.
+
+A breakout may be purchased later only if a specific validation blocker cannot be removed through the custom-PCB design path and the Project Owner approves the spend.
+
+This prevents approximately the entire modular `charger + boost + mux` cash-out from becoming throw-away prototype inventory.
+
+## Integrated PMIC cost direction
+
+Preferred first custom-board PMIC: **MPS MP2636GR-P**.
+
+Current dated distribution evidence used for planning:
+
+- MPS status: Active;
+- Mouser Europe snapshot: approximately **EUR 3.67 at qty 1**, **EUR 2.78 at qty 10**, **EUR 2.55 at qty 25** before board-level assembly/PCB economics.
+
+Future cost-down candidate: **ETA9740**.
+
+Current LCSC snapshot shows approximately **USD 0.26 at qty 5**, materially cheaper than MP2636. It is not selected for revision 1 because the first board prioritizes the stronger fit to NTC monitoring and separated input/SYS power-path controls. A later revision may revisit it once measured requirements are known.
+
+## Board-level cost target
+
+IHAP-49 does not invent a final PCB cost before schematic/BOM/fabrication evidence exists.
+
+IHAP-55 must compare:
+
+1. custom-board power BOM;
+2. PCB/fabrication/assembly allocation;
+3. battery + holder allocation;
+4. connector/protection/passive allocation;
+5. breakout-stack prototype equivalent;
+6. complete node BOM impact.
+
+The target is that the custom board should reduce **total** cost/footprint/interconnect complexity, not merely reduce one IC price.
+
+## IHAP-17 boundary
+
+IHAP-17 may consume the accepted IHAP-49 architecture after Project Owner approval, but the **definitive assembled power-board replication total** remains pending IHAP-55 implementation evidence. Historical owned inventory must remain distinct from replication pricing.
