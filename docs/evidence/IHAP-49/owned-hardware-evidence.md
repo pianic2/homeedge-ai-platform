@@ -18,7 +18,7 @@ User measurements:
 
 Project Owner disposition — 2026-09-07:
 
-- do **not** procure a replacement holder;
+- do **not** procure a replacement holder at this decision stage;
 - retain this owned holder as the reference mechanical candidate;
 - holder body is reported as slightly elastic/compliant;
 - selected LG INR18650-MJ1 seller listing gives approximately **18.2 mm diameter × 65 mm height**;
@@ -30,9 +30,13 @@ Downstream acceptance conditions:
 - wrapper must not be cut, pinched or abraded;
 - contacts must maintain reliable pressure without visible cell damage;
 - removal must remain controlled;
-- reverse-insertion risk must be addressed electrically and/or by enclosure/service procedure.
+- **procedure or polarity labeling alone is not an acceptable reverse-insertion control**;
+- ordinary installation/service must include either:
+  - electrical reverse-battery blocking/protection; or
+  - a mechanically keyed holder/interface/enclosure that physically prevents reversed insertion;
+- because the selected MJ1 is unprotected, the final design must also include **cell-side over-current interruption** positioned so holder-lead/BAT-net faults upstream of PMIC SYS protection are covered.
 
-Final fit/retention evidence belongs to IHAP-55 / IHAP-51.
+Final fit/retention evidence belongs to IHAP-55 / IHAP-51. Electrical cell-side protection belongs to IHAP-55 and is tracked canonically by `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md`.
 
 ## Owned USB-C charger/protection board
 
@@ -70,7 +74,7 @@ Unsupported statements remain:
 
 ## Final disposition
 
-The owned `4056E + 8205A` breakout is **REJECTED as the final reference power implementation** because the product direction now requires a custom integrated core PCB and because this board does not establish the required system power-path / USB-C-to-USB-C behavior.
+The owned `4056E + 8205A` breakout is **REJECTED as the final reference power implementation** because the product direction requires a custom integrated core PCB and this board does not establish the required system power-path / regulated-product-SYS / USB-C-to-USB-C behavior.
 
 It remains useful as:
 
@@ -78,11 +82,11 @@ It remains useful as:
 - component-characterization evidence;
 - optional bench/control hardware.
 
-Its unresolved exact RPROG and protection-controller thresholds are therefore **not IHAP-49 architecture-acceptance blockers**.
+Its unresolved exact RPROG and protection-controller thresholds are therefore **not IHAP-49 architecture-acceptance blockers** and must not be reused as assumed final-board protection values.
 
 ## Selected cell relation
 
-The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because it is unprotected, the final custom PCB must provide the required system-level charging, low-voltage, current, thermal and polarity controls defined by ADR-0007.
+The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because it is unprotected, the final custom PCB must provide the required system-level charging, low-voltage, cell-side over-current, thermal and polarity controls defined by ADR-0007 and R-012.
 
 ## Evidence handling
 
