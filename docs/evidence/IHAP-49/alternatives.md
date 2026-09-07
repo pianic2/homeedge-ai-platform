@@ -1,17 +1,46 @@
 # IHAP-49 — Power Architecture Alternatives
 
-**Status:** Proposed comparison supporting ADR review
+**Status:** Proposed comparison supporting ADR-0007 review
 
-| Alternative | MVP disposition | Rationale |
+## Architecture-level alternatives
+
+| Alternative | Disposition | Rationale |
 |---|---|---|
-| Regulated 5 V USB-C only | Rejected as the complete subsystem | Simple and lowest-risk normal supply, but Project Owner requires local backup for blackout/cable-input failure. Retained as the **normal source**, not as the whole architecture. |
-| Protected 18650 + charger/regulator | Viable alternative | Reduces reliance on external protection, but protected-cell dimensional envelope may complicate holder compatibility and duplicates some protection if the selected charger board already provides a verified protection stage. Exact cell/holder evidence would still be required. |
-| Unprotected branded 18650 + verified charger/protection + regulator | Preferred implementation direction, not yet accepted | Matches the owned 4056E-family charger/protection-board topology and avoids redundant protection components, but only if exact protection thresholds, cell compatibility, holder fit and failure behavior are validated. |
-| Unprotected cell + separate BMS/protection unrelated to charger | Not preferred | Adds components, interfaces and failure modes without a demonstrated MVP need if the owned charger/protection stage can be qualified. |
-| LiPo pouch | Rejected for current reference direction | Does not eliminate the need for charging, protection, regulation, thermal/mechanical constraints or source switchover; introduces a different mechanical/handling profile without a current product requirement that justifies it. |
-| Replaceable primary cells | Rejected | Poor fit for a continuously powered 5 V radar/Wi-Fi node and creates repeated-consumable handling without solving the regulated 5 V domain cleanly. |
-| Rechargeable battery as primary continuous supply | Rejected | Planning budget shows a single 3.5 Ah-class 1S cell is an hours-scale source, not a multi-day reference supply. The Project Owner has selected wired 5 V as normal supply and battery only as backup. |
+| Regulated 5 V USB-C only | Rejected as complete subsystem; retained as normal source | Lowest complexity, but does not satisfy blackout/cable-input backup requirement. |
+| Rechargeable 1S battery as primary source | Rejected | Current load model makes one 18650 an hours-scale source; multi-day standalone operation is not an MVP requirement. |
+| Normal 5 V USB-C + rechargeable 1S backup | **Selected architecture** | Matches the actual continuity requirement while preserving one 5 V product domain. |
+| Protected 18650 | Rejected for reference direction | Adds cost and mechanical length while duplicating protection intended at system level. |
+| LG INR18650-MJ1 unprotected | **Selected cell** | Meets the capacity/current envelope with favorable landed cost and identifiable model/provenance. |
+| LiPo pouch | Rejected | Does not remove charging/protection/power-path work and adds a different mechanical profile without a current product need. |
+| Replaceable primary cells | Rejected | Poor fit for always-on radar/Wi-Fi and repeated-consumable use. |
 
-## Decision summary
+## Power implementation alternatives
 
-The selected architecture class is therefore **normal regulated 5 V USB-C + rechargeable 1S battery backup**. Exact cell, holder, charger/protection qualification, boost converter and source-selection/isolation components remain implementation decisions to close before ADR acceptance.
+| Implementation | Cost / integration | Technical fit | Disposition |
+|---|---|---|---|
+| Owned `4056E` charger/protection + separate boost + source mux | Low sunk cost, high wiring/module count | Charger evidence exists, but no complete power path; exact protection controller unknown; tested C-to-C input not supported | **Rejected as final implementation; retained as bench evidence** |
+| TPS61023 boost + TPS2116 mux + charger module | Moderate module cost, three-board stack | Technically viable and testable, but duplicates functions that the declared custom PCB should integrate | **Rejected as final reference; do not purchase solely for emulation** |
+| MT3608-class boost + discrete ORing/mux | Low sticker price | More trimming, poorer disconnect/backfeed behavior and more discrete failure paths | Rejected |
+| **MP2636GR-P integrated charger/PPM/boost** | Higher IC cost, much lower module/interconnect count | Separate VIN/SYS behavior, programmable 4.2 V charging, current limits, NTC, programmable 5 V SYS boost, protection features | **Selected first custom-board implementation direction** |
+| ETA9740 integrated bidirectional charger/boost | Very low IC cost | Strong cost-down potential and automatic mode switching, but weaker match to first-revision NTC / separated input-SYS control requirements | **Future cost-down candidate** |
+
+## Why MP2636 wins the first revision
+
+The project is cost-first **after minimum technical/evidence gates**. Cost-first therefore does not mean choosing the cheapest IC when doing so adds board-level controls or weakens the evidence/validation boundary.
+
+MP2636 is preferred for revision 1 because it collapses the charger, power-path manager and battery boost into one controlled PMIC while retaining:
+
+- 4.2 V selectable cell charging;
+- programmable ~1 A reference charge current;
+- NTC battery-temperature monitoring;
+- system-load priority;
+- programmable 5 V SYS output in boost mode;
+- programmable boost current limit;
+- separated USB input and SYS domains;
+- protection/monitoring hooks useful during bring-up.
+
+ETA9740 remains explicitly retained for a later cost-down review once the first board establishes measured load, thermal and switchover requirements.
+
+## Procurement consequence
+
+The project should **not buy TPS61023/TPS2116 or additional charger breakouts** merely to reproduce functions that the custom PCB will integrate. The selected LG MJ1 cells remain a valid purchase because the battery itself persists in the final architecture.
