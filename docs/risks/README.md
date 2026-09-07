@@ -71,8 +71,10 @@ Do not use this index to accept risk automatically.
 | R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-011 | `records/R-011-environmental-sensor-placement-bias.md` | Technical / Claims | RT-R011-01 Proposed | Pending Project Owner |
+| R-012 | `records/R-012-unprotected-li-ion-battery-fault.md` | Technical / Compliance-Claims | RT-R012-01 Approved; implementation/effectiveness pending | Pending Project Owner |
+| R-013 | `records/R-013-edge-power-rail-transfer-integrity.md` | Technical / Data-integrity consequence | RT-R013-01 Approved; implementation/effectiveness pending | Pending Project Owner |
 
-IHAP-39 defines the model only. IHAP-40 owns the earlier record migration and review. R-011 was introduced by IHAP-45 from concrete environmental-sensor evidence and has its own proposed treatment and event-driven review trigger.
+IHAP-39 defines the model only. IHAP-40 owns the earlier record migration and review. R-011 was introduced by IHAP-45 from concrete environmental-sensor evidence and has its own proposed treatment and event-driven review trigger. R-012 and R-013 were introduced by IHAP-56 after post-merge review of ADR-0007; their treatments are approved architecturally but remain neither Implemented nor Verified. IHAP-55 performs implementation/physical verification and IHAP-57 coordinates the later effectiveness update.
 
 ---
 
@@ -107,6 +109,8 @@ A record requires review when it lacks a treatment, monitoring, explicit decisio
 Do not mark a newly identified risk orphan while treatment triage is active. Apply the full rule from `risk-model-baseline.md`.
 
 R-011 is not orphaned: RT-R011-01 is Proposed, IHAP-51/IHAP-50 provide coordination, ADR-0002 contains the inverse link and the next review is event-driven.
+
+R-012 and R-013 are not orphaned: RT-R012-01 and RT-R013-01 are Approved, IHAP-55 owns implementation/verification, IHAP-57 tracks effectiveness updates, and ADR-0007 provides the inverse architectural links. Residual-risk decisions remain Pending Project Owner.
 
 ---
 
