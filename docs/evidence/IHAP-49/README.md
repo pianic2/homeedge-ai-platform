@@ -35,12 +35,13 @@ Purchase completion is not recorded until the Project Owner explicitly confirms 
 - Owned USB-C charger board exposes `B+`, `B-`, `OUT+`, and `OUT-` terminals.
 - Macro evidence shows a charger IC marked `4056E`, a dual MOSFET marked `8205A`, and a separate six-pin protection-controller device whose exact identity is not yet verified.
 - The owned charger board therefore has a discrete downstream protection stage in addition to the charger function, but the exact protection-controller identity and trip thresholds remain `[UNVALIDATED]`.
+- `IHAP49-CHARGER-C0-C1-01/run-record.md` records the first executed charger characterization: in-circuit R3 resistance was polarity-dependent and therefore inconclusive; the board accepted a legacy 5 V / 1.55 A USB-A-to-USB-C source at 4.95 V input, with unloaded B/OUT readings of approximately 4.19/4.18 V. A tested USB-C-to-USB-C fast-charge source did not produce usable board input voltage and is not accepted as compatible with this charger module.
 
 ## Remaining decision / validation work
 
 1. Confirm completed cell procurement and inspect received cell markings/condition.
 2. Validate LG MJ1 fit/contact pressure in the owned holder.
-3. Characterize the owned 4056E charger/protection board, starting with the unpowered charge-current-program resistor test in `charger-characterization-runbook.md`.
+3. Complete charger/protection validation with the received cell: actual charge current, terminal voltage, termination behavior and thermal observations.
 4. Select the 1S-to-regulated-5 V conversion topology/component and demonstrate sufficient steady-state and transient headroom.
 5. Resolve normal-source/backup-source switchover and backfeed isolation. A charger board with `B/OUT` terminals is not by itself evidence of seamless system power-path management.
 6. Freeze the rule for whether charging while the node is operating is permitted. Until demonstrated with an explicit power-path design, it remains prohibited.
@@ -59,7 +60,8 @@ Planning range before physical measurement: approximately 12–20 h for a 3.5 Ah
 ## Runbooks / plans
 
 - `validation-plan.md` — overall IHAP-49 physical-validation plan.
-- `charger-characterization-runbook.md` — immediately executable staged runbook for the owned 4056E charger/protection board; Stage C0 is unpowered and can be run before the cells arrive.
+- `charger-characterization-runbook.md` — staged runbook for the owned 4056E charger/protection board.
+- `IHAP49-CHARGER-C0-C1-01/run-record.md` — executed C0/C1 evidence: R3 in-circuit HOLD/inconclusive; legacy 5 V charger-input sanity PASS; USB-C-to-USB-C compatibility not demonstrated.
 
 ## Required physical validation sequence
 
