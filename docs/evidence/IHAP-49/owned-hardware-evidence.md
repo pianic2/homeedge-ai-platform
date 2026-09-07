@@ -16,12 +16,23 @@ User measurements:
 - maximum useful length with spring fully compressed: approximately **70 mm**;
 - maximum cell diameter/width: approximately **18 mm**.
 
-Decision boundary:
+Project Owner disposition update — 2026-09-07:
 
-- the owned holder remains inventory evidence only;
-- it is **not accepted as the reference holder** until the exact selected cell is shown to fit without excessive interference or abnormal contact compression;
-- the approximately 18 mm measured maximum width is especially restrictive relative to many branded 18650 cells whose manufacturer maximum diameter can exceed nominal 18.0 mm;
-- reverse-insertion risk must be addressed by electrical protection and/or enclosure/access constraints.
+- do **not** procure a replacement holder;
+- retain this owned holder as the reference-holder candidate;
+- the holder body is reported as slightly elastic/compliant;
+- the selected LG INR18650-MJ1 seller listing gives approximately **18.2 mm diameter × 65 mm height**, so the current mechanical hypothesis is that the ~0.2 mm nominal interference can be accommodated by elastic deformation of the holder body;
+- this hypothesis is **not yet physical evidence** and must be checked non-destructively when the selected cell arrives.
+
+Acceptance boundary:
+
+- actual insertion must not require excessive force;
+- the cell wrapper must not be cut, pinched or abraded by the holder;
+- contacts must maintain reliable pressure without visibly deforming/damaging the cell;
+- removal must remain controlled;
+- reverse-insertion risk must still be addressed by electrical protection and/or enclosure/access constraints.
+
+Holder fit/contact pressure remains `[UNVALIDATED]` until the received LG MJ1 specimen is tested.
 
 ## Owned USB-C charger/protection board
 
@@ -48,6 +59,10 @@ Unsupported statements at this stage:
 - safety certification or production suitability.
 
 These remain `[UNVALIDATED]` until supported by exact component identification and/or physical tests.
+
+## Selected cell relation
+
+The selected procurement/validation candidate is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because the cell is unprotected, continued use of this cell in the reference subsystem depends on successful qualification of system-level charge/discharge protection and failure behavior.
 
 ## Evidence handling
 
