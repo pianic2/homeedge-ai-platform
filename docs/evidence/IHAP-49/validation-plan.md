@@ -12,10 +12,12 @@ Define the tests required to prove that the **custom PCB implementation** satisf
 - explicit post-regulation or equivalent topology maintaining the same regulated 5 V product bus in USB and battery modes;
 - automatic source transfer without prohibited backfeed;
 - controlled battery charging and low-voltage behavior;
+- cell-side over-current interruption and reverse-insertion prevention for the unprotected MJ1 path;
+- functional NTC hot/cold/open/short behavior;
 - sufficient 5 V / 3.3 V headroom for the reference node;
 - quantitative current/rail measurements transferred from earlier accepted ADRs.
 
-IHAP-49 owns this validation contract. **IHAP-55 executes the fabricated-board tests.**
+IHAP-49 owns this validation contract. **IHAP-55 executes the fabricated-board tests.** Canonical residual-risk/effectiveness tracking is in R-012/R-013 and Jira IHAP-57.
 
 ## Evidence already completed in IHAP-49
 
@@ -47,7 +49,9 @@ Before physical bring-up, IHAP-55 must freeze:
 - >=0.5 A continuous / >=1.0 A transient SYS design envelope;
 - USB-C CC/input-protection implementation;
 - 3.3 V regulator;
-- NTC network;
+- NTC network and its expected valid/hot/cold/open/short behavior;
+- **cell-side over-current interruption element** located so holder-lead/BAT-net faults upstream of PMIC SYS protection are covered;
+- cell-side protection threshold/time rationale against worst-case normal charge/discharge/transient current and conductor/trace ampacity;
 - **electrical reverse-battery blocking or a mechanically keyed interface that physically prevents reverse insertion**;
 - holder connector/polarity;
 - input-current-limit profile for the reference 5 V >=1.5 A source;
@@ -61,7 +65,9 @@ Minimum instrumentation for ordinary bring-up:
 - digital multimeter for voltage, continuity, resistance and steady-state current;
 - serial/host logging sufficient to detect ESP32-C3 reboot/brownout/re-enumeration;
 - timer/timestamps for endurance testing;
-- temperature measurement suitable for comparative bench observation.
+- temperature measurement suitable for comparative bench observation;
+- resistor substitution / switching fixture capable of simulating the frozen NTC network's normal, hot, cold, open and short conditions;
+- current-limited bench source or equivalent bounded fixture for cell-side protection verification without intentionally hard-shorting the actual Li-ion cell.
 
 Additional instrumentation is **mandatory for the frozen >=1.0 A transient/headroom requirement**:
 
@@ -78,6 +84,7 @@ A generic USB display power meter is not an acceptable substitute for the mandat
 - verify polarity, continuity and absence of unintended shorts;
 - inspect battery connector/holder polarity;
 - verify reverse-battery blocking or mechanical keying implementation;
+- verify the cell-side over-current interruption element is physically/electrically upstream of the BAT-net fault paths it is intended to cover;
 - verify USB-C CC and input-protection population;
 - verify MP2636 / post-regulator / 3.3 V regulator / inductor / sense-network population against BOM;
 - verify NTC path and test points.
@@ -99,16 +106,37 @@ A generic USB display power meter is not an acceptable substitute for the mandat
 - confirm non-destructive fit/contact pressure in the owned holder;
 - verify polarity labeling;
 - confirm the final reverse-insertion control cannot be bypassed during ordinary installation/service;
+- confirm the cell-side protection path remains in-circuit during ordinary installation/service;
 - record open-circuit cell voltage before first connection.
 
-### V4 — Controlled charging
+### V4 — Controlled charging and mandatory NTC fault validation
+
+Charge-behavior checks:
 
 - verify ~1 A target charge current within the tolerance frozen in the schematic/PMIC configuration;
 - verify cell terminal voltage approaches but does not exceed the accepted 4.2 V charging envelope;
 - verify charge termination / auto-recharge behavior as observable;
 - verify system-load priority while the node operates;
-- observe battery/PMIC/inductor/post-regulator temperature behavior;
-- verify NTC fault behavior non-destructively where practical.
+- observe battery/PMIC/inductor/post-regulator temperature behavior.
+
+**NTC validation is mandatory, not optional.** Use a resistor/switching fixture derived from the frozen NTC schematic and PMIC thresholds. Exercise at minimum:
+
+1. valid/normal NTC equivalent;
+2. cold out-of-window equivalent;
+3. hot out-of-window equivalent;
+4. NTC open-circuit;
+5. NTC short-circuit.
+
+PASS criteria:
+
+- valid/normal equivalent permits charging when all other charge preconditions are valid;
+- both hot and cold out-of-window equivalents inhibit charging;
+- NTC open and short are fail-bounded and must inhibit charging, either directly through the PMIC TS behavior or through an explicitly reviewed equivalent control;
+- the product 5 V SYS remains stable while each NTC fault is asserted;
+- restoring the valid/normal NTC equivalent produces deterministic recovery without charge on/off oscillation;
+- actual resistor values, measured TS voltage/state and observed charge-current response are recorded.
+
+If the selected NTC topology cannot make open and short fail-bounded, the schematic does **not** satisfy this contract and must be revised before acceptance.
 
 ### V5 — Battery mode / product 5 V regulation
 
@@ -171,7 +199,7 @@ The waveform, load-step method, battery voltage and probe point are mandatory ev
 
 ### V10 — Low-voltage / recovery behavior
 
-Within safe non-destructive limits:
+Within bounded non-destructive limits:
 
 - verify battery discharge does not intentionally continue below the accepted cell boundary;
 - verify any graceful low-battery warning/shutdown behavior;
@@ -180,15 +208,16 @@ Within safe non-destructive limits:
 
 ### V11 — Mandatory quantitative load characterization transferred from prior ADRs
 
-The following measurements remain mandatory even though ownership moved from IHAP-49 to IHAP-55:
+The following measurements remain mandatory even though execution ownership moved from IHAP-49 to IHAP-55:
 
 - ESP32-C3 final implementation: 3.3 V rail current in representative idle/Wi-Fi-active conditions and observable peak/transient behavior with appropriate instrumentation;
 - LD2410C: quantitative 5 V current contribution on the final wiring/interface;
 - OLED: active-display current, blank/sleep current where supported, and a documented sleep/power policy based on the measured values;
 - DHT11 standard profile and BME280 precision profile: quantitative current contribution under the selected sampling policy;
+- MC-38/reed input: quantitative closed-loop current contribution for the final pull/network chosen by IHAP-50/implemented on the custom board;
 - complete node: normal-source input current, 5 V product SYS current, 3.3 V rail current and brownout/reset evidence under representative operation.
 
-These measurements satisfy the still-valid quantitative power obligations originally assigned to IHAP-49 by ADR-0001, ADR-0002, ADR-0004 and ADR-0005. ADR-0007 transfers execution ownership to IHAP-55; it does not waive the evidence.
+These measurements satisfy the still-valid quantitative power obligations originally assigned to IHAP-49 by **ADR-0001, ADR-0002, ADR-0003, ADR-0004 and ADR-0005**. ADR-0007 transfers execution ownership to IHAP-55; it does not waive the evidence.
 
 ### V12 — Backup endurance
 
@@ -200,8 +229,47 @@ These measurements satisfy the still-valid quantitative power obligations origin
 
 Only V12 may support a measured backup-autonomy statement for the tested board/cell/configuration.
 
+### V13 — Mandatory cell-side over-current protection verification
+
+This test verifies R-012 / RT-R012-01 without intentionally shorting the actual MJ1 cell.
+
+Precondition:
+
+- the schematic/BOM identifies the cell-side fuse/electronic protection element, its location, current/time threshold or trip curve, and the worst-case legitimate charge/discharge/transient envelope used to size it.
+
+Verification method:
+
+- use a current-limited bench source, protected battery simulator, sacrificial protection sample, or other bounded fixture representing the BAT source;
+- apply a controlled over-current condition on the protected downstream BAT path sufficient to exercise the frozen protection threshold without exceeding the fixture/component safety limits;
+- verify the protection element interrupts/limits the current within the frozen design threshold/time;
+- verify normal operation can be restored according to the selected protection technology (replace fuse, reset protection switch, or equivalent);
+- confirm the PMIC SYS/boost current limit is **not** the only element covering this upstream BAT fault path.
+
+PASS criteria:
+
+- the protected BAT path is interrupted/limited as designed;
+- measured trip/limit behavior is consistent with the frozen component specification and design rationale;
+- no intentional hard short is applied across the actual Li-ion cell;
+- post-test inspection reveals no damage that invalidates the tested PCB/protection sample.
+
+## Risk-to-test map
+
+| Canonical risk / exposure | Primary validation evidence |
+|---|---|
+| R-012 battery over-charge / charge control | V4 |
+| R-012 NTC hot/cold/open/short | V4 |
+| R-012 over-discharge / recovery | V10 |
+| R-012 reverse insertion | V1 + V3 schematic/mechanical acceptance; no destructive reverse-cell test required |
+| R-012 cell-side over-current | V13 |
+| R-013 regulated product rail | V2 + V5 + V6 |
+| R-013 1 A transient / brownout | V7 |
+| R-013 USB loss / backfeed | V8 |
+| R-013 source restoration / oscillation / backfeed | V9 |
+| R-013 final-node quantitative loads | V11 |
+| R-013 measured backup runtime | V12 |
+
 ## Acceptance boundary
 
 Physical PASS results support only the tested custom-board revision and conditions. They do not establish certification, fire safety, commercial readiness or universal cell/board equivalence.
 
-**IHAP-49 may close after the accepted architecture contract is merged because ADR-0007 explicitly transfers these still-mandatory implementation measurements to IHAP-55.** Any downstream evidence that contradicts this contract must reopen/supersede ADR-0007 rather than silently weakening tests.
+**IHAP-49 may remain closed because ADR-0007 explicitly transfers these still-mandatory implementation measurements to IHAP-55.** IHAP-57 keeps R-012/R-013 treatment effectiveness open until the evidence above exists. Any downstream evidence that contradicts the accepted architecture contract must reopen/supersede ADR-0007 rather than silently weakening tests.
