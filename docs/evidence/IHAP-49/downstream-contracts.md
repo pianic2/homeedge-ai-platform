@@ -2,36 +2,80 @@
 
 ## IHAP-50 — Interconnect and Prototype Assembly
 
-IHAP-50 must preserve:
+IHAP-50 must produce the canonical connection/interface matrix consumed by the custom PCB and preserve:
 
-- one regulated 5 V node domain serving LD2410C and the ESP32-C3 board input;
-- the accepted 3.3 V peripheral domain downstream of the ESP32-C3 board where validated;
-- normal 5 V USB-C source plus backup-source isolation/switchover as defined by the final IHAP-49 ADR;
-- explicit prevention of unintended backfeed;
-- final reed pull-network current must be included in the integrated power budget if an external network is selected.
+- one regulated 5 V system domain serving LD2410C and the 3.3 V regulator;
+- accepted ESP32-C3 signal/peripheral requirements;
+- DHT11 standard profile / BME280 precision profile distinction;
+- passive reed-contact semantics and final pull-network purpose/current;
+- polarized/keyed connector requirements where polarity matters;
+- field wiring / strain-relief requirements for external modules.
 
-IHAP-50 does not re-decide battery chemistry or charger topology.
+IHAP-50 should no longer treat a permanent breadboard/Dupont stack as the desired final reference implementation. Commodity prototype wiring may remain development evidence only.
+
+## IHAP-55 — Integrated Modular Edge PCB
+
+IHAP-55 is the primary implementation consumer of ADR-0007.
+
+It must implement or explicitly supersede the following contract:
+
+- custom core PCB rather than stacked power breakouts;
+- normal USB-C 5 V input with correct Type-C sink termination;
+- 5 V source profile >=1.5 A available/advertised;
+- LG INR18650-MJ1 1S backup cell;
+- preferred first PMIC direction: `MP2636GR-P`;
+- 4.2 V battery-full target;
+- ~1.0 A nominal charge-current target;
+- NTC battery-temperature monitoring;
+- system-load priority while charging;
+- regulated 5.0 V SYS;
+- >=0.5 A continuous / >=1.0 A transient SYS design capability;
+- automatic USB-priority battery takeover;
+- prohibited backfeed into upstream USB;
+- no-reset transfer as the reference target;
+- integrated 3.3 V rail sized from the ESP32-C3 + peripheral budget;
+- test points and staged bring-up;
+- reverse-cell mitigation;
+- external modular interfaces for placement-sensitive/serviceable sensors.
+
+Physical charge/thermal/rail/switchover/endurance evidence belongs to IHAP-55, not IHAP-49 closure.
 
 ## IHAP-51 — Edge Enclosure and Mounting
 
-IHAP-51 must preserve:
+IHAP-51 must consume the frozen custom-board mechanical envelope and preserve:
 
-- battery retention and cell-access rules;
-- polarity/reverse-insertion mitigation required by IHAP-49;
-- separation/access appropriate to charger input, battery and power switch;
-- thermal and mechanical constraints from the selected cell/charger/converter;
-- no enclosure wording that converts tested prototype evidence into a certification or fire-safety claim.
-
-IHAP-51 does not re-decide the power architecture.
+- serviceable 18650 holder/cell access;
+- battery retention;
+- reverse-insertion mitigation where mechanical prevention is used;
+- NTC placement / thermal spacing constraints;
+- USB-C access;
+- LD2410C antenna/field-of-view constraints;
+- environmental-sensor airflow;
+- OLED viewing/aperture constraints;
+- MC-38 field wiring/strain relief;
+- no unsupported IP, fire, tamper, electrical-safety or certification claim.
 
 ## IHAP-17 — Cost Governance / BOM
 
-IHAP-17 may receive definitive power BOM lines only after Project Owner acceptance of the exact IHAP-49 implementation. Historical owned inventory remains distinct from replication cost.
+After Project Owner acceptance of IHAP-49, IHAP-17 may record the accepted architecture/cell/PMIC direction.
+
+The definitive assembled-board replication total remains downstream evidence from IHAP-55 and must distinguish:
+
+- board BOM;
+- PCB/fabrication/assembly allocation;
+- battery/holder;
+- external modules;
+- shared inventory/tooling;
+- current dated supplier prices.
 
 ## IHAP-43 — Hardware Decision Baseline
 
-IHAP-43 receives the final accepted power-subsystem disposition after IHAP-49 is accepted. Until then, the ADR remains Proposed and no dependent task may treat exact battery/holder/converter details as frozen.
+After ADR-0007 acceptance, IHAP-43 records the power decision as:
+
+**normal 5 V USB-C + LG MJ1 1S backup + integrated custom-board power path, first implementation direction MP2636GR-P.**
+
+IHAP-43 must not imply that the fabricated PCB or measured runtime already exists.
 
 ## Runtime / event integrity
 
-IHAP-49 does not redefine runtime or event contracts. However, the final architecture must state whether normal-source loss can cause a controlled reboot or whether seamless transfer is required. Downstream runtime validation must account for the accepted behavior so that resets do not silently create duplicate/corrupt event semantics.
+IHAP-49 does not redefine runtime/event contracts. However, no-reset source transfer is the hardware target. If IHAP-55 evidence shows a controlled reboot is unavoidable, that result must be made explicit and downstream runtime/event validation must account for reboot/event-integrity behavior rather than silently accepting duplicates or gaps.
