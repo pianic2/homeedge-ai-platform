@@ -1,6 +1,6 @@
 # IHAP-49 — Final Review Checklist
 
-**Status:** ready for Project Owner acceptance
+**Status:** Project Owner accepted ADR-0007 / PR #34 on 2026-09-07
 
 ## Architecture decision
 
@@ -70,6 +70,7 @@
 
 ## Final approval
 
-- [ ] Project Owner explicitly accepts ADR-0007.
-- [ ] PR #34 merged only after explicit approval.
-- [ ] Jira IHAP-49 completed only after merge / accepted decision is recorded.
+- [x] Project Owner explicitly accepted ADR-0007 on 2026-09-07.
+- [x] Project Owner explicitly approved PR #34 on 2026-09-07.
+- [x] Merge authorized.
+- [x] Jira IHAP-49 completion authorized after successful merge.
