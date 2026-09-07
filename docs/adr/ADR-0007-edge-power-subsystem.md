@@ -1,8 +1,9 @@
 # ADR-0007 — Edge Power Subsystem
 
-**Status:** Proposed  
+**Status:** Accepted  
 **Date:** 2026-09-05  
 **Updated:** 2026-09-07  
+**Accepted:** 2026-09-07  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49)  
 **PR:** [#34](https://github.com/pianic2/homeedge-ai-platform/pull/34)  
@@ -14,7 +15,7 @@
 AI_AGENT_METADATA:
   document_type: architecture_decision_record
   issue: IHAP-49
-  status: Proposed
+  status: Accepted
   approval_authority: project_owner
   source_of_truth: github_versioned_repository_documentation
   jira_role: workflow_state_and_evidence_links
@@ -74,7 +75,7 @@ Final reference implementation direction:
 External sensors remain modular where placement/serviceability requires it.
 ```
 
-This ADR becomes authoritative only when its status is changed to `Accepted` by the Project Owner.
+This ADR was explicitly **Accepted by the Project Owner on 2026-09-07**.
 
 ### 2.1 Power-domain contract
 
@@ -313,5 +314,5 @@ The results of IHAP-55 may supersede this ADR if physical evidence shows the sel
 [x] Validation and physical implementation explicitly handed to IHAP-55/IHAP-51.
 [x] No redundant breakout procurement required for closure.
 [x] Autonomy remains `[UNVALIDATED]` until measured downstream.
-[ ] Project Owner explicitly accepts ADR-0007.
+[x] Project Owner explicitly accepted ADR-0007 on 2026-09-07.
 ```
