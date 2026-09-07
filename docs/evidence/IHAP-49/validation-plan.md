@@ -1,117 +1,145 @@
-# IHAP-49 — Power Subsystem Validation Plan
+# IHAP-49 — Power Subsystem Validation Plan / IHAP-55 Handoff
 
-**Status:** Proposed test plan; Project Owner review pending
+**Status:** architecture validation complete enough for ADR review; physical implementation validation delegated to IHAP-55
 
 ## Objective
 
-Validate a dual-source reference power subsystem in which regulated 5 V USB-C is the normal operating source and a rechargeable single-cell battery path is used only as backup for blackout or cable/input interruption.
+Define the tests required to prove that the **custom PCB implementation** satisfies ADR-0007:
 
-The validation must show electrical compatibility and controlled recovery. It must not turn component arithmetic into safety, certification or autonomy claims.
+- regulated 5 V USB-C as the normal source;
+- LG INR18650-MJ1 1S battery as backup only;
+- integrated charger + system power path + battery-to-5 V boost;
+- automatic source transfer without prohibited backfeed;
+- controlled battery charging and low-voltage behavior;
+- sufficient 5 V / 3.3 V headroom for the reference node.
 
-## Preconditions
+IHAP-49 owns this validation contract. **IHAP-55 executes the fabricated-board tests.**
 
-The following must be frozen before the corresponding physical tests begin:
+## Evidence already completed in IHAP-49
 
-- exact reference cell SKU and provenance;
-- exact holder;
-- owned 4056E charger/protection board specimen;
-- exact 1S-to-5 V converter;
-- normal/backup source-selection or switchover circuit;
-- power switch and polarity-control strategy;
-- normal 5 V USB-C source profile and cable;
-- final IHAP-50 interconnect mapping where required for the integrated fixture.
+- battery Go/No-Go resolved: battery retained as backup only;
+- planning power/autonomy budget produced;
+- exact cell model selected: LG INR18650-MJ1;
+- owned holder dimensions/limitations recorded;
+- owned charger module visually identified as `4056E` family with `8205A` protection MOSFET stage;
+- charger C0/C1 characterization recorded;
+- legacy USB-A-to-USB-C input sanity passed at 4.95 V;
+- tested USB-C-to-USB-C fast-charge input was not supported by the owned charger breakout;
+- generic breakout stack rejected as final reference implementation;
+- custom-PCB power contract and preferred integrated PMIC direction frozen.
 
-## Instrumentation
+The unresolved exact RPROG/protection-controller behavior of the owned 4056E module is **not a closure blocker** because that module is not selected for the final reference PCB.
 
-Minimum planned instrumentation:
+## Reference implementation preconditions for IHAP-55
 
-- digital multimeter capable of DC voltage, resistance/continuity and DC current measurements;
+Before physical bring-up, IHAP-55 must freeze:
+
+- MP2636GR-P schematic implementation or an explicitly reviewed superseding PMIC;
+- 4.2 V charge-voltage selection;
+- ~1.0 A nominal charge-current setting;
+- 5.0 V boost/SYS setting;
+- >=0.5 A continuous / >=1.0 A transient SYS design envelope;
+- USB-C CC/input-protection implementation;
+- 3.3 V regulator;
+- NTC network;
+- battery reverse-polarity strategy;
+- holder connector/polarity;
+- input-current-limit profile for the reference 5 V >=1.5 A source;
+- automatic MODE/source-transfer logic;
+- test points for VIN, BATT, SYS 5 V and 3.3 V.
+
+## Minimum instrumentation
+
+- digital multimeter for voltage, continuity, resistance and steady-state current;
 - serial/host logging sufficient to detect ESP32-C3 reboot/brownout/re-enumeration;
-- timer/log timestamps for controlled discharge testing.
+- timer/timestamps for endurance testing;
+- temperature measurement suitable for comparative bench observation.
 
-A generic USB power meter is not a requirement. If the integrated system exhibits unexplained transient failures that cannot be bounded with datasheet constraints and functional brownout/reset evidence, the test plan must escalate to higher-bandwidth measurement rather than claim transient behavior from a slow display meter.
+A generic USB power meter is not mandatory. If an unexplained transient remains, escalate to suitable higher-bandwidth instrumentation instead of inventing a transient claim from slow average measurements.
 
-## Test sequence
+## Physical test sequence — IHAP-55
 
-### 1. Unpowered inspection
+### V1 — Unpowered PCB inspection
 
-- verify terminal mapping and polarity;
-- verify continuity and absence of unintended shorts;
-- inspect holder fit and contact pressure;
-- record cell orientation and reverse-insertion mitigation;
-- verify `B+/B-` versus `OUT+/OUT-` wiring on the charger/protection board.
+- verify polarity, continuity and absence of unintended shorts;
+- inspect battery connector/holder polarity;
+- verify USB-C CC and input-protection population;
+- verify MP2636 / regulator / inductor / sense-network population against BOM;
+- verify NTC path and test points.
 
-### 2. Normal 5 V USB-C operation
+### V2 — USB-C normal-source bring-up, no battery
 
-With the complete reference load connected:
+- apply the accepted 5 V USB-C source;
+- confirm VIN and 5 V SYS;
+- confirm 3.3 V rail;
+- verify the node can boot without a battery;
+- record steady-state current and abnormal heating;
+- verify no unintended voltage appears on disconnected battery terminals beyond the expected charger behavior.
 
-- verify node boots from the normal source;
-- record 5 V rail and 3.3 V rail;
-- measure representative integrated input current;
-- exercise Wi-Fi activity, LD2410C sensing, OLED update and environmental/reed inputs;
-- record any brownout, reboot, USB re-enumeration or functional loss.
+### V3 — Received cell / holder inspection
 
-### 3. Battery-path regulation
+- confirm received LG MJ1 markings and condition;
+- confirm non-destructive fit/contact pressure in the owned holder;
+- verify polarity labeling and reverse-insertion mitigation;
+- record open-circuit cell voltage before first connection.
 
-Across representative battery voltages allowed by the selected cell/protection architecture:
+### V4 — Controlled charging
 
-- verify regulated 5 V output remains inside the final accepted tolerance;
-- verify 3.3 V rail remains stable through the board regulator;
-- exercise the complete reference load;
-- record converter thermal behavior qualitatively and quantitatively where feasible without making certification claims.
+- verify ~1 A target charge current within accepted tolerance;
+- verify cell terminal voltage approaches but does not exceed the accepted 4.2 V charging envelope;
+- verify charge termination / auto-recharge behavior as observable;
+- verify system-load priority while the node operates;
+- observe battery/PMIC/inductor temperature behavior;
+- verify NTC fault behavior non-destructively where practical.
 
-### 4. Normal-source interruption / backup takeover
+### V5 — Battery boost / SYS regulation
 
-- start from stable normal USB-C operation with a valid charged backup cell;
-- interrupt normal 5 V source in a controlled manner;
-- record whether the node remains powered, resets, browns out or loses state;
-- record 5 V and 3.3 V behavior observable with available instrumentation;
-- verify presence sensing and basic node operation after takeover.
+Across representative battery voltages:
 
-A seamless no-reset transfer is not assumed. If the selected architecture intentionally permits a controlled reboot on source loss, that behavior must be explicit in the ADR and downstream runtime expectations.
+- verify 5 V SYS remains within the frozen tolerance;
+- verify 3.3 V rail stability;
+- exercise ESP32 Wi-Fi, LD2410C, OLED and selected environmental/reed interface;
+- record brownout/reset evidence;
+- verify load-headroom target with a controlled test load where practical.
 
-### 5. Normal-source restoration
+### V6 — USB loss / backup transfer
 
-- restore normal USB-C power;
-- verify deterministic source recovery;
-- verify no prohibited backfeed into the charger, battery or external source;
-- verify node operational recovery and absence of repeated reset loops.
+- start with normal USB operation and valid charged backup;
+- remove normal USB input;
+- verify automatic transition to battery-backed 5 V;
+- verify no prohibited backfeed toward USB;
+- record whether any ESP32 reset/brownout occurs;
+- **PASS target: no-reset transfer**.
 
-### 6. Charging behavior
+### V7 — Normal-source restoration
 
-Until an explicit load-sharing/power-path implementation is selected and validated, **charging while the node is operating from the battery path is prohibited**.
+- restore valid USB input;
+- verify deterministic return to normal source;
+- verify charging resumes as designed;
+- verify no source oscillation or reset loop;
+- verify no backfeed.
 
-Validate:
+### V8 — Low-voltage / recovery behavior
 
-- charger input voltage;
-- charge current for the selected cell and RPROG configuration;
-- terminal voltage behavior;
-- charge-complete indication/termination behavior as observable;
-- post-charge battery voltage;
-- absence of abnormal heating under the tested conditions.
+Within safe non-destructive limits:
 
-### 7. Protection/failure cases
+- verify battery discharge does not intentionally continue below the accepted cell boundary;
+- verify any graceful low-battery warning/shutdown behavior;
+- verify recovery after normal USB source returns;
+- do not perform destructive short/reverse tests merely to claim protection.
 
-Within safe bench limits and without deliberately exceeding component ratings:
+### V9 — Backup endurance
 
-- validate low-voltage cutoff/recovery behavior where supported by the selected protection architecture;
-- validate reverse-polarity prevention/mitigation strategy by inspection and non-destructive tests;
-- validate that normal-source removal/restoration cannot create an obvious backfeed path;
-- verify that a disconnected/open battery does not cause uncontrolled node behavior;
-- verify controlled node recovery after power-cycle.
-
-### 8. Backup endurance
-
-After exact hardware and normal load behavior are stable:
-
-- fully charge the selected cell using the accepted procedure;
-- operate the complete reference node on backup battery under a representative workload;
-- log start time, periodic rail/battery measurements, resets and functional status;
-- stop at the defined protection/cutoff or accepted endpoint;
+- fully charge the accepted cell;
+- run the complete reference node on battery under representative workload;
+- log start/end, periodic cell/SYS readings, resets and functional state;
+- stop at the accepted low-voltage endpoint;
 - record measured runtime.
 
-Only this controlled run may support an MVP backup-autonomy statement for the tested specimen/configuration.
+Only V9 may support a measured backup-autonomy statement for the tested board/cell/configuration.
 
-## Pass boundary
+## Acceptance boundary
 
-A PASS supports only the tested reference implementation and conditions. It does not prove universal cell/module equivalence, certification, fire safety, production readiness or deployment suitability outside the documented envelope.
+Physical PASS results support only the tested custom-board revision and conditions. They do not establish certification, fire safety, commercial readiness or universal cell/board equivalence.
+
+**IHAP-49 can be accepted before V1–V9 are executed because it is the architecture-decision task; IHAP-55 is the explicit implementation/validation task.** Any downstream evidence that contradicts this contract must reopen/supersede ADR-0007 rather than silently weakening tests.
