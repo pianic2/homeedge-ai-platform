@@ -2,9 +2,11 @@
 
 **Status:** Proposed  
 **Date:** 2026-09-05  
+**Updated:** 2026-09-07  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49)  
 **PR:** [#34](https://github.com/pianic2/homeedge-ai-platform/pull/34)  
+**Implementation follow-up:** [IHAP-55](https://niccolopiazzi01.atlassian.net/browse/IHAP-55)  
 **Supersedes:** None  
 **Superseded by:** None
 
@@ -19,221 +21,262 @@ AI_AGENT_METADATA:
   confluence_role: stakeholder_navigation_only
   unvalidated_claim_marker: "[UNVALIDATED]"
   task_scope: edge_power_subsystem_decision
+  implementation_task: IHAP-55
   runtime_changes_allowed: false
   firmware_changes_allowed: false
 
 HIDDEN_ANTI_REGRESSION_RULES:
-  - Keep one stable architectural decision: normal regulated 5 V USB-C supply with rechargeable single-cell battery backup only.
-  - Do not convert planning current or capacity arithmetic into a validated autonomy claim.
-  - Do not accept the selected cell, holder, charger/protection thresholds, converter or source-selection implementation without traceable physical evidence where required.
-  - Do not infer seamless UPS/load-sharing behavior from a generic 4056-family charger board.
+  - Normal source remains regulated 5 V USB-C.
+  - Rechargeable 1S Li-ion remains backup only, not primary multi-day supply.
+  - Selected cell remains LG INR18650-MJ1 unless explicitly superseded.
+  - Final reference implementation converges to a custom core PCB, not stacked charger/boost/mux breakouts.
+  - Do not infer validated autonomy from capacity arithmetic.
   - Do not claim safe, certified, fire-safe, compliant, production-ready or installable from prototype evidence.
-  - IHAP-50 owns final interconnect implementation; IHAP-51 owns final enclosure/mounting implementation.
-  - IHAP-17 receives definitive BOM lines only after Project Owner acceptance.
+  - IHAP-55 owns custom-board schematic/layout/fabrication/bring-up.
+  - IHAP-50 owns the canonical connection/interface matrix consumed by the PCB.
+  - IHAP-51 owns final enclosure/mounting/serviceability.
+  - IHAP-17 receives definitive board-level BOM/replication cost only after downstream implementation evidence.
 -->
 
 ---
 
 ## 1. Context
 
-The reference MVP edge node combines an ESP32-C3 board, HLK-LD2410C-class presence radar, one accepted environmental-sensor profile, a passive reed-contact input and the accepted local OLED display.
+The reference edge node combines an ESP32-C3 compute profile, HLK-LD2410C-class presence radar, one environmental-sensor profile, a passive reed-contact input and the accepted local OLED display.
 
-The presence radar requires a 5 V domain and is an always-on material load. Planning evidence for IHAP-49 places the complete node near an engineering central estimate of roughly 0.625 W at the 5 V load domain, with significant uncertainty from ESP32-C3/Wi-Fi duty cycle, the owned SuperMini-compatible board and the OLED. The estimate is not a measurement.
+The LD2410C requires a 5 V domain and is a material always-on load. IHAP-49 planning evidence places the current reference node near a central estimate of roughly **0.625 W at the 5 V load domain**, with uncertainty dominated by ESP32-C3/Wi-Fi duty cycle, the development-board implementation and OLED usage. This is a planning estimate, not a measured final-board value.
 
-A single 3.5 Ah-class 1S Li-ion cell is therefore an hours-scale source for this node rather than a multi-day primary supply. The Project Owner has decided that autonomous multi-day battery operation is not an MVP requirement. The node shall normally be powered from regulated 5 V over USB-C, while a rechargeable battery remains in scope only as continuity backup for blackout or cable/input interruption.
+A 3.5 Ah-class 1S Li-ion cell is therefore an hours-scale backup source, not a multi-day primary supply. The Project Owner decided that the MVP should use wired USB-C power normally and retain a rechargeable battery only to bridge blackout, cable disconnection or normal-input failure.
 
-The owned hardware includes:
-
-- a USB-C charger/protection board with charger IC visibly marked `4056E`, an `8205A` dual MOSFET and a separate six-pin protection-controller device whose exact identity/thresholds remain `[UNVALIDATED]`;
-- an 18650 holder measured by the Project Owner at approximately 70 mm maximum useful length with the spring fully compressed and approximately 18 mm maximum cell width/diameter. The holder body is reported by the Project Owner as slightly compliant and is retained as the reference-holder candidate, but actual fit/contact pressure with the selected cell remains `[UNVALIDATED]` until the cell arrives.
-
-The selected cell candidate is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, 18650 flat-top unprotected Li-ion, selected on a cost-first basis after meeting the minimum provenance, electrical-envelope and reproducibility threshold. Seller evidence lists 3.6 V nominal, 3500 mAh typical, 3400 mAh minimum, 10 A discharge capability and approximately 18.2 mm × 65 mm dimensions. Procurement/received-specimen evidence and physical integration remain pending.
-
-The power subsystem is safety-sensitive. Component ownership or low purchase price does not prove electrical compatibility, adequate protection, acceptable thermal behavior or valid runtime.
+During IHAP-49, the Project Owner further clarified the final hardware direction: the product should converge to a **small, efficient, easily installable, modular and scalable custom PCB**, rather than permanently stacking development boards and breakout modules.
 
 ---
 
 ## 2. Decision
 
 ```text
-We will power the reference MVP edge node normally from a regulated 5 V USB-C source.
+Normal source:
+    regulated 5 V via USB-C
 
-We will retain a rechargeable single-cell Li-ion battery subsystem only as backup
-for blackout or normal-input/cable interruption.
+Backup source:
+    one rechargeable 1S Li-ion 18650, backup only
 
-The backup cell selected for procurement and validation is LG INR18650-MJ1,
-EAN/GTIN 8438493099829, flat-top unprotected 18650 Li-ion.
+Selected reference cell:
+    LG INR18650-MJ1
+    EAN/GTIN 8438493099829
+    flat-top, unprotected, 3.6 V nominal, 3.5 Ah class
 
-The backup path will feed the same regulated 5 V node domain through an explicit
-conversion and source-selection/isolation design. The battery is not the primary
-continuous source and multi-day standalone operation is not an MVP requirement.
+Final reference implementation direction:
+    one custom core PCB integrating USB-C input, 1S charging,
+    battery/system power-path management, battery-to-5 V backup conversion,
+    required protections and the downstream 3.3 V rail.
+
+External sensors remain modular where placement/serviceability requires it.
 ```
 
-This section becomes authoritative only when the ADR status is `Accepted` by the Project Owner.
+This ADR becomes authoritative only when its status is changed to `Accepted` by the Project Owner.
 
 ### 2.1 Power-domain contract
 
-The Proposed domain structure is:
+The target final topology is:
 
 ```text
-regulated 5 V USB-C normal source
-              |
-              +--------------------------+
-              |                          |
-              |                    source selection /
-              |                    isolation stage
-              |                          |
-              |                          v
-              |                  regulated 5 V node bus
-              |                     |            |
-              |                     v            v
-              |                  LD2410C     ESP32-C3 board
-              |                                  |
-              |                                  v
-              |                            onboard 3.3 V
-              |                           /      |       \
-              |                    DHT11/BME280 OLED  reed network
-              |
-              +--> 4056E-family charger/protection --> LG INR18650-MJ1
-                                      |
-                                      v
-                               protected output
-                                      |
-                                      v
-                           1S -> regulated 5 V converter
-                                      |
-                                      +----> source selection /
-                                             isolation stage
+USB-C 5 V normal input
+        |
+        v
+Type-C sink termination + input protection
+        |
+        v
+integrated 1S charger / system power path / battery boost
+        |                         |
+        |                         +----> LG INR18650-MJ1
+        |                                  in serviceable holder
+        v
+regulated 5 V SYS bus
+        |
+        +----> LD2410C external module
+        |
+        +----> regulated 3.3 V rail
+                    |
+                    +----> ESP32-C3 core
+                    +----> OLED interface
+                    +----> DHT11/BME280 profile interface
+                    +----> reed input network
 ```
 
-The exact source-selection/isolation topology remains `[UNVALIDATED]` and must prevent prohibited backfeed between the normal source and battery path.
+Final physical implementation is owned by IHAP-55 and must preserve the module boundaries established by the accepted sensor decisions.
 
-### 2.2 Battery role and selected cell
+### 2.2 Selected cell
 
-The backup battery exists for continuity through blackout or cable/input interruption. It is not intended to make the node a multi-day off-grid device.
+The reference cell model is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`.
 
-The selected cell candidate for procurement/validation is **LG INR18650-MJ1**:
+Current selection evidence records:
 
-- EAN/GTIN `8438493099829`;
 - 18650 flat-top, unprotected Li-ion;
-- seller-listed 3.6 V nominal;
-- seller-listed 3500 mAh typical / 3400 mAh minimum;
-- seller-listed 10 A discharge capability;
-- seller-listed approximately 18.2 mm diameter × 65 mm height.
+- 3.6 V nominal;
+- 3500 mAh typical / 3400 mAh minimum in the selected seller evidence;
+- 10 A seller-listed discharge capability;
+- approximately 18.2 mm × 65 mm seller-listed dimensions;
+- selected seller: NKON;
+- Project Owner order decision: 10 cells, EUR 19.90 subtotal + EUR 6.33 shipping = EUR 26.23 planned landed total.
 
-Selection is cost-first: once minimum compatibility, provenance and evidence thresholds are satisfied, lower total procurement/replication cost is preferred over stronger documentation that does not materially improve the node requirement.
+Selection policy is **cost-first after minimum compatibility, provenance and evidence gates are met**.
 
-A 3.5 Ah-class 1S cell has a current planning estimate of approximately 12–20 h backup runtime, with roughly 16 h as a central arithmetic estimate under the current load model. **Backup autonomy remains `[UNVALIDATED]` until a controlled discharge run is completed with the frozen implementation.**
+The cell is unprotected, therefore protection is a **system responsibility**. The final PCB must not depend on the cell itself providing over-charge, over-discharge, over-current or reverse-insertion protection.
 
-### 2.3 Charging and power-path rule
+### 2.3 Integrated PMIC direction
 
-The owned 4056E-family board is a charger/protection candidate, not evidence of a complete system load-sharing/UPS controller.
+The preferred first custom-board implementation is **Monolithic Power Systems MP2636GR-P**.
 
-Until an explicit power-path implementation is selected and validated:
+It is selected because one active, orderable IC covers the coupled functions that otherwise require multiple breakout boards:
 
-- charging while the node is operating from the battery path is **prohibited**;
-- seamless no-reset switchover is **not assumed**;
-- whether source loss may cause one controlled reboot or must preserve uninterrupted operation remains a validation/implementation decision inside IHAP-49.
+- switch-mode 1S charging;
+- system power-path management and system-load priority;
+- programmable input-current limit and input-voltage regulation;
+- selectable 4.2 V battery-full setting;
+- programmable charge current;
+- NTC battery-temperature input;
+- reverse boost from battery to a programmable SYS rail;
+- programmable boost current limit;
+- pass-through OCP/OVP;
+- boost short-circuit/OVP controls;
+- battery-current monitoring.
 
-### 2.4 Exact component acceptance remains open
+Its boost SYS voltage is programmable from 4.2 V to 6 V; the reference target is **5.0 V**.
 
-The ADR has selected the **LG INR18650-MJ1** cell model for procurement and validation, but physical acceptance of the received specimen remains pending.
+**ETA9740** remains a cost-down alternative for a later revision. Its very low unit price and integrated bidirectional charger/boost are attractive, but the current evidence provides a weaker match to the first-revision requirements for separated input/SYS behavior and battery-temperature monitoring. It is not selected for the first reference PCB.
 
-The ADR does **not** yet accept:
+### 2.4 USB-C input contract
 
-- the received cell specimen/lot as conforming before markings/condition are checked;
-- the owned holder/cell fit as physically validated;
-- an exact 1S-to-5 V converter;
-- an exact source-selection/isolation circuit;
-- the exact protection-controller identity or trip thresholds on the owned 4056E board;
-- a definitive normal-source PSU/cable SKU;
-- a validated backup runtime.
+- 5 V only; USB Power Delivery is not required for MVP.
+- Correct USB-C sink CC termination is mandatory.
+- The custom board must support USB-C-to-USB-C 5 V sources and must not rely on the legacy USB-A-to-USB-C behavior required by the owned 4056E module.
+- Reference source profile: **5 V with at least 1.5 A available/advertised**.
+- Input-current limiting must prioritize the system load and prevent deliberate overdraw of the reference source profile.
 
-Those details must be closed with evidence inside the same IHAP-49 branch and PR before this ADR can be accepted.
+### 2.5 Charging contract
+
+- Battery CV target: **4.2 V**.
+- Reference nominal charge-current target: **approximately 1.0 A**, with exact component values frozen by IHAP-55 schematic review.
+- The system load has priority over battery charging when input power is constrained.
+- **Charging while the node operates is permitted on the integrated power-path implementation**, subject to IHAP-55 validation.
+- Charging while operating remains **prohibited for the owned stand-alone 4056E breakout path** because it is not a validated load-sharing controller.
+- Battery-temperature monitoring via NTC or an explicitly reviewed equivalent control is mandatory on the custom board.
+
+### 2.6 SYS and load-headroom contract
+
+Reference 5 V SYS target:
+
+- nominal: **5.0 V regulated**;
+- minimum design capability: **>=0.5 A continuous** across the accepted battery range;
+- transient/headroom target: **>=1.0 A** without reset or uncontrolled rail collapse.
+
+These figures are **design-capability requirements**, not expected continuous node consumption.
+
+The custom 3.3 V regulator must cover the accepted ESP32-C3 supply requirement plus the selected 3.3 V peripheral loads and must not silently inherit the unknown regulator capability of the current SuperMini-compatible development board.
+
+### 2.7 Source transfer contract
+
+- USB-C is the priority source.
+- Loss of valid USB input must automatically transfer the node to battery-backed 5 V operation.
+- Backfeed into the external USB source/cable is prohibited.
+- **No-reset transfer is the reference target behavior** and remains `[UNVALIDATED]` until the fabricated custom board is tested.
+- Restoration of normal power must be deterministic and must not create reset loops or source oscillation.
+
+### 2.8 Low-voltage, polarity and serviceability contract
+
+- The design must not intentionally operate the cell below the accepted manufacturer discharge boundary.
+- A higher graceful low-battery warning/shutdown threshold is preferred where practical.
+- The current holder is retained as the mechanical candidate; no replacement holder purchase is required at this decision stage.
+- Because the holder is not mechanically keyed, reversed-cell insertion must be mitigated electrically and/or prevented by the final enclosure/service procedure.
+- Actual MJ1 fit/contact pressure remains physical evidence for IHAP-55/IHAP-51 after cell receipt.
 
 ---
 
-## 3. Alternatives Considered
+## 3. Owned 4056E Module Disposition
+
+The owned charger/protection board is **not selected as the final custom-PCB power implementation**.
+
+Physical evidence remains useful:
+
+- charger IC marking `4056E` observed;
+- `8205A` dual MOSFET observed;
+- separate six-pin protection controller observed, exact identity/thresholds `[UNVALIDATED]`;
+- legacy 5 V / 1.55 A USB-A-to-USB-C source produced VIN 4.95 V;
+- unloaded B/OUT readings approximately 4.19/4.18 V;
+- tested USB-C-to-USB-C fast-charge source did not produce usable module input;
+- in-circuit R3 measurements were polarity-dependent and therefore inconclusive.
+
+Because this module is **rejected as the final reference implementation**, its unresolved protection-controller identity and exact charge-current programming are no longer blockers to accepting the architectural decision. They remain limitations of owned inventory.
+
+---
+
+## 4. Alternatives Considered
 
 | Alternative | Outcome | Reason |
 |---|---|---|
-| Regulated 5 V USB-C only | Rejected as complete subsystem; retained as normal source | Lowest complexity but does not satisfy the Project Owner requirement for blackout/cable-fault backup. |
-| Rechargeable 1S battery as primary source | Rejected | Current load model makes a single 18650 an hours-scale source; multi-day standalone operation is not an MVP requirement. |
-| Normal 5 V USB-C + rechargeable 1S backup | **Selected architecture class, Proposed** | Matches the actual continuity requirement while keeping the stable node domain at regulated 5 V. |
-| Protected 18650 + charger/regulator | Rejected for current reference direction | Duplicated cell-level protection adds cost/length without a demonstrated need if the system-level protection stage is qualified. |
-| LG INR18650-MJ1 unprotected + verified charger/protection + regulator | **Selected implementation direction for procurement/validation** | Meets the required capacity/current envelope at lower cost than higher-priced branded alternatives while retaining identifiable model/provenance. Physical and protection validation remain mandatory. |
-| Other branded 3.4–3.5 Ah unprotected 18650 cells | Acceptable alternatives, not selected | Samsung/LG/Molicel/EVE-class alternatives can meet the electrical requirement, but the selected MJ1 had the preferred cost/value balance for the current order. |
-| Unprotected cell + separate additional BMS/protection | Not preferred | Adds components and interfaces without a demonstrated need if the owned charger/protection stage can be qualified. |
-| LiPo pouch | Rejected for current reference direction | Does not remove charging/protection/regulation/power-path constraints and adds a different mechanical handling profile without a current product requirement. |
-| Replaceable primary cells | Rejected | Poor fit for an always-on 5 V radar/Wi-Fi node and does not simplify the required regulated 5 V domain. |
+| Regulated 5 V USB-C only | Rejected as complete subsystem; retained as normal source | Does not satisfy blackout/cable-fault backup requirement. |
+| Rechargeable 1S battery as primary source | Rejected | Current node load makes a single 18650 hours-scale rather than multi-day. |
+| 5 V USB-C normal + 1S backup | **Selected** | Matches the actual continuity requirement. |
+| Protected 18650 | Rejected for reference direction | Higher cost/length and duplicates system-level protection. |
+| LG INR18650-MJ1 unprotected | **Selected cell** | Meets capacity/current requirement with favorable landed cost and identifiable provenance. |
+| Owned 4056E + separate boost + mux breakouts | Rejected as final implementation | Useful for bench characterization but increases board stacking, wiring, cost and failure points. |
+| TPS61023 + TPS2116 modular path | Rejected as final implementation | Technically viable but redundant once custom PCB integration is the declared target. |
+| MP2636 integrated custom-board path | **Selected first implementation direction** | Integrates charger, PPM and boost with NTC and separated SYS behavior in one PMIC. |
+| ETA9740 integrated custom-board path | Cost-down alternative | Much lower IC price but weaker fit to first-revision monitoring/power-path requirements. |
+| LiPo pouch | Rejected | No product requirement justifies the different mechanical profile. |
+| Replaceable primary cells | Rejected | Poor fit for always-on 5 V radar/Wi-Fi node. |
 
 ---
 
-## 4. Consequences
+## 5. Consequences
 
 ### Positive
 
-- Normal operation uses a simple, externally regulated 5 V USB-C source.
-- The node can retain a bounded local continuity capability for blackout or cable/input interruption.
-- The accepted 5 V LD2410C domain does not change between normal and backup operation.
-- Battery capacity can be sized for backup duration rather than multi-day primary autonomy.
-- Cost remains the first differentiator after minimum technical/provenance thresholds are met.
-- A USB power meter is not required as a prerequisite; ordinary multimeter measurements plus reset/brownout evidence are sufficient for the initial validation plan, with escalation to higher-bandwidth instrumentation only if transient behavior cannot otherwise be bounded.
+- Stable 5 V product power contract regardless of normal or backup source.
+- Backup requirement is bounded to blackout/cable-fault continuity rather than multi-day operation.
+- Final hardware can eliminate redundant breakout boards, connectors and wiring.
+- Custom PCB direction improves compactness, installability and modular sensor interfaces.
+- Integrated switch-mode charger/boost should improve efficiency relative to a linear charger + separate boost path.
+- Cost-down remains possible through later PMIC/BOM substitution without changing the product power contract.
 
 ### Negative / Trade-offs
 
-- Battery backup still introduces cell, holder, charging, protection, conversion, source-selection, reverse-polarity, backfeed and enclosure constraints.
-- The backup path requires conversion from a 1S Li-ion voltage range to regulated 5 V.
-- The source-transition behavior must be deliberately designed and tested.
-- The selected LG MJ1 is an unprotected cell, so system-level protection is mandatory and must be validated.
-- The owned holder fit is still a physical hypothesis until the selected cell arrives.
-- The exact protection behavior of the owned generic charger/protection board is not yet known.
-- Battery autonomy must be physically measured; capacity arithmetic alone is insufficient.
+- A custom PCB introduces schematic, layout, DFM, fabrication and bring-up work.
+- Battery safety-related behavior depends on the integrated design and must be physically validated.
+- No-reset transfer, thermal behavior, charge current and measured runtime remain implementation evidence.
+- The unprotected MJ1 requires system-level controls and disciplined enclosure/serviceability.
 
-### Neutral / Operational
+### Claim boundary
 
-- DHT11 remains the standard-indoor profile and BME280 the precision/extended profile; they are not summed as simultaneous reference loads.
-- The passive reed-contact decision is unchanged.
-- The accepted OLED remains part of the reference node.
-- Audio remains excluded from the reference MVP.
-- IHAP-50 owns final interconnect implementation.
-- IHAP-51 owns enclosure/mounting implementation.
-- IHAP-17 receives definitive power BOM lines only after Project Owner acceptance of IHAP-49.
+This ADR does not establish certification, fire safety, production readiness, commercial readiness or universal reliability. Physical implementation claims remain `[UNVALIDATED]` until IHAP-55 evidence exists.
 
 ---
 
-## 5. Related Risks and Treatments
+## 6. Implementation / Validation Handoff
 
-No existing canonical Risk Record was found that should be silently repurposed as the battery/power treatment dossier during this execution pass. IHAP-49 therefore records its current technical risks in `docs/evidence/IHAP-49/risk-assessment.md` and does not claim that an existing project risk is resolved.
+IHAP-49 owns **the decision and electrical contract**.
 
-| Risk | Treatment | Effect | Remaining exposure |
-|---|---|---|---|
-| Normal-source loss / node reset | IHAP-49 source-selection and recovery validation | Partially mitigates | Transfer/reboot behavior `[UNVALIDATED]` |
-| Battery over-charge / over-discharge / over-current | Charger/protection qualification + selected unprotected-cell policy | Partially mitigates | Protection-controller identity/thresholds `[UNVALIDATED]` |
-| Reverse cell insertion | Electrical and/or IHAP-51 mechanical mitigation | Leaves unresolved pending design | Mitigation not frozen |
-| Backfeed between sources | Explicit isolation/source-selection design | Leaves unresolved pending design | Topology not frozen |
-| Brownout from load/transients | Current/rail measurements + reset logging + headroom | Partially mitigates | Integrated transient peak `[UNVALIDATED]` |
-| Unsupported autonomy expectation | Backup-only product boundary + controlled discharge test | Avoids false claim | Measured runtime `[UNVALIDATED]` |
-| Holder mechanical interference/contact stress | Non-destructive fit/contact inspection of received MJ1 | Leaves unresolved pending test | Physical fit `[UNVALIDATED]` |
+IHAP-55 owns:
 
----
+- exact schematic resistor/inductor/capacitor values;
+- final PMIC footprint/layout and thermal design;
+- exact 3.3 V regulator selection;
+- USB-C ESD/input-protection implementation;
+- battery reverse-polarity implementation;
+- NTC part/placement;
+- PCB ERC/DRC and DFM;
+- fabrication outputs;
+- staged bring-up;
+- charge-current/voltage/temperature validation;
+- SYS rail/load/headroom measurements;
+- no-reset switchover and restoration tests;
+- measured backup endurance;
+- assembled-board replication cost.
 
-## 6. Follow-up Work
+IHAP-50 owns the final signal/connector matrix consumed by the PCB. IHAP-51 owns enclosure, battery retention, service access and sensor placement. IHAP-17 consumes final board-level cost after downstream implementation evidence.
 
-| Item | Tracking |
-|---|---|
-| Confirm procurement and inspect received LG INR18650-MJ1 cell markings/condition | IHAP-49, same branch/PR |
-| Validate selected MJ1 fit/contact pressure in the owned holder | IHAP-49, same branch/PR |
-| Select 1S-to-regulated-5 V converter | IHAP-49, same branch/PR |
-| Select source-selection/isolation implementation | IHAP-49, same branch/PR |
-| Verify charger current configuration and protection behavior | IHAP-49, same branch/PR |
-| Measure integrated normal-source current and rails | IHAP-49 validation evidence |
-| Test source interruption and restoration | IHAP-49 validation evidence |
-| Run controlled backup-endurance test | IHAP-49 validation evidence |
-| Freeze final physical interconnect | IHAP-50 |
-| Freeze battery accessibility/mounting/enclosure constraints | IHAP-51 |
-| Propagate definitive BOM lines after acceptance | IHAP-17 |
-| Reconcile parent hardware baseline after acceptance | IHAP-43 |
+The results of IHAP-55 may supersede this ADR if physical evidence shows the selected implementation direction cannot satisfy the frozen contract.
 
 ---
 
@@ -241,42 +284,34 @@ No existing canonical Risk Record was found that should be silently repurposed a
 
 | Evidence | Link |
 |---|---|
-| Jira issue | [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49) |
-| Pull request | [PR #34](https://github.com/pianic2/homeedge-ai-platform/pull/34) |
 | Project Owner decision record | `docs/evidence/IHAP-49/decision-record.md` |
+| Custom-PCB power contract | `docs/evidence/IHAP-49/custom-pcb-power-contract.md` |
 | Owned hardware evidence | `docs/evidence/IHAP-49/owned-hardware-evidence.md` |
+| Charger characterization run | `docs/evidence/IHAP-49/IHAP49-CHARGER-C0-C1-01/run-record.md` |
 | Power tree | `docs/evidence/IHAP-49/power-tree.md` |
 | Planning power/autonomy budget | `docs/evidence/IHAP-49/power-budget.md` |
 | Alternatives | `docs/evidence/IHAP-49/alternatives.md` |
-| Validation plan | `docs/evidence/IHAP-49/validation-plan.md` |
-| Preliminary risk assessment | `docs/evidence/IHAP-49/risk-assessment.md` |
+| Validation handoff | `docs/evidence/IHAP-49/validation-plan.md` |
+| Risk assessment | `docs/evidence/IHAP-49/risk-assessment.md` |
 | Cost governance | `docs/evidence/IHAP-49/cost-governance.md` |
 | Downstream contracts | `docs/evidence/IHAP-49/downstream-contracts.md` |
-| Review checklist | `docs/evidence/IHAP-49/review-checklist.md` |
-| Related ADRs | ADR-0001, ADR-0002, ADR-0003, ADR-0004, ADR-0005 |
-
-Primary manufacturer/seller sources used for planning are registered in `docs/evidence/IHAP-49/source-register.md`.
+| Source register | `docs/evidence/IHAP-49/source-register.md` |
 
 ---
 
-## 8. Review Notes
+## 8. Review Gate
 
 ```text
-[x] One stable architectural decision only.
-[x] ADR necessity is explicit; coupled power architecture needs traceability.
-[x] Current power/battery risks and remaining exposure are explicit.
-[x] The ADR is not treated as risk acceptance or closure evidence.
-[x] Source-of-truth boundaries are preserved.
-[x] MVP boundary is explicit: normal wired 5 V + backup battery only.
-[x] LG INR18650-MJ1 selected for procurement/validation on a cost-first basis.
-[x] [UNVALIDATED] is preserved on unproven claims.
-[x] No production-ready, commercial-ready, security-grade, certified, safety-critical,
-    fire-safe, alarm-grade, antifurto, access-control, intrusion-detection or protection
-    claim is introduced.
-[ ] Received cell provenance/condition and holder fit validated.
-[ ] Converter/source-selection implementation validated.
-[ ] Integrated normal-source and backup-path validation complete.
-[ ] Backup autonomy measured.
-[ ] Complete replication cost frozen.
-[ ] Project Owner acceptance recorded before status becomes Accepted.
+[x] Battery role decided: backup only.
+[x] Normal 5 V USB-C source decided.
+[x] Exact reference cell selected.
+[x] Cost-first selection rule recorded.
+[x] Owned 4056E module physically characterized enough to bound its use and rejected as final implementation.
+[x] Custom-PCB final direction recorded.
+[x] Integrated charger / power-path / boost PMIC direction selected: MP2636GR-P.
+[x] USB-C, charge, SYS-current, source-transfer and protection contracts defined.
+[x] Validation and physical implementation explicitly handed to IHAP-55/IHAP-51.
+[x] No redundant breakout procurement required for closure.
+[x] Autonomy remains `[UNVALIDATED]` until measured downstream.
+[ ] Project Owner explicitly accepts ADR-0007.
 ```
