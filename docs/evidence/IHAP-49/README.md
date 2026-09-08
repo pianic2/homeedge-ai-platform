@@ -1,10 +1,10 @@
 # IHAP-49 — Edge Power Subsystem Decision Evidence
 
-**Status:** Accepted decision package — implementation validation handed to IHAP-55; post-merge remediation tracked by IHAP-56 / PR #35
+**Status:** Accepted PR #34 decision package + **Proposed IHAP-56 remediation overlay** in PR #35
 
 This directory contains the evidence package for IHAP-49. The accepted architecture uses regulated 5 V USB-C as the normal node supply and a rechargeable single-cell Li-ion path only as backup for blackout or cable/input interruption.
 
-## Accepted Project Owner direction
+## Accepted Project Owner direction — 2026-09-07
 
 - Normal operating source: regulated 5 V via USB-C.
 - Battery role: backup only, for blackout or cable/input failure.
@@ -14,26 +14,38 @@ This directory contains the evidence package for IHAP-49. The accepted architect
 - Cost is the first differentiator after minimum compatibility/provenance/evidence thresholds are met.
 - Final hardware direction: **one small, efficient, installable, modular custom core PCB**.
 - Preferred first integrated power PMIC direction: **MPS MP2636GR-P**.
+- MP2636 USB-mode pass-through requires a downstream regulated 5 V stage or reviewed equivalent topology.
 - Existing 18650 holder remains the mechanical candidate; no replacement-holder purchase now.
 - Owned 4056E breakout is retained only as bench/control evidence and is rejected as the final implementation.
-- Do not buy TPS61023, TPS2116 or additional charger/boost/mux breakouts solely to emulate the final custom PCB.
+- Do not buy redundant TPS61023/TPS2116/charger/boost/mux breakouts solely to emulate the final custom PCB.
 
-## Frozen electrical / protection contract
+## Accepted electrical baseline
 
 - USB-C normal input: 5 V, no PD requirement; correct Type-C sink termination and C-to-C 5 V operation required.
-- Reference source: 5 V with at least 1.5 A available/advertised; board ILIM worst-case including tolerance must be <=1.50 A.
-- MP2636 pass-through is an intermediate node only; **post-regulation or reviewed equivalent** must create the regulated product 5 V SYS in both USB and battery modes.
-- Battery CV target: 4.2 V; nominal charge current approximately 1.0 A.
-- NTC monitoring is mandatory and normal/hot/cold/open/short behavior must be functionally verified.
-- Unprotected MJ1 requires **cell-side over-current interruption** covering holder/BAT faults upstream of PMIC-output limiting.
-- Reverse insertion requires electrical blocking/protection or mechanical keying; procedure alone is not a control. Electrical blocking requires bounded simulator verification.
-- Product SYS: 5.0 V regulated, >=0.5 A continuous, >=1.0 A transient/headroom.
-- Load-step evidence must exercise both baseline->1 A and 1 A->baseline with <=100 µs reference current edges and waveform/reset criteria.
-- USB priority + automatic battery takeover/restoration must be verified at representative high/mid/low battery voltages.
-- Backfeed into upstream USB is prohibited.
-- Low-voltage first-reference policy: cutoff 2.70 V ±0.05 V, no deliberate operation below 2.50 V, recovery at >=3.00 V ±0.05 V or valid USB.
-- Thermal validation uses manufacturer-derived limits; MJ1 charge 0–45 °C, discharge -20–60 °C, MP2636 Tj <=125 °C during accepted operation. Final regulator/inductor/protection limits must be frozen before V4/V6.
-- No-reset transfer is the reference target and remains `[UNVALIDATED]` pending IHAP-55 physical evidence.
+- Reference source: 5 V with at least 1.5 A available/advertised; system-load-priority input limiting required.
+- Product SYS: 5.0 V regulated, 4.75–5.25 V steady-state validation band, >=0.5 A continuous, >=1.0 A transient/headroom target.
+- Battery CV target 4.2 V; nominal charge current approximately 1.0 A.
+- NTC monitoring required.
+- USB priority + automatic battery takeover; upstream USB backfeed prohibited.
+- No-reset transfer remains the target and `[UNVALIDATED]`.
+- Reverse insertion requires electrical blocking/protection or mechanical keying; procedure alone is not acceptable.
+- Accepted quantitative ownership transfer covers ADR-0001/0002/0004/0005.
+
+## Proposed IHAP-56 remediation overlay — pending explicit Project Owner approval
+
+The following items were introduced after PR #34 and are **Proposed**, not part of the 2026-09-07 acceptance record:
+
+- RT-R012-01 cell-side over-current interruption and installed-path V13 verification;
+- mandatory NTC normal/hot/cold/open/short verification;
+- manufacturer-derived numeric thermal PASS/FAIL limits;
+- worst-case ILIM <=1.50 A plus V14 combined node+charging verification;
+- bidirectional V7 with <=100 µs current edges;
+- V8/V9 high/mid/low battery transfer/restoration and zero restoration-attributable reset for proposed no-reset effectiveness verification;
+- V10 cutoff 2.70±0.05 V, no deliberate <2.50 V operation, restart >=3.00±0.05 V or valid USB;
+- bounded V15 reverse-blocking simulator test when electrical protection is used;
+- extension of quantitative ownership transfer to **ADR-0003 / reed current**.
+
+RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified. ADR-0007 acceptance partially mitigates the associated risks at the accepted architecture-baseline level but does not approve the later treatment detail or accept residual risk.
 
 ## Evidence captured
 
@@ -43,23 +55,13 @@ This directory contains the evidence package for IHAP-49. The accepted architect
 
 ## Implementation / validation handoff
 
-IHAP-55 owns the fabricated-board implementation and all mandatory physical evidence defined by `validation-plan.md`, including:
-
-- MP2636 implementation or explicitly reviewed supersession plus regulated 5 V post-stage;
-- USB-C CC/ESD/input current limiting;
-- cell-side over-current and reverse-polarity implementation;
-- NTC network and fault simulation;
-- charging/current-limit/system-priority verification;
-- numeric thermal acceptance table;
-- 5 V / 3.3 V rail and bidirectional 1 A load-step capture;
-- high/mid/low battery source transfer/restoration;
-- numeric low-voltage cutoff/recovery;
-- quantitative measurements transferred from ADR-0001/0002/**0003**/0004/0005;
-- measured backup runtime and final board-level BOM/replication cost.
-
-Canonical risk dossiers are **R-012** and **R-013**. Their treatments are **Proposed**, not Approved/Implemented/Verified, until explicit Project Owner treatment approval and downstream evidence exist. Residual risk remains Pending Evidence.
-
-IHAP-51 owns holder retention, battery accessibility and enclosure/serviceability. IHAP-50 owns the final connection matrix.
+- `validation-plan.md` separates the accepted PR #34 test baseline from the Proposed IHAP-56 strengthening.
+- `downstream-contracts.md` separates accepted IHAP-55 obligations from Proposed treatment gates.
+- `custom-pcb-power-contract.md` preserves the same approval boundary.
+- IHAP-55 remains blocked by IHAP-56 until the remediation/approval gate is resolved.
+- IHAP-51 owns holder retention, battery accessibility and enclosure/serviceability.
+- IHAP-50 owns the final connection matrix.
+- IHAP-57 coordinates later treatment lifecycle/effectiveness only after explicit treatment approval and implementation/verification evidence.
 
 ## Planning autonomy boundary
 
@@ -67,12 +69,12 @@ Planning calculations indicate approximately 12–20 h for a 3.5 Ah-class cell, 
 
 ## Runbooks / plans
 
-- `validation-plan.md` — mandatory implementation-validation contract consumed by IHAP-55.
-- `downstream-contracts.md` — downstream ownership and requirements.
-- `custom-pcb-power-contract.md` — accepted electrical contract.
+- `validation-plan.md` — accepted baseline + Proposed remediation validation overlay.
+- `downstream-contracts.md` — downstream ownership and approval boundary.
+- `custom-pcb-power-contract.md` — accepted baseline + Proposed remediation overlay.
 - `charger-characterization-runbook.md` — staged runbook for the owned 4056E board.
 - `IHAP49-CHARGER-C0-C1-01/run-record.md` — executed C0/C1 evidence.
 
 ## Approval boundary
 
-On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. That approval covers the architectural decision; it does **not** by itself approve the later R-012/R-013 treatment lifecycle states or establish safety, certification, production readiness, validated no-reset transfer or measured autonomy.
+On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. That approval covers the architectural baseline only. The later IHAP-56 treatment/validation amendments remain Proposed until an explicit Project Owner decision records approval. Neither layer establishes safety, certification, production readiness, validated no-reset transfer or measured autonomy.
