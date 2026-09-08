@@ -7,7 +7,7 @@
 
 Freeze the electrical and product requirements that IHAP-49 owns without forcing the reference MVP to permanently use stacked breakout modules.
 
-The final reference direction is a **single custom core PCB**. IHAP-49 defines the accepted power contract; IHAP-55 implements, lays out, fabricates and physically validates that contract. R-012/R-013 are the canonical risk-treatment dossiers.
+The final reference direction is a **single custom core PCB**. IHAP-49 defines the accepted power contract; IHAP-55 implements, lays out, fabricates and physically validates it. R-012/R-013 are the canonical risk-treatment dossiers and their treatment lifecycle remains **Proposed** until explicit Project Owner treatment approval exists.
 
 ## Frozen product-level decision
 
@@ -22,7 +22,7 @@ The final reference direction is a **single custom core PCB**. IHAP-49 defines t
 
 The accepted **5.0 V regulated product bus** must not depend on the MP2636 input pass-through path being exactly 5.0 V. MPS documents an IN-to-SYS pass-through path when input power is present and a programmable SYS voltage in battery boost mode. The final PCB therefore requires an explicit regulation stage or equivalent topology after the charger/power-path stage so both USB-powered and battery-powered operation satisfy the same 5 V product-bus contract.
 
-The unprotected cell also requires a protection boundary **before PMIC-output protection can be relied upon**: BAT-side over-current interruption is mandatory, and reverse insertion must be electrically blocked or physically impossible through keying.
+The unprotected cell also requires a protection boundary before PMIC-output protection can be relied upon: BAT-side over-current interruption is mandatory, and reverse insertion must be electrically blocked or physically impossible through keying.
 
 ```text
 USB-C 5 V input
@@ -59,141 +59,142 @@ regulated 5.0 V product SYS bus
       +----> 3.3 V regulator --> ESP32-C3 core + OLED / ENV / reed interface domain
 ```
 
-The final design must not require separate TP4056/4056E, boost and power-mux **breakout boards**. Additional ICs/passives on the single custom PCB are allowed when required to satisfy the frozen electrical contract.
+The final design must not require separate TP4056/4056E, boost and power-mux **breakout boards**. Additional ICs/passives on the single custom PCB are allowed when required to satisfy the frozen contract.
 
 ## Reference integrated PMIC direction
 
 **Preferred charger / power-path / battery-boost PMIC candidate for IHAP-55:** `MP2636GR-P` (Monolithic Power Systems).
 
-It provides the coupled functions that the breakout stack otherwise needs:
+It provides 1S switch-mode charging, system-load-priority power-path management, programmable input-current/input-voltage regulation, selectable 4.2 V battery charge voltage, programmable charge current, NTC input, reverse battery boost, boost current limiting, pass-through OCP/OVP, boost short/OVP controls and battery-current monitoring.
 
-- 1S Li-ion / Li-polymer switch-mode charging;
-- system power-path management with system-load priority;
-- programmable input-current limit and input-voltage regulation;
-- selectable 4.2 V battery charge voltage;
-- programmable charge current;
-- NTC battery-temperature input;
-- reverse boost from the battery to a programmable intermediate SYS voltage;
-- programmable boost output-current limit;
-- pass-through over-current / over-voltage controls;
-- boost short-circuit and over-voltage controls;
-- battery-current monitor output.
+**Important implementation constraint:** MP2636 alone is **not evidence of regulated 5.0 V SYS while USB input is present**. IHAP-55 must either use MP2636 plus a downstream 5 V regulation stage that covers the complete intermediate range or explicitly supersede the topology with another reviewed implementation satisfying the same product-bus contract.
 
-**Important implementation constraint:** the MP2636 alone is **not evidence of a regulated 5.0 V SYS rail while USB input is present**. IHAP-55 must therefore either:
-
-1. use MP2636 with a downstream 5 V regulation stage capable of both buck and boost behavior across the complete intermediate range; or
-2. explicitly supersede the MP2636 topology with another reviewed implementation that independently satisfies the same 5.0 V product-bus contract.
-
-The exact intermediate boost setpoint, downstream-regulator SKU and efficiency trade-off are IHAP-55 schematic/BOM decisions. The **product output target remains 5.0 V regulated**.
-
-`ETA9740` remains a future cost-down candidate, not the first-reference choice, until equal evidence demonstrates no regression of this contract.
+`ETA9740` remains a future cost-down candidate only.
 
 ## Electrical contract
 
-### USB-C input
+### USB-C input and source-current limit
 
 - 5 V only; USB Power Delivery is **not required** for MVP.
-- Type-C sink implementation must include correct CC termination (`Rd`, normally 5.1 kΩ on CC1 and CC2 unless the selected front end requires otherwise).
-- The final board must work from USB-C-to-USB-C 5 V sources that advertise sufficient current.
+- Correct Type-C sink CC termination is mandatory (`Rd`, normally 5.1 kΩ on CC1/CC2 unless the selected front end requires otherwise).
+- USB-C-to-USB-C 5 V operation is mandatory for the final PCB.
 - Reference source profile: **5 V, at least 1.5 A available/advertised**.
-- Input-current limit must be configured so the node + charging load cannot intentionally exceed the reference input profile.
+- Input-current limit must be configured so its **worst-case maximum including tolerance is <=1.50 A**.
+- IHAP-55 must execute the combined node-load + charging **V14** test and prove charge current yields to system load before product SYS leaves 4.75–5.25 V.
 
 ### Charging and battery-temperature control
 
-- Cell CV target: **4.2 V**.
-- Reference charge-current target: **~1.0 A nominal**, subject to final calculation and physical validation in IHAP-55.
-- The system-load path has priority over battery charging when input power is constrained.
-- Charging while the node operates is permitted only on the integrated power-path implementation; it remains prohibited for the owned 4056E breakout as a stand-alone charger path.
-- Battery NTC monitoring is mandatory unless a reviewed equivalent gives equal or stronger bounded control.
-- The final NTC implementation must be functionally verified for **normal, hot, cold, open and short** conditions.
-- Hot/cold out-of-window conditions and NTC open/short faults must inhibit charging or be intercepted by an explicitly reviewed equivalent fail-bounded control.
-- Recovery to the valid NTC state must be deterministic and must not create charge oscillation.
+- Cell CV target: **4.2 V**; validation maximum-charge envelope **4.20 ±0.05 V**.
+- Reference charge-current target: **~1.0 A nominal**.
+- System-load path has priority over battery charging when input power is constrained.
+- Charging while the node operates is permitted only on the integrated power-path implementation; it remains prohibited for the owned 4056E breakout as a stand-alone path.
+- Battery NTC monitoring is mandatory unless a reviewed equivalent provides equal/stronger bounded control.
+- Functional verification is mandatory for **normal, hot, cold, open and short** NTC conditions; out-of-range and fault states must inhibit charging or be intercepted by an explicitly reviewed fail-bounded equivalent.
+- Recovery must be deterministic without charge oscillation.
+
+### Thermal contract
+
+Manufacturer-derived numeric limits govern PASS/FAIL, not mere qualitative temperature observation.
+
+Already frozen:
+
+- LG MJ1 charging operating temperature: **0–45 °C**;
+- LG MJ1 discharge operating temperature: **-20–60 °C**;
+- MP2636 recommended operating junction temperature: **-40 to +125 °C**;
+- MP2636 thermal shutdown around **150 °C** is protective behavior and entering it is a validation FAIL.
+
+Before V4/V6, IHAP-55 must register numeric manufacturer operating/rated limits for the selected post-regulator, 3.3 V regulator, inductor and protection components and define how measured board/case temperature maps to the applicable junction/hotspot limit. A rail-stable run that exceeds a registered temperature limit is FAIL.
 
 ### Cell-side over-current protection
 
 Because the reference MJ1 is unprotected:
 
 - a **cell-side over-current interruption element** is mandatory;
-- it must be located so a short/over-current on holder leads or the BAT net downstream of the cell is covered **before** reliance on PMIC SYS/boost output limiting;
-- acceptable architectures include a fuse, resettable/electronic protection switch, or reviewed equivalent;
-- the exact threshold/time must be justified from legitimate worst-case charge/discharge/transient current and conductor/trace ampacity;
-- PMIC SYS/boost current limiting alone is **not sufficient** for a BAT-side fault upstream of that limiting stage;
-- verification must use a bounded current-limited fixture or equivalent method; do not intentionally hard-short the actual Li-ion cell.
+- it must cover holder-lead/BAT-net faults before reliance on PMIC SYS/boost output limiting;
+- fuse, resettable/electronic protection switch or reviewed equivalent are acceptable;
+- exact threshold/time must be justified from legitimate charge/discharge/transient current and conductor/trace ampacity;
+- PMIC SYS/boost limiting alone is insufficient;
+- V13 uses a bounded current-limited fixture; the real Li-ion cell is not intentionally hard-shorted.
 
-### 5 V product SYS bus
+### 5 V product SYS bus and dynamic headroom
 
 - Nominal target: **5.0 V regulated**.
-- Steady-state acceptance band for IHAP-55 validation: **4.75–5.25 V** unless a downstream component requires a tighter limit.
-- Must power LD2410C and the downstream 3.3 V regulator.
-- Minimum design capability: **>=0.5 A continuous** at the product 5 V SYS bus across the accepted battery operating range and valid USB input range.
-- Transient/headroom target: **>=1.0 A** without reset or uncontrolled rail collapse.
-- Current capability is a design envelope, not an assertion that the node continuously draws this current.
+- Steady-state band: **4.75–5.25 V**, unless a downstream component requires tighter limits.
+- Minimum capability: **>=0.5 A continuous** across accepted battery and valid USB input ranges.
+- Transient/headroom target: **>=1.0 A** without reset/uncontrolled rail collapse.
+- V7 must exercise **baseline->1.0 A and 1.0 A->baseline** with measured 10–90% current-transition time **<=100 µs** on each edge unless final load evidence requires a faster reference.
+- Generic transient limits: product SYS must not fall below **4.5 V** or rise above **5.5 V** and must return to 4.75–5.25 V within **2 ms**, unless selected loads require tighter limits.
 
 ### 3.3 V domain
 
-- The custom PCB must provide a regulated 3.3 V rail compatible with the accepted ESP32-C3 compute profile and 3.3 V peripherals.
-- The rail design must cover the Espressif supply-current requirement plus OLED/environmental/reed-interface margin.
-- The final design must not silently reuse the unknown regulator capability of the current SuperMini-compatible development board.
+- Provide a regulated 3.3 V rail compatible with the accepted ESP32-C3 compute profile and 3.3 V peripherals.
+- Cover Espressif current requirements plus OLED/environmental/reed-interface margin.
+- Do not silently inherit the unknown regulator capability of the SuperMini-compatible development board.
 
 ### Battery low-voltage behavior
 
-- The design must not intentionally operate the MJ1 below its accepted minimum-discharge boundary.
-- A graceful low-battery warning/shutdown threshold above the hard protection boundary is preferred where practical.
-- Exact cutoff and recovery values are implementation/test evidence in IHAP-55.
+The first-reference numeric policy is:
+
+- battery-backed cutoff: **2.70 V ±0.05 V** at BATT under the frozen validation load/measurement condition;
+- deliberate sustained operation below the MJ1 manufacturer discharge-end voltage **2.50 V** is prohibited;
+- restart after low-voltage cutoff requires **BATT >=3.00 V ±0.05 V** or valid USB input;
+- no cutoff/restart oscillation is allowed between the thresholds;
+- a change to these values requires explicit reviewed justification against the MJ1 specification and converter requirements.
 
 ### Source transfer
 
 - Normal USB power has priority.
-- Loss of valid USB input must transfer the system to battery-backed 5 V operation automatically.
-- Backfeed into the USB source/cable is prohibited.
-- **No-reset transfer is the target behavior** and remains `[UNVALIDATED]` until tested on the fabricated board.
-- Normal-source restoration must be deterministic and must not create reset loops or repeated source oscillation.
+- Loss of valid USB must transfer automatically to battery-backed regulated 5 V.
+- Backfeed into USB is prohibited.
+- No-reset transfer remains the target and `[UNVALIDATED]` until tested.
+- V8/V9 must verify transfer/restoration at representative **high 4.10±0.10 V, mid 3.60±0.10 V and low 2.80±0.05 V** battery conditions, with relevant node loads.
+- Restoration must be deterministic without reset loops/source oscillation.
 
 ### Reverse polarity / serviceability
 
-- The selected cell is unprotected; power-system protection is a system responsibility.
-- The existing holder is retained as the mechanical candidate, but it is not mechanically keyed against reverse insertion.
-- **Procedure alone is not an acceptable reverse-polarity control.** The final implementation must provide either:
-  - electrical reverse-battery blocking/protection; or
-  - a mechanically keyed battery interface/enclosure that physically prevents reversed insertion.
-- Service procedure and polarity markings are supplementary controls only.
-- Actual LG MJ1 holder fit/contact pressure remains an IHAP-55/IHAP-51 validation item after the cells arrive.
+- The selected cell is unprotected; system protection is a product responsibility.
+- Existing holder remains a mechanical candidate but is not keyed against reverse insertion.
+- Procedure alone is not acceptable.
+- Final implementation must provide either electrical reverse-battery blocking/protection or mechanical keying that physically prevents reversed insertion.
+- If electrical blocking is used, **V15 is mandatory**: use a 4.20 V battery simulator with 10 mA current limit, require <=1 mA steady reversed-source current, product 5 V/3.3 V rails <=0.3 V, no damage/heating, and normal recovery after correct polarity.
+- The real Li-ion cell must not be intentionally reverse-connected.
+- Actual MJ1 holder fit/contact pressure remains IHAP-55/IHAP-51 evidence.
 
 ## Owned 4056E module disposition
 
-The owned USB-C charger/protection module is **not selected as the final custom-PCB power architecture**. Its recorded C0/C1 evidence remains historical/bench evidence only. Unresolved protection-controller identity and exact RPROG value must not be promoted into assumed final-board characteristics.
+The owned USB-C charger/protection module is **not selected as the final custom-PCB power architecture**. Its C0/C1 evidence remains historical/bench evidence only. Unresolved controller identity/RPROG must not become assumed final-board characteristics.
 
 ## Procurement rule
 
 Until IHAP-55 schematic/BOM review requires exact parts:
 
-- purchase the selected LG MJ1 cells because they remain part of the final architecture;
-- do **not** buy TPS61023, TPS2116, additional charger modules or other redundant breakouts solely to emulate functions integrated on the custom PCB;
+- purchase the selected LG MJ1 cells because they persist in the architecture;
+- do **not** buy TPS61023, TPS2116, additional charger modules or redundant breakouts solely to emulate integrated functions;
 - existing modules may be used as bench references;
 - any new breakout purchase requires a specific validation blocker and Project Owner approval.
 
 ## Accepted follow-up ownership supersession
 
-ADR-0007 **does not cancel** quantitative power evidence required by earlier accepted hardware ADRs. It supersedes only their original task-owner assignment from `IHAP-49` to `IHAP-55` for measurements requiring the final custom implementation.
+ADR-0007 does **not cancel** quantitative power evidence from earlier accepted hardware ADRs. It supersedes only task ownership from IHAP-49 to IHAP-55 for measurements requiring the final custom implementation.
 
-The following obligations remain mandatory and move to IHAP-55:
+Mandatory obligations transferred to IHAP-55:
 
-- ADR-0001: quantitative rail/regulator/current/peak/autonomy validation for the final ESP32-C3 implementation;
-- ADR-0002: environmental-profile quantitative current contribution in the integrated node;
-- ADR-0003: final reed/pull-network quantitative closed-loop current contribution;
-- ADR-0004: display current measurement and resulting sleep/power policy;
-- ADR-0005: LD2410C quantitative current/rail contribution and autonomy impact;
-- integrated 5 V / 3.3 V rail, current and brownout evidence for the complete custom node.
+- ADR-0001: quantitative rail/regulator/current/peak/autonomy validation for final ESP32-C3 implementation;
+- ADR-0002: environmental-profile current contribution;
+- ADR-0003: final reed/pull-network closed-loop current contribution;
+- ADR-0004: display current and resulting sleep/power policy;
+- ADR-0005: LD2410C current/rail/autonomy contribution;
+- integrated 5 V / 3.3 V rail, current and brownout evidence.
 
-This is an **ownership transfer, not a waiver**. IHAP-55 cannot declare the custom board validated until these measurements are captured.
+This is an ownership transfer, not a waiver.
 
 ## Canonical risk / treatment links
 
-- `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md` — `RT-R012-01`, battery/cell-side protection and NTC/polarity/cutoff evidence;
-- `docs/risks/records/R-013-edge-power-rail-transfer-integrity.md` — `RT-R013-01`, regulated rail/backfeed/transfer/load-headroom evidence.
+- `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md` — `RT-R012-01` **Proposed**;
+- `docs/risks/records/R-013-edge-power-rail-transfer-integrity.md` — `RT-R013-01` **Proposed**.
 
-Neither risk is accepted or closed by ADR-0007. Effectiveness remains Pending Evidence until IHAP-55 tests and IHAP-57 updates the records.
+ADR-0007 acceptance does not approve these later treatment lifecycle states and does not accept/close either risk. IHAP-55 implementation/effectiveness remains `[UNVALIDATED]`; IHAP-57 coordinates subsequent lifecycle/effectiveness updates after explicit treatment approval.
 
 ## Handoff / closure boundary
 
-IHAP-49 remains the completed architecture-decision task. IHAP-55 owns schematic/layout/fabrication and the mandatory implementation tests; IHAP-51 owns enclosure/serviceability; IHAP-57 tracks treatment effectiveness. Material contradictory evidence must reopen/supersede ADR-0007 rather than silently weaken the accepted contract.
+`validation-plan.md` is the mandatory physical test contract and `downstream-contracts.md` is the primary downstream ownership surface. IHAP-49 remains the completed architecture-decision task. IHAP-55 owns schematic/layout/fabrication and mandatory implementation tests; IHAP-51 owns enclosure/serviceability; IHAP-57 tracks treatment lifecycle/effectiveness. Contradictory evidence must reopen/supersede ADR-0007 rather than silently weaken the accepted contract.
