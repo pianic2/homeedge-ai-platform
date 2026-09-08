@@ -59,8 +59,8 @@ There is a risk that the unprotected 1S Li-ion cell, holder wiring or custom PCB
 |---|---|
 | Assets | LG MJ1 cell, holder leads, BAT net, charger/power-path PMIC, PCB, enclosure/service interface |
 | Trust boundary | User/service interaction with removable cell and electrical boundary between cell/holder and PCB |
-| Category | Technical / Compliance-Claims |
-| Stakeholder surface | Hardware replication, installation/service instructions, battery/autonomy and maturity claims |
+| Category | Technical |
+| Stakeholder surface | Compliance / Claims consequences: hardware replication, installation/service instructions, battery/autonomy and maturity claims |
 
 ---
 
@@ -115,7 +115,7 @@ Planned controls below are not existing controls.
 
 #### Rationale
 
-The selected cell is unprotected. The final product needs system-boundary controls including fault paths before the PMIC SYS output. PMIC boost/SYS current limiting cannot by itself protect a short on holder leads or BAT net upstream of that stage.
+The selected cell is unprotected. The final product needs system-boundary controls including fault paths before the PMIC SYS output. PMIC boost/SYS current limiting cannot by itself protect a short on holder leads or BAT net upstream of that stage. The accepted ADR establishes the battery role and system-level protection direction; the more specific cell-side interruption, fault-state and numeric verification details below are the **Proposed** RT-R012-01 treatment and are not approved merely because ADR-0007 is Accepted.
 
 #### Proposed mandatory controls / actions
 
@@ -145,7 +145,7 @@ The selected cell is unprotected. The final product needs system-boundary contro
 
 | ID | Source | Source type | Supports | Version / applicability | Verification | Checked on | Limitations |
 |---|---|---|---|---|---|---|---|
-| SRC-01 | `docs/adr/ADR-0007-edge-power-subsystem.md` | Project decision | Unprotected cell selection and system-level protection requirement | Accepted 2026-09-07 | Verified | 2026-09-08 | Does not approve treatment lifecycle |
+| SRC-01 | `docs/adr/ADR-0007-edge-power-subsystem.md` | Project decision | Unprotected cell selection, backup role, system-responsibility protection and reverse-polarity direction | Accepted 2026-09-07 | Verified | 2026-09-08 | Does not approve the later RT-R012-01 details or lifecycle |
 | SRC-02 | `docs/evidence/IHAP-49/owned-hardware-evidence.md` | Internal evidence | Unkeyed holder / owned hardware observations | Owned specimens | Verified | 2026-09-08 | Does not prove final PCB protection |
 | SRC-03 | MPS MP2636 datasheet in source register | Manufacturer | PMIC charger/power-path/boost/TS behavior | Rev.1.02 | Verified | 2026-09-08 | Does not cover arbitrary upstream BAT faults |
 | SRC-04 | LG INR18650-MJ1 product specification in source register | Manufacturer | 4.2 V max charge, 2.5 V discharge end, 0–45 °C charge, -20–60 °C discharge | MJ1 Rev.1 source | Verified for model | 2026-09-08 | Received lot still pending inspection |
@@ -155,8 +155,8 @@ The selected cell is unprotected. The final product needs system-boundary contro
 | Evidence ID | Evidence | Evidence class | Expected result | Actual result | Status |
 |---|---|---|---|---|---|
 | EV-01 | IHAP-55 schematic/BOM review | Implementation | Cell-side interruption, reverse control, NTC, low-voltage and thermal limits present | Not executed | `[UNVALIDATED]` |
-| EV-02 | V4 NTC/charging/thermal + V14 source-limit run | Verification | Charge/NTC/source-priority behavior meets frozen limits | Not executed | `[UNVALIDATED]` |
-| EV-03 | V13 controlled cell-side over-current verification | Verification | Protection interrupts/limits within frozen threshold/time without hard-shorting actual MJ1 | Not executed | `[UNVALIDATED]` |
+| EV-02 | V4 NTC/charging/thermal + V14 source-limit run | Verification | Charge/NTC/source-priority behavior meets the approved/frozen treatment limits | Not executed | `[UNVALIDATED]` |
+| EV-03 | V13 controlled cell-side over-current verification | Verification | Installed PCB protection path interrupts/limits within frozen threshold/time without hard-shorting actual MJ1 | Not executed | `[UNVALIDATED]` |
 | EV-04 | Received MJ1 / holder qualification | Verification | Correct identity/condition and non-destructive fit/retention | Not executed | `[UNVALIDATED]` |
 | EV-05 | V10 low-voltage / recovery run | Verification | 2.70 V cutoff, >=3.00 V recovery, no deliberate <2.50 V discharge or oscillation | Not executed | `[UNVALIDATED]` |
 | EV-06 | V15 reverse-polarity functional test when electrical blocking is used | Verification | Reversed 4.20 V simulator causes <=1 mA steady current, product rails <=0.3 V, no damage | Not executed / N/A if mechanical-only keying | `[UNVALIDATED]` |
@@ -179,11 +179,11 @@ For EV-03/EV-06 use bounded current-limited fixtures. **Do not intentionally har
 
 | Relationship | Link | Effect / Rule |
 |---|---|---|
-| Accepted ADR | `docs/adr/ADR-0007-edge-power-subsystem.md` | Defines architectural constraints; does not approve/verify RT-R012-01 |
-| Implementation task | IHAP-55 | Schematic, PCB and physical tests |
-| Effectiveness tracking | IHAP-57 | Treatment lifecycle/effectiveness after evidence |
-| Remediation task | IHAP-56 | Creates canonical risk/treatment traceability |
-| Validation contract | `docs/evidence/IHAP-49/validation-plan.md` | V4/V10/V13/V14/V15 and thermal criteria |
+| Accepted ADR | `docs/adr/ADR-0007-edge-power-subsystem.md` | **Partially mitigates** — the accepted baseline establishes backup-only use, system-responsibility protection and reverse-polarity prevention direction. This allowed ADR effect does **not** approve, implement or verify the later RT-R012-01 treatment details. |
+| Implementation task | IHAP-55 | Schematic, PCB and physical tests after the applicable treatment/amendment scope is explicitly approved |
+| Effectiveness tracking | IHAP-57 | Treatment lifecycle/effectiveness after approval and evidence |
+| Remediation task | IHAP-56 | Creates canonical risk/treatment traceability and proposed remediation detail |
+| Validation contract | `docs/evidence/IHAP-49/validation-plan.md` | Accepted baseline plus explicitly marked Proposed IHAP-56 test additions; V4/V10/V13/V14/V15 detail is not treatment approval by itself |
 
 ---
 
@@ -198,7 +198,7 @@ Risk summary and treatment state may be shown in stakeholder summaries. Technica
 | Date | Change | Treatment | Evidence | Decision |
 |---|---|---|---|---|
 | 2026-09-07 | Canonical risk created from IHAP-49 post-merge review | RT-R012-01 initially drafted | ADR-0007 + IHAP-49 evidence | Pending |
-| 2026-09-08 | Lifecycle corrected per risk model; reverse, thermal and numeric low-voltage verification strengthened | RT-R012-01 **Proposed** | Review finding remediation; implementation pending | Pending Project Owner |
+| 2026-09-08 | Lifecycle corrected per risk model; reverse, thermal and numeric low-voltage verification strengthened; canonical category/inverse ADR effect corrected | RT-R012-01 **Proposed** | Review finding remediation; implementation pending | Pending Project Owner |
 
 ---
 
@@ -206,12 +206,14 @@ Risk summary and treatment state may be shown in stakeholder summaries. Technica
 
 ```text
 [x] Risk statement, assets, boundary and source trigger are explicit.
+[x] Category uses the canonical risk-model vocabulary; claim consequences remain in stakeholder/rationale text.
 [x] Existing controls are separated from proposed treatment.
 [x] RT-R012-01 has stable identity and Jira coordination.
 [x] Lifecycle is Proposed until explicit approval evidence exists.
 [x] Cell-side over-current does not rely on SYS output limiting.
 [x] Procedure-only reverse-polarity control is prohibited and electrical blocking has a functional test.
-[x] NTC, thermal and numeric low-voltage verification are mandatory.
+[x] NTC, thermal and numeric low-voltage verification remain Proposed treatment detail until approved.
+[x] Inverse ADR relationship declares the allowed effect `Partially mitigates` without implying treatment approval.
 [x] Missing proof preserves [UNVALIDATED].
 [x] No residual-risk acceptance or safety/certification claim is made.
 ```
