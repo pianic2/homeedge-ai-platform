@@ -24,19 +24,18 @@ Project Owner disposition — 2026-09-07:
 - selected LG INR18650-MJ1 seller listing gives approximately **18.2 mm diameter × 65 mm height**;
 - expected fit via slight elastic deformation is a hypothesis only and remains `[UNVALIDATED]` until receipt.
 
-Downstream acceptance conditions:
+Accepted downstream conditions from PR #34:
 
 - insertion must not require excessive force;
 - wrapper must not be cut, pinched or abraded;
 - contacts must maintain reliable pressure without visible cell damage;
 - removal must remain controlled;
 - **procedure or polarity labeling alone is not an acceptable reverse-insertion control**;
-- ordinary installation/service must include either:
-  - electrical reverse-battery blocking/protection; or
-  - a mechanically keyed holder/interface/enclosure that physically prevents reversed insertion;
-- because the selected MJ1 is unprotected, the final design must also include **cell-side over-current interruption** positioned so holder-lead/BAT-net faults upstream of PMIC SYS protection are covered.
+- ordinary installation/service must include either electrical reverse-battery blocking/protection or a mechanically keyed holder/interface/enclosure that physically prevents reversed insertion.
 
-Final fit/retention evidence belongs to IHAP-55 / IHAP-51. Electrical cell-side protection belongs to IHAP-55 and is tracked canonically by `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md`.
+IHAP-56 later proposes an additional **cell-side over-current interruption** requirement covering holder-lead/BAT-net faults upstream of PMIC SYS/boost limiting. That control is part of Proposed RT-R012-01 and is **not** represented here as retroactively accepted by the 2026-09-07 PR #34 decision.
+
+Final fit/retention evidence belongs to IHAP-55 / IHAP-51. Any proposed electrical cell-side treatment belongs to IHAP-55 only after the amendment/treatment approval boundary is resolved and is tracked canonically by `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md`.
 
 ## Owned USB-C charger/protection board
 
@@ -74,20 +73,14 @@ Unsupported statements remain:
 
 ## Final disposition
 
-The owned `4056E + 8205A` breakout is **REJECTED as the final reference power implementation** because the product direction requires a custom integrated core PCB and this board does not establish the required system power-path / regulated-product-SYS / USB-C-to-USB-C behavior.
+The owned `4056E + 8205A` breakout is **REJECTED as the final reference power implementation** because the accepted product direction requires a custom integrated core PCB and this board does not establish the required system power-path / regulated-product-SYS / USB-C-to-USB-C behavior.
 
-It remains useful as:
-
-- historical procurement evidence;
-- component-characterization evidence;
-- optional bench/control hardware.
-
-Its unresolved exact RPROG and protection-controller thresholds are therefore **not IHAP-49 architecture-acceptance blockers** and must not be reused as assumed final-board protection values.
+It remains useful as historical procurement evidence, component-characterization evidence and optional bench/control hardware. Its unresolved exact RPROG and protection-controller thresholds are not final-board characteristics.
 
 ## Selected cell relation
 
-The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. Because it is unprotected, the final custom PCB must provide the required system-level charging, low-voltage, cell-side over-current, thermal and polarity controls defined by ADR-0007 and R-012.
+The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. The accepted baseline makes protection a system responsibility and requires reverse-insertion prevention. The tighter cell-side interruption, mandatory NTC-fault, numeric thermal/low-voltage and V13/V15 details introduced by IHAP-56 remain **Proposed** until explicitly approved.
 
 ## Evidence handling
 
-The photographs and measurements were supplied directly by the Project Owner during IHAP-49. This file records only observed/measured facts and explicit owner decisions; it does not infer hidden specifications from visually similar marketplace modules.
+The photographs and measurements were supplied directly by the Project Owner during IHAP-49. This file records only observed/measured facts and explicit owner decisions; it does not infer hidden specifications from visually similar marketplace modules and does not convert later remediation proposals into accepted decisions.
