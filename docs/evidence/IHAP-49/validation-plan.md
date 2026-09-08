@@ -14,6 +14,8 @@ Define the tests required to prove that the **custom PCB implementation** satisf
 - controlled battery charging and low-voltage behavior;
 - cell-side over-current interruption and reverse-insertion prevention for the unprotected MJ1 path;
 - functional NTC hot/cold/open/short behavior;
+- bounded thermal operation against manufacturer/component limits;
+- input-current limiting and system-load priority within the 5 V / 1.5 A reference-source envelope;
 - sufficient 5 V / 3.3 V headroom for the reference node;
 - quantitative current/rail measurements transferred from earlier accepted ADRs.
 
@@ -54,9 +56,35 @@ Before physical bring-up, IHAP-55 must freeze:
 - cell-side protection threshold/time rationale against worst-case normal charge/discharge/transient current and conductor/trace ampacity;
 - **electrical reverse-battery blocking or a mechanically keyed interface that physically prevents reverse insertion**;
 - holder connector/polarity;
-- input-current-limit profile for the reference 5 V >=1.5 A source;
+- input-current-limit profile whose worst-case configured maximum, including tolerance, is **<=1.50 A** for the reference source;
 - automatic MODE/source-transfer logic;
-- test points for VIN, BATT, intermediate SYS, product 5 V SYS and 3.3 V.
+- test points for VIN, BATT, intermediate SYS, product 5 V SYS and 3.3 V;
+- numeric thermal acceptance table for every dissipative power component used in V4/V6/V7/V8/V9, derived from its manufacturer datasheet and the final PCB thermal model.
+
+### Frozen cell and PMIC thermal / voltage boundaries
+
+The following numeric limits are already fixed from the registered manufacturer sources and must not be weakened silently:
+
+| Item | Frozen boundary | Validation use |
+|---|---:|---|
+| LG INR18650-MJ1 charge operating temperature | **0 to 45 °C** | V4 charging must remain inside this range |
+| LG INR18650-MJ1 discharge operating temperature | **-20 to 60 °C** | V5/V6/V7/V8/V9/V10/V12 battery operation must remain inside this range |
+| LG INR18650-MJ1 maximum charge voltage | **4.20 ±0.05 V** | V4 |
+| LG INR18650-MJ1 manufacturer discharge end voltage | **2.50 V** | hard lower boundary; V10 uses a higher product cutoff |
+| MP2636 recommended operating junction temperature | **-40 to +125 °C** | calculated/estimated junction temperature must remain <=125 °C during PASS runs |
+| MP2636 thermal shutdown | approximately **150 °C**, recovery approximately **120 °C** | protective behavior only; entering thermal shutdown is a FAIL, not an acceptable operating point |
+
+For the selected post-regulator, 3.3 V regulator, inductor, fuse/protection element and any other thermally stressed part, IHAP-55 must add the manufacturer maximum operating/rated temperature and the test-point-to-junction/hotspot interpretation to the thermal acceptance table **before** V4 or V6 can pass. If a measured temperature plus documented measurement/model uncertainty can exceed a registered component limit, the run is FAIL.
+
+### Frozen low-voltage product policy
+
+For the first reference implementation:
+
+- normal battery-backed operation must initiate cutoff at **2.70 V ±0.05 V** measured at BATT under the defined low-current validation condition;
+- deliberate continued operation below **2.50 V** is prohibited;
+- battery-backed restart after low-voltage cutoff requires **BATT >=3.00 V ±0.05 V**, or restoration of valid USB input;
+- the resulting nominal voltage hysteresis is **0.30 V** and must not produce repeated cutoff/restart oscillation;
+- IHAP-55 may supersede these values only through an explicit reviewed design change supported by the accepted MJ1 specification and converter operating requirements.
 
 ## Required instrumentation
 
@@ -65,13 +93,15 @@ Minimum instrumentation for ordinary bring-up:
 - digital multimeter for voltage, continuity, resistance and steady-state current;
 - serial/host logging sufficient to detect ESP32-C3 reboot/brownout/re-enumeration;
 - timer/timestamps for endurance testing;
-- temperature measurement suitable for comparative bench observation;
+- calibrated or characterized temperature measurement suitable for the frozen thermal acceptance table;
 - resistor substitution / switching fixture capable of simulating the frozen NTC network's normal, hot, cold, open and short conditions;
-- current-limited bench source or equivalent bounded fixture for cell-side protection verification without intentionally hard-shorting the actual Li-ion cell.
+- current-limited bench source or equivalent bounded battery simulator for cell-side protection and reverse-blocking verification without intentionally hard-shorting or reverse-driving the actual Li-ion cell;
+- source-current measurement capable of resolving the combined node + charger input current around the configured input-current limit.
 
 Additional instrumentation is **mandatory for the frozen >=1.0 A transient/headroom requirement**:
 
-- an electronic load, MOSFET load fixture or resistor-bank fixture capable of a repeatable load step to **1.0 A at the 5 V product SYS bus**;
+- an electronic load or MOSFET fixture capable of repeatable **baseline↔1.0 A** transitions at the 5 V product SYS bus;
+- a reference **10–90% current-transition time <=100 µs** on both rising and falling edges, unless final load characterization demonstrates a faster edge that must then be used;
 - an oscilloscope or equivalent acquisition instrument with sufficient bandwidth to capture sub-millisecond rail excursions; **>=20 MHz analog bandwidth** is the reference minimum unless the final regulator validation method demonstrates an equivalent or stronger capture capability;
 - a low-inductance probing arrangement at the product 5 V SYS test point.
 
@@ -87,7 +117,8 @@ A generic USB display power meter is not an acceptable substitute for the mandat
 - verify the cell-side over-current interruption element is physically/electrically upstream of the BAT-net fault paths it is intended to cover;
 - verify USB-C CC and input-protection population;
 - verify MP2636 / post-regulator / 3.3 V regulator / inductor / sense-network population against BOM;
-- verify NTC path and test points.
+- verify NTC path and test points;
+- verify the thermal acceptance table is complete for every dissipative power component before powered thermal tests.
 
 ### V2 — USB-C normal-source bring-up, no battery
 
@@ -97,7 +128,7 @@ A generic USB display power meter is not an acceptable substitute for the mandat
 - steady-state 5 V SYS PASS band: **4.75–5.25 V**, unless the selected downstream load requires tighter limits;
 - confirm 3.3 V rail;
 - verify the node can boot without a battery;
-- record steady-state current and abnormal heating;
+- record steady-state current and temperature;
 - verify no unintended voltage appears on disconnected battery terminals beyond the expected charger behavior.
 
 ### V3 — Received cell / holder inspection
@@ -109,15 +140,25 @@ A generic USB display power meter is not an acceptable substitute for the mandat
 - confirm the cell-side protection path remains in-circuit during ordinary installation/service;
 - record open-circuit cell voltage before first connection.
 
-### V4 — Controlled charging and mandatory NTC fault validation
+### V4 — Controlled charging, combined-input-limit and mandatory NTC fault validation
 
 Charge-behavior checks:
 
 - verify ~1 A target charge current within the tolerance frozen in the schematic/PMIC configuration;
-- verify cell terminal voltage approaches but does not exceed the accepted 4.2 V charging envelope;
+- verify cell terminal voltage remains within the accepted **4.20 ±0.05 V** maximum-charge envelope;
 - verify charge termination / auto-recharge behavior as observable;
-- verify system-load priority while the node operates;
-- observe battery/PMIC/inductor/post-regulator temperature behavior.
+- operate the representative node while charging and verify system-load priority;
+- measure total USB input current while the node operates and the charger requests maximum permitted charge current;
+- force the source/load combination toward the configured ILIM and verify charging current is reduced before product SYS collapses;
+- PASS only if measured input current does not exceed the frozen worst-case ILIM and **does not exceed 1.50 A** for the reference source, accounting for instrument uncertainty;
+- record cell, MP2636, inductor and post-regulator temperatures.
+
+Thermal PASS criteria during charging:
+
+- measured cell temperature remains **0–45 °C**;
+- MP2636 estimated/calculated junction temperature remains **<=125 °C**;
+- no selected component exceeds its frozen manufacturer-derived limit in the thermal acceptance table;
+- thermal shutdown, charge cycling caused by overheating, discoloration, odor, deformation or uncontrolled temperature rise is FAIL.
 
 **NTC validation is mandatory, not optional.** Use a resistor/switching fixture derived from the frozen NTC schematic and PMIC thresholds. Exercise at minimum:
 
@@ -146,65 +187,87 @@ Across representative battery voltages:
 - verify product 5 V SYS remains **4.75–5.25 V steady-state**;
 - verify 3.3 V rail stability;
 - exercise ESP32 Wi-Fi, LD2410C, OLED and selected environmental/reed interface;
-- record brownout/reset evidence.
+- record brownout/reset evidence;
+- keep the MJ1 within **-20 to 60 °C** during discharge operation and within all component limits in the thermal acceptance table.
 
-### V6 — Mandatory 0.5 A continuous load test
+### V6 — Mandatory 0.5 A continuous load / thermal test
 
 With USB input and separately with battery backup at representative battery voltages:
 
 - apply **0.5 A continuous** at the regulated 5 V product SYS bus in addition to, or using an equivalent controlled replacement for, the node load;
-- maintain the test long enough to reach a stable comparative thermal condition defined by IHAP-55;
-- PASS only if product SYS remains **4.75–5.25 V**, no protection oscillation occurs, and no board reset/brownout is observed;
-- record regulator/PMIC/inductor temperatures and test conditions.
+- maintain the test until the monitored temperatures have reached a stable plateau or the defined test-duration limit in IHAP-55;
+- PASS only if product SYS remains **4.75–5.25 V**, no protection oscillation/reset/brownout occurs, and all thermal limits remain satisfied;
+- battery-mode cell temperature must remain **-20 to 60 °C**;
+- MP2636 estimated/calculated junction temperature must remain **<=125 °C**;
+- each selected regulator/inductor/protection component must remain within its frozen manufacturer-derived limit;
+- any thermal shutdown is FAIL;
+- record temperatures, ambient temperature, battery voltage, load and duration.
 
-### V7 — Mandatory 1.0 A load-step / headroom test
+### V7 — Mandatory 1.0 A bidirectional load-step / headroom test
 
 This test is **not optional**.
 
 - establish a repeatable baseline load representative of the node or approximately 0.1–0.15 A;
-- step the product 5 V SYS load to **1.0 A** using the controlled load fixture;
-- capture the 5 V SYS waveform at the PCB test point with the required oscilloscope/acquisition setup;
-- repeat in normal USB mode and battery mode at representative high, mid and low accepted battery voltages where practical;
-- log ESP32 reset/brownout state during the test.
+- transition **baseline ->1.0 A** and **1.0 A -> baseline**;
+- each current edge must have a measured 10–90% transition time **<=100 µs**, unless final measured node transients require a faster reference edge;
+- capture the 5 V SYS waveform and load-current waveform at the PCB test point with the required oscilloscope/acquisition setup;
+- repeat in normal USB mode and battery mode at representative high, mid and low accepted battery voltages;
+- log ESP32 reset/brownout state during both edges.
 
 PASS criteria:
 
 - no uncontrolled rail collapse or protection oscillation;
-- no ESP32 reset/brownout attributable to the load step;
-- steady-state after the step returns to **4.75–5.25 V**;
+- no ESP32 reset/brownout attributable to either load edge;
+- steady-state after each transition returns to **4.75–5.25 V**;
 - captured transient does not fall below **4.5 V** or rise above **5.5 V**;
-- the rail returns to the 4.75–5.25 V steady-state band within **2 ms** after the load transition;
+- the rail returns to the 4.75–5.25 V steady-state band within **2 ms** after each load transition;
+- no frozen component/cell thermal limit is exceeded;
 - if any selected downstream component requires a tighter transient limit, the tighter component limit supersedes these generic acceptance numbers.
 
-The waveform, load-step method, battery voltage and probe point are mandatory evidence.
+The waveforms, measured current-edge rise/fall times, battery voltage and probe point are mandatory evidence.
 
-### V8 — USB loss / backup transfer
+### V8 — USB loss / backup transfer across accepted battery range
 
-- start with normal USB operation and valid charged backup;
+Execute the transfer at all of these battery conditions using a battery simulator or controlled cell state:
+
+- **high:** 4.10 V ±0.10 V;
+- **mid:** 3.60 V ±0.10 V;
+- **low:** 2.80 V ±0.05 V, i.e. above the frozen 2.70 V cutoff but close to the low end of accepted backup operation.
+
+At each battery condition, repeat with the representative node load and with a controlled higher load up to the validated continuous envelope where practical:
+
+- start with normal USB operation;
 - remove normal USB input;
 - verify automatic transition to battery-backed regulated 5 V;
 - verify no prohibited backfeed toward USB;
 - capture product 5 V SYS during the transfer with suitable bandwidth instrumentation;
 - record whether any ESP32 reset/brownout occurs;
-- **PASS target: no-reset transfer**.
+- verify all thermal and rail limits;
+- **PASS target: no-reset transfer at every required battery condition**.
 
-### V9 — Normal-source restoration
+### V9 — Normal-source restoration across accepted battery range
+
+At the same high/mid/low battery conditions used in V8:
 
 - restore valid USB input;
 - verify deterministic return to normal source;
-- verify charging resumes as designed;
+- verify charging resumes as designed where the cell state permits charging;
 - verify no source oscillation or reset loop;
 - verify no backfeed;
-- capture product 5 V SYS during restoration.
+- capture product 5 V SYS during restoration;
+- verify all rail/thermal limits and record reset/brownout state.
 
-### V10 — Low-voltage / recovery behavior
+### V10 — Numeric low-voltage cutoff / recovery behavior
 
-Within bounded non-destructive limits:
+Use a current-limited battery simulator or controlled discharge fixture so the threshold can be exercised repeatably without intentionally deep-discharging the actual cell.
 
-- verify battery discharge does not intentionally continue below the accepted cell boundary;
-- verify any graceful low-battery warning/shutdown behavior;
-- verify recovery after normal USB source returns;
-- do not perform destructive short/reverse tests merely to claim protection.
+PASS criteria:
+
+- battery-backed operation cuts off at **2.70 V ±0.05 V** under the frozen validation load/measurement condition;
+- product behavior never intentionally sustains MJ1 discharge below **2.50 V**;
+- after low-voltage cutoff, battery-backed restart does not occur until **BATT >=3.00 V ±0.05 V** or valid USB input is restored;
+- no repeated cutoff/restart oscillation occurs while BATT is between the cutoff and recovery thresholds;
+- the actual cutoff voltage, recovery voltage, hysteresis, rail/reset behavior and load condition are recorded.
 
 ### V11 — Mandatory quantitative load characterization transferred from prior ADRs
 
@@ -223,8 +286,8 @@ These measurements satisfy the still-valid quantitative power obligations origin
 
 - fully charge the accepted cell;
 - run the complete reference node on battery under representative workload;
-- log start/end, periodic cell/SYS readings, resets and functional state;
-- stop at the accepted low-voltage endpoint;
+- log start/end, periodic cell/SYS readings, temperatures, resets and functional state;
+- stop at the frozen low-voltage cutoff;
 - record measured runtime.
 
 Only V12 may support a measured backup-autonomy statement for the tested board/cell/configuration.
@@ -240,7 +303,7 @@ Precondition:
 Verification method:
 
 - use a current-limited bench source, protected battery simulator, sacrificial protection sample, or other bounded fixture representing the BAT source;
-- apply a controlled over-current condition on the protected downstream BAT path sufficient to exercise the frozen protection threshold without exceeding the fixture/component safety limits;
+- apply a controlled over-current condition on the protected downstream BAT path sufficient to exercise the frozen protection threshold without exceeding the fixture/component limits;
 - verify the protection element interrupts/limits the current within the frozen design threshold/time;
 - verify normal operation can be restored according to the selected protection technology (replace fuse, reset protection switch, or equivalent);
 - confirm the PMIC SYS/boost current limit is **not** the only element covering this upstream BAT fault path.
@@ -252,19 +315,56 @@ PASS criteria:
 - no intentional hard short is applied across the actual Li-ion cell;
 - post-test inspection reveals no damage that invalidates the tested PCB/protection sample.
 
+### V14 — Mandatory combined source-current-limit / system-load-priority verification
+
+This test isolates the input-current-limit requirement from ordinary V4 charging observations.
+
+- use a regulated 5 V source capable of current readback/current limiting and configure the board with the frozen ILIM setting;
+- connect a battery simulator/cell state that causes the charger to request near-maximum programmed charge current;
+- operate the representative complete node, including Wi-Fi/radar/display activity;
+- increase controlled SYS load as needed to approach the source limit without exceeding the validated board envelope;
+- measure total USB input current, charge current and product SYS voltage.
+
+PASS criteria:
+
+- total measured USB input current remains **<=1.50 A** and <= the frozen worst-case ILIM, including instrument uncertainty;
+- as system load increases, charging current is reduced before product SYS leaves **4.75–5.25 V**;
+- no source oscillation, reset/brownout or repeated charger enable/disable loop occurs;
+- measured source current, charge current, SYS load and rail voltage are recorded together.
+
+### V15 — Mandatory functional reverse-polarity verification when electrical blocking is selected
+
+If the final design uses **mechanical keying only**, V15 electrical reverse-drive is not applicable and V1/V3 must prove ordinary insertion cannot physically reverse the cell. If any **electrical reverse-battery blocking/protection** is relied upon, V15 is mandatory.
+
+- disconnect the real MJ1 cell;
+- use a current-limited battery simulator set to **4.20 V** with a **10 mA maximum current limit**;
+- connect the simulator to the battery input with reversed polarity through the normal service interface;
+- observe input current, BAT-protected node, intermediate SYS, product 5 V SYS and 3.3 V rails.
+
+PASS criteria for the electrical-blocking path:
+
+- steady reversed-source current is **<=1 mA** after settling, unless the selected protection component datasheet specifies a lower limit that then governs;
+- product 5 V SYS and 3.3 V rails do not start from the reversed source and remain **<=0.3 V**;
+- no component heats abnormally or enters destructive conduction;
+- after returning to correct polarity, normal operation is restored without damage;
+- the real Li-ion cell is never intentionally reverse-connected for this verification.
+
 ## Risk-to-test map
 
 | Canonical risk / exposure | Primary validation evidence |
 |---|---|
 | R-012 battery over-charge / charge control | V4 |
 | R-012 NTC hot/cold/open/short | V4 |
+| R-012 input-current / charging priority interaction | V4 + V14 |
 | R-012 over-discharge / recovery | V10 |
-| R-012 reverse insertion | V1 + V3 schematic/mechanical acceptance; no destructive reverse-cell test required |
+| R-012 reverse insertion | V1 + V3 + V15 when electrical blocking is used |
 | R-012 cell-side over-current | V13 |
+| R-012/R-013 thermal overstress | V4 + V5 + V6 + V7 + V8 + V9 against frozen thermal table |
 | R-013 regulated product rail | V2 + V5 + V6 |
-| R-013 1 A transient / brownout | V7 |
-| R-013 USB loss / backfeed | V8 |
-| R-013 source restoration / oscillation / backfeed | V9 |
+| R-013 1 A transient / brownout | V7 both edges |
+| R-013 USB loss / backfeed | V8 high/mid/low battery conditions |
+| R-013 source restoration / oscillation / backfeed | V9 high/mid/low battery conditions |
+| R-013 reference-source input-current limit / system priority | V14 |
 | R-013 final-node quantitative loads | V11 |
 | R-013 measured backup runtime | V12 |
 
