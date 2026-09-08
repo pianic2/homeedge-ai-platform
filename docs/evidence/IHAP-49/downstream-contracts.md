@@ -15,30 +15,40 @@ IHAP-50 should no longer treat a permanent breadboard/Dupont stack as the desire
 
 ## IHAP-55 — Integrated Modular Edge PCB
 
-IHAP-55 is the primary implementation consumer of ADR-0007.
+IHAP-55 is the primary implementation consumer of ADR-0007 and of `custom-pcb-power-contract.md` / `validation-plan.md`.
 
-It must implement or explicitly supersede the following contract:
+It must implement or explicitly supersede through reviewed evidence the following contract:
 
 - custom core PCB rather than stacked power breakouts;
 - normal USB-C 5 V input with correct Type-C sink termination;
 - 5 V source profile >=1.5 A available/advertised;
+- configured input-current limit whose worst-case maximum, including tolerance, is <=1.50 A;
 - LG INR18650-MJ1 1S backup cell;
 - preferred first PMIC direction: `MP2636GR-P`;
+- explicit **post-MP2636 5 V regulation stage**, or reviewed equivalent topology, so USB pass-through and battery boost both feed the same regulated 5.0 V product SYS;
 - 4.2 V battery-full target;
 - ~1.0 A nominal charge-current target;
-- NTC battery-temperature monitoring;
-- system-load priority while charging;
+- NTC battery-temperature monitoring with mandatory normal/hot/cold/open/short functional verification;
+- system-load priority while charging, demonstrated under combined node + charging load;
 - regulated 5.0 V SYS;
 - >=0.5 A continuous / >=1.0 A transient SYS design capability;
-- automatic USB-priority battery takeover;
+- mandatory bidirectional baseline<->1 A load-step capture with defined edge rate and rail/reset criteria;
+- automatic USB-priority battery takeover and restoration across representative high/mid/low accepted battery voltages;
 - prohibited backfeed into upstream USB;
 - no-reset transfer as the reference target;
 - integrated 3.3 V rail sized from the ESP32-C3 + peripheral budget;
 - test points and staged bring-up;
-- reverse-cell mitigation;
+- **cell-side over-current interruption** protecting holder/BAT-net faults upstream of PMIC SYS/boost limiting;
+- electrical reverse-battery blocking or a mechanically keyed interface that physically prevents reverse insertion; procedure alone is insufficient;
+- bounded functional reverse-polarity verification with a current-limited simulator when electrical blocking is used;
+- numeric low-voltage cutoff/recovery/hysteresis contract from `validation-plan.md`;
+- manufacturer-derived thermal acceptance table and numeric PASS/FAIL limits before powered thermal validation;
+- quantitative final-node measurements transferred from **ADR-0001, ADR-0002, ADR-0003, ADR-0004 and ADR-0005**, including reed/pull-network current;
 - external modular interfaces for placement-sensitive/serviceable sensors.
 
-Physical charge/thermal/rail/switchover/endurance evidence belongs to IHAP-55, not IHAP-49 closure.
+Mandatory physical evidence is defined in `docs/evidence/IHAP-49/validation-plan.md`, including V4/V6 thermal checks, V7 bidirectional load step, V8/V9 high-mid-low transfer/restoration, V10 numeric low-voltage behavior, V13 cell-side over-current, V14 combined source-current-limit/system-priority, and V15 electrical reverse-blocking when applicable.
+
+Canonical treatment dossiers are R-012 and R-013. Their treatment lifecycle remains **Proposed** until explicit Project Owner treatment approval evidence exists; implementation/effectiveness remain `[UNVALIDATED]` regardless of ADR-0007 acceptance.
 
 ## IHAP-51 — Edge Enclosure and Mounting
 
@@ -46,7 +56,7 @@ IHAP-51 must consume the frozen custom-board mechanical envelope and preserve:
 
 - serviceable 18650 holder/cell access;
 - battery retention;
-- reverse-insertion mitigation where mechanical prevention is used;
+- physical reverse-insertion prevention when mechanical keying is selected as the primary control;
 - NTC placement / thermal spacing constraints;
 - USB-C access;
 - LD2410C antenna/field-of-view constraints;
@@ -72,9 +82,9 @@ The definitive assembled-board replication total remains downstream evidence fro
 
 After ADR-0007 acceptance, IHAP-43 records the power decision as:
 
-**normal 5 V USB-C + LG MJ1 1S backup + integrated custom-board power path, first implementation direction MP2636GR-P.**
+**normal 5 V USB-C + LG MJ1 1S backup + integrated custom-board power path, first implementation direction MP2636GR-P plus regulated 5 V post-stage or reviewed equivalent.**
 
-IHAP-43 must not imply that the fabricated PCB or measured runtime already exists.
+IHAP-43 must not imply that the fabricated PCB, verified treatment effectiveness or measured runtime already exists.
 
 ## Runtime / event integrity
 
