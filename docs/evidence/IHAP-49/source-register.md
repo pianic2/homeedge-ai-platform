@@ -1,28 +1,32 @@
 # IHAP-49 — Source Register
 
+## Approval boundary
+
+ADR-0007 / PR #34 was accepted by the Project Owner on 2026-09-07. IHAP-56 subsequently added treatment and validation detail that remains **Proposed** until explicitly approved. Manufacturer sources can support the rationale for those proposed controls, but source validity does not itself approve a project treatment or ADR amendment.
+
 ## Canonical project sources
 
-- ADR-0001 — MVP edge compute platform; quantitative final-board power work transferred by ADR-0007 to IHAP-55.
-- ADR-0002 — DHT11 standard / BME280 precision profile; quantitative current work transferred to IHAP-55.
-- ADR-0003 — passive wired reed contact; final pull network under IHAP-50; quantitative closed-loop current transferred to IHAP-55.
-- ADR-0004 — accepted local OLED; display-current/sleep-policy measurement transferred to IHAP-55.
-- ADR-0005 — LD2410C presence sensing; quantitative current/rail/autonomy contribution transferred to IHAP-55.
+- ADR-0001 — MVP edge compute platform; accepted ADR-0007 baseline transfers quantitative final-board power work to IHAP-55.
+- ADR-0002 — DHT11 standard / BME280 precision profile; accepted ADR-0007 baseline transfers quantitative current work to IHAP-55.
+- ADR-0003 — passive wired reed contact; final pull network under IHAP-50. **IHAP-56 proposes** transferring quantitative closed-loop current work to IHAP-55; that reassignment is not part of the 2026-09-07 ADR-0007 acceptance until explicitly approved or assigned by another accepted decision.
+- ADR-0004 — accepted local OLED; accepted ADR-0007 baseline transfers display-current/sleep-policy measurement to IHAP-55.
+- ADR-0005 — LD2410C presence sensing; accepted ADR-0007 baseline transfers quantitative current/rail/autonomy contribution to IHAP-55.
 - ADR-0006 — MVP central-node hardware profile.
-- ADR-0007 — accepted edge power architecture: regulated 5 V USB-C normal source, LG INR18650-MJ1 backup-only cell, custom modular PCB direction, MP2636GR-P preferred charger/power-path/battery-boost candidate plus mandatory regulated 5 V post-stage or reviewed equivalent.
+- ADR-0007 — **Accepted baseline**: regulated 5 V USB-C normal source, LG INR18650-MJ1 backup-only cell, custom modular PCB direction, MP2636GR-P preferred charger/power-path/battery-boost candidate plus regulated 5 V post-stage or reviewed equivalent. **Proposed IHAP-56 amendment**: cell-side interruption, mandatory NTC fault-state tests, numeric thermal/low-voltage criteria, V13/V14/V15, strengthened V7/V8/V9 and ADR-0003 ownership extension.
 
-## Primary component sources used for planning / validation contract
+## Primary component sources used for planning / Proposed treatment validation detail
 
 ### LG INR18650-MJ1
 
 Checked: **2026-09-08**.
 
-Manufacturer specification mirrors used for model-level limits:
+Manufacturer specification mirrors:
 
 - LG Chem `PRODUCT SPECIFICATION — Lithium Ion INR18650 MJ1 3500mAh`, Date **2014-08-22**, Rev. **1**: `https://files.batteryjunction.com/frontend/files/lg/datasheet/LG-MJ1-Datasheet.pdf`
 - LG Chem `PRODUCT SPECIFICATION — Lithium Ion INR18650 MJ1 3500mAh`, Date **2016-06-30**, Rev. **1**, hosted by selected seller NKON: `https://www.nkon.nl/en/amfile/file/download/file/499/product/5626/`
 - NKON selected listing identity: EAN/GTIN `8438493099829`.
 
-Limits used by the IHAP-49 validation contract:
+Manufacturer/model-level values used to support the **Proposed** IHAP-56 numeric validation overlay:
 
 - nominal voltage 3.635 V in LG specification;
 - max charge voltage **4.20 ±0.05 V**;
@@ -31,7 +35,7 @@ Limits used by the IHAP-49 validation contract:
 - operating temperature: **charge 0–45 °C; discharge -20–60 °C**;
 - selected seller/listing dimensions remain procurement evidence; received-cell identity/condition/fit remain `[UNVALIDATED]` until inspection.
 
-The first-reference product cutoff **2.70 ±0.05 V** and recovery **>=3.00 ±0.05 V** are project-level conservative controls above the manufacturer 2.50 V discharge end voltage; they are not represented as LG manufacturer requirements.
+The proposed first-reference product cutoff **2.70 ±0.05 V** and recovery **>=3.00 ±0.05 V** are project-level conservative treatment values above the manufacturer 2.50 V discharge-end value. They are neither LG requirements nor accepted project criteria until the Project Owner approves the amendment/treatment scope.
 
 ### MP2636
 
@@ -41,7 +45,7 @@ Checked: **2026-09-08**.
 - MPS datasheet: `https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP2636/`
 - Datasheet identifier/revision: **MP2636 Rev.1.02, 2018-12-21**.
 
-Relevant manufacturer statements used:
+Relevant manufacturer statements:
 
 - single-cell switch-mode charger with system power-path management;
 - input-current limit / input-voltage regulation;
@@ -49,9 +53,9 @@ Relevant manufacturer statements used:
 - NTC battery-temperature input;
 - reverse boost operation from battery;
 - **IN-to-SYS pass-through path while valid input is present**;
-- programmable SYS voltage applies in boost mode, so MP2636 alone is not proof of regulated 5.0 V USB-powered product SYS;
+- programmable SYS voltage applies in boost mode, supporting the accepted need for downstream 5 V regulation or reviewed equivalent;
 - recommended operating junction temperature **-40 to +125 °C**;
-- thermal shutdown occurs at approximately **150 °C** and normal operation resumes around **120 °C**; entering thermal shutdown is a validation FAIL, not an allowed normal operating condition.
+- thermal shutdown approximately **150 °C** and recovery around **120 °C**; treating shutdown as a FAIL criterion belongs to the **Proposed IHAP-56 thermal treatment overlay** until approved.
 
 ### Other accepted-load sources
 
@@ -78,8 +82,8 @@ The Project Owner selected a planned NKON order of 10 × LG INR18650-MJ1 at EUR 
 
 No TPS61023, TPS2116 or additional charger/boost/mux breakout purchase is required solely to emulate the final custom PCB architecture.
 
-## Evidence-quality / thermal rule
+## Evidence-quality / treatment rule
 
-Primary manufacturer documentation defines component-level constraints. Before V4/V6 physical validation, IHAP-55 must register manufacturer numeric operating/rated temperature limits for the exact post-regulator, 3.3 V regulator, inductor and protection components and define how measured test-point temperature maps to the applicable device limit. A rail-stable run that exceeds a registered temperature limit is FAIL.
+Primary manufacturer documentation defines component-level constraints. Seller evidence establishes procurement identity but does not replace inspection of received cells. Manufacturer limits can justify a proposed control, but **cannot advance RT-R012-01/RT-R013-01 lifecycle or amend Accepted ADR-0007 without explicit Project Owner decision evidence**.
 
-Seller evidence establishes procurement identity but does not replace inspection of received cells. Physical custom-board charging, regulated-rail, thermal, source-limit, bidirectional load-step, high/mid/low transfer and endurance claims remain `[UNVALIDATED]` until IHAP-55 tests the fabricated implementation.
+Physical custom-board charging, regulated-rail, thermal, source-limit, dynamic load-step, source-transfer and endurance claims remain `[UNVALIDATED]` until the applicable approved scope is implemented and tested.
