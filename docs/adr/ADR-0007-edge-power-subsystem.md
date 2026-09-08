@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-09-05  
-**Updated:** 2026-09-07 — IHAP-56 post-merge remediation  
+**Updated:** 2026-09-08 — IHAP-56 post-merge remediation  
 **Accepted:** 2026-09-07  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
 **Jira:** [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49)  
@@ -43,7 +43,8 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - The unprotected cell requires a cell-side over-current interruption element covering holder/BAT-net faults upstream of PMIC SYS limiting.
   - Reverse-cell procedure alone is not an acceptable control.
   - NTC functional and fault-state verification is mandatory downstream.
-  - ADR acceptance does not accept or close R-012 or R-013 residual risk.
+  - RT-R012-01 and RT-R013-01 remain Proposed until explicit Project Owner treatment approval evidence exists.
+  - ADR acceptance does not approve treatment lifecycle, accept residual risk, or close R-012/R-013.
   - Do not infer validated autonomy from capacity arithmetic.
   - Do not claim safe, certified, fire-safe, compliant, production-ready or installable from prototype evidence.
   - IHAP-55 owns custom-board schematic/layout/fabrication/bring-up and transferred quantitative power validation.
@@ -290,14 +291,14 @@ This ADR does not establish certification, fire safety, production readiness, co
 
 ## 5. Related Risks and Treatments
 
-ADR-0007 affects two canonical power risks. The ADR defines required treatments but **does not close, accept, defer or verify either risk**.
+ADR-0007 affects two canonical power risks. The architectural controls below are already part of this Accepted ADR. The corresponding Risk Treatments were recorded later by IHAP-56 and remain **Proposed** until explicit Project Owner treatment-approval evidence exists. ADR acceptance must not be reused as implicit treatment approval.
 
-| Risk | Treatment | Effect | Remaining exposure |
+| Risk | Treatment | ADR effect | Remaining exposure |
 |---|---|---|---|
-| [R-012 — Unprotected 1S Li-ion Battery Fault and Cell-Side Protection](../risks/records/R-012-unprotected-li-ion-battery-fault.md) | `RT-R012-01` — Implement and verify system-level 1S cell protection | **Partially mitigates** by mandating cell-side over-current interruption, bounded charging/NTC behavior and reverse-insertion prevention | Implementation/effectiveness remain `[UNVALIDATED]`; residual risk is Pending Evidence and requires later Project Owner decision |
-| [R-013 — Edge Power Rail and Source-Transfer Integrity](../risks/records/R-013-edge-power-rail-transfer-integrity.md) | `RT-R013-01` — Implement and verify regulated dual-source product power | **Partially mitigates** by requiring post-regulated 5 V SYS, anti-backfeed, deterministic transfer and instrumented headroom validation | Regulator dynamics, source transfer, no-reset behavior and final-node current remain `[UNVALIDATED]`; residual risk is Pending Evidence |
+| [R-012 — Unprotected 1S Li-ion Battery Fault and Cell-Side Protection](../risks/records/R-012-unprotected-li-ion-battery-fault.md) | `RT-R012-01` — **Proposed** | **Partially mitigates at architecture-contract level** by requiring cell-side over-current interruption, bounded charging/NTC behavior and reverse-insertion prevention | Treatment approval, implementation and effectiveness remain pending; physical behavior `[UNVALIDATED]`; residual risk Pending Evidence |
+| [R-013 — Edge Power Rail and Source-Transfer Integrity](../risks/records/R-013-edge-power-rail-transfer-integrity.md) | `RT-R013-01` — **Proposed** | **Partially mitigates at architecture-contract level** by requiring post-regulated 5 V SYS, anti-backfeed, deterministic transfer and instrumented headroom validation | Treatment approval, regulator dynamics, transfer/no-reset behavior and final-node current remain pending / `[UNVALIDATED]` |
 
-Inverse links and the full treatment dossiers live in the Risk Records. IHAP-55 implements and verifies the treatments; IHAP-57 coordinates the subsequent effectiveness updates. Accepted ADR status must not be interpreted as treatment `Implemented`, `Verified` or residual-risk acceptance.
+The Risk Records contain the inverse ADR links and full proposed treatment plans. If/when the Project Owner explicitly approves each treatment, IHAP-55 is the intended implementation/verification owner and IHAP-57 coordinates lifecycle/effectiveness updates. Accepted ADR status does not make a treatment `Approved`, `In Progress`, `Implemented` or `Verified`, and does not accept residual risk.
 
 ---
 
@@ -305,16 +306,18 @@ Inverse links and the full treatment dossiers live in the Risk Records. IHAP-55 
 
 | Item | Tracking |
 |---|---|
+| Obtain explicit Project Owner treatment decision for RT-R012-01 / RT-R013-01 before advancing their lifecycle | IHAP-56 / IHAP-57 |
 | Freeze MP2636 implementation or explicitly reviewed superseding topology | IHAP-55 |
 | Select and justify downstream regulated 5 V stage and 3.3 V regulator | IHAP-55 |
 | Implement cell-side over-current interruption and reverse-insertion prevention | IHAP-55 / IHAP-51 for physical keying if used |
 | Freeze NTC part/network and execute normal/hot/cold/open/short functional checks | IHAP-55 |
 | Execute PCB ERC/DRC/DFM, fabrication and staged bring-up | IHAP-55 |
-| Execute 0.5 A continuous and mandatory 1 A instrumented load-step tests | IHAP-55 |
-| Execute USB loss/restoration, backfeed and no-reset target validation | IHAP-55 |
+| Execute 0.5 A continuous and mandatory bidirectional 1 A instrumented load-step tests | IHAP-55 |
+| Execute USB source-limit/system-priority validation plus USB loss/restoration at high/mid/low battery conditions | IHAP-55 |
+| Execute numeric low-voltage cutoff/recovery and reverse-blocking functional verification when electrical protection is used | IHAP-55 |
 | Execute final-node quantitative power measurements transferred from ADR-0001/0002/0003/0004/0005 | IHAP-55 |
 | Measure backup endurance before any measured autonomy claim | IHAP-55 |
-| Update R-012/R-013 treatment effectiveness from implementation/verification evidence | IHAP-57 |
+| Update R-012/R-013 lifecycle/effectiveness only from explicit decision + implementation/verification evidence | IHAP-57 |
 | Freeze final signal/connector matrix consumed by PCB | IHAP-50 |
 | Verify enclosure, battery retention/service access and sensor placement | IHAP-51 |
 | Reconcile final assembled-board BOM/replication cost | IHAP-17 after IHAP-55 evidence |
@@ -354,9 +357,9 @@ The results of IHAP-55 may supersede this ADR if physical evidence shows the sel
 | Validation handoff | `docs/evidence/IHAP-49/validation-plan.md` |
 | Risk assessment summary | `docs/evidence/IHAP-49/risk-assessment.md` |
 | Related Risk Record R-012 | `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md` |
-| Related treatment | `RT-R012-01` |
+| Related treatment | `RT-R012-01` — Proposed |
 | Related Risk Record R-013 | `docs/risks/records/R-013-edge-power-rail-transfer-integrity.md` |
-| Related treatment | `RT-R013-01` |
+| Related treatment | `RT-R013-01` — Proposed |
 | Cost governance | `docs/evidence/IHAP-49/cost-governance.md` |
 | Downstream contracts | `docs/evidence/IHAP-49/downstream-contracts.md` |
 | Source register | `docs/evidence/IHAP-49/source-register.md` |
@@ -374,9 +377,9 @@ The results of IHAP-55 may supersede this ADR if physical evidence shows the sel
 [x] Canonical sections follow docs/adr/template.md in the required order.
 [x] Human-visible text contains context, decision, alternatives, consequences, risks, follow-up work and evidence.
 [x] AI metadata is limited to routing and anti-regression constraints.
-[x] R-012/R-013 and RT-R012-01/RT-R013-01 are explicitly linked with effect and remaining exposure.
+[x] R-012/R-013 and proposed RT-R012-01/RT-R013-01 are explicitly linked with effect and remaining exposure.
 [x] Linked Risk Records contain the inverse ADR link.
-[x] The ADR is not treated as risk acceptance or closure evidence.
+[x] ADR acceptance is explicitly separated from treatment approval and residual-risk acceptance.
 [x] Source-of-truth boundaries are preserved.
 [x] MVP boundary is not silently expanded.
 [x] [UNVALIDATED] is preserved on unproven implementation, transfer, current and autonomy claims.
