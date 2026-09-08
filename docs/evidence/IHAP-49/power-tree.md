@@ -1,6 +1,8 @@
-# IHAP-49 — Accepted Power Tree
+# IHAP-49 — Power Tree
 
-**Status:** Accepted architecture contract; custom-board implementation and physical validation delegated to IHAP-55
+**Status:** Accepted PR #34 architecture baseline + Proposed IHAP-56 protection/validation overlay
+
+## Accepted power tree — 2026-09-07 baseline
 
 ```text
 NORMAL SOURCE
@@ -27,10 +29,9 @@ Type-C sink termination + input protection
                         |
                  serviceable holder
                         |
-          cell-side protection boundary
-          - over-current interruption REQUIRED
-          - reverse blocking OR mechanically keyed
-            interface REQUIRED
+       accepted reverse-insertion control
+       - electrical blocking/protection OR
+       - mechanically keyed interface/enclosure
                         |
                         +-----------------------> PMIC BAT
 
@@ -58,25 +59,54 @@ module              +---------+-----------+-----------+-----------+
                  ESP32-C3    OLED   DHT11/BME280  reed network  3.3 V TP
 ```
 
-## Architectural requirements
+## Accepted architectural requirements
 
 - USB-C 5 V is the normal/priority source.
 - One LG INR18650-MJ1 is retained only as backup.
-- The final reference product uses a **single custom core PCB**, not separate charger + boost + mux breakout boards.
+- Final reference direction is a **single custom core PCB**, not separate charger + boost + mux breakouts.
 - Preferred charger/power-path/battery-boost PMIC candidate: `MP2636GR-P`.
 - **MP2636 input pass-through is an intermediate node, not the regulated product 5 V rail.**
-- A downstream 5 V regulation stage, or an explicitly reviewed equivalent topology, is mandatory so both valid USB input and battery operation feed the same regulated 5.0 V product bus.
-- Product 5 V SYS steady-state validation band: **4.75–5.25 V**, unless a selected downstream part requires tighter limits.
-- Minimum product 5 V SYS design capability: **>=0.5 A continuous** and **>=1.0 A transient/headroom**.
+- A downstream 5 V regulation stage, or explicitly reviewed equivalent topology, is required so valid USB input and battery operation feed the same regulated 5.0 V product bus.
+- Product 5 V SYS steady-state validation band: **4.75–5.25 V** unless a downstream part requires tighter limits.
+- Minimum product SYS design capability: **>=0.5 A continuous** and **>=1.0 A transient/headroom**.
 - USB reference source: 5 V with at least 1.5 A available/advertised.
 - Charging target: 4.2 V CV, ~1.0 A nominal charge current.
 - Charging while operating is allowed only through the integrated system power-path implementation and remains subject to physical validation.
-- USB-to-battery transfer must be automatic and must prohibit backfeed into the upstream USB source.
-- No-reset source transfer is the reference target and remains `[UNVALIDATED]` until IHAP-55 bring-up.
-- Battery-temperature monitoring is mandatory and its hot/cold/open/short behavior must be functionally verified.
-- Because the MJ1 is unprotected, **cell-side over-current interruption is mandatory upstream of PMIC-output protection coverage**. A holder/BAT-net short must not rely solely on SYS/boost current limiting.
-- Reverse insertion must be prevented by electrical blocking/protection or a mechanically keyed interface/enclosure. Procedure/labels are supplementary only.
-- Low-voltage cutoff/recovery must keep intentional discharge within the accepted cell boundary.
+- USB-to-battery transfer must be automatic and backfeed into upstream USB is prohibited.
+- No-reset source transfer is the reference target and remains `[UNVALIDATED]`.
+- Battery-temperature monitoring is required.
+- Reverse insertion must be prevented by electrical blocking/protection or a mechanically keyed interface/enclosure; procedure/labels are supplementary only.
+- Low-voltage behavior must not intentionally violate the accepted cell boundary.
+
+## Proposed IHAP-56 overlay — pending Project Owner approval
+
+The following details were added after PR #34 and are **Proposed**, not part of the accepted baseline until explicitly approved:
+
+```text
+LG INR18650-MJ1
+      |
+      v
+PROPOSED cell-side protection boundary
+- over-current interruption covering holder/BAT-net faults
+  upstream of PMIC SYS/boost limiting
+- installed-path V13 verification
+      |
+      v
+accepted reverse-insertion control / PMIC BAT path
+```
+
+Also Proposed:
+
+- mandatory NTC hot/cold/open/short functional verification;
+- numeric thermal PASS/FAIL criteria;
+- worst-case ILIM <=1.50 A + V14 combined-load verification;
+- bidirectional <=100 µs V7 strengthening;
+- high/mid/low V8/V9 strengthening with zero restoration-attributable reset for proposed no-reset effectiveness;
+- numeric 2.70/3.00 V low-voltage policy;
+- V15 bounded electrical reverse-blocking verification;
+- ADR-0003/reed-current ownership transfer to IHAP-55.
+
+RT-R012-01 and RT-R013-01 remain Proposed. This diagram must not be used to imply those later controls are already approved, implemented or verified.
 
 ## Modular boundary
 
@@ -86,6 +116,6 @@ The custom board integrates stable core power/compute functions while keeping pl
 - MC-38: field-mounted contact;
 - OLED: external/front-panel module;
 - DHT11/BME280: replaceable environmental module/profile;
-- 18650 holder/cell: mechanically serviceable, subject to the protection/keying requirements above.
+- 18650 holder/cell: mechanically serviceable.
 
-IHAP-50 defines the final connector/signal matrix. IHAP-55 turns that matrix and this accepted power tree into the schematic/PCB and executes the mandatory validation contract. IHAP-51 consumes the final PCB outline and serviceability constraints.
+IHAP-50 defines the final connector/signal matrix. IHAP-55 consumes the accepted baseline after the IHAP-56 gate is resolved; Proposed overlay items require explicit approval first. IHAP-51 consumes the final PCB outline and serviceability constraints.
