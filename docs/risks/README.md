@@ -19,29 +19,13 @@ AI_AGENT_METADATA:
   confluence_role: stakeholder_summary_and_navigation_only
   risk_acceptance_authority: project_owner
   unvalidated_claim_marker: "[UNVALIDATED]"
-
-HIDDEN_ANTI_REGRESSION_RULES:
-  - This file is an index, not a treatment dossier or risk acceptance record.
-  - Risk and treatment truth lives in each GitHub Risk Record.
-  - Jira tracks treatment work, blockers, workflow state, and evidence links.
-  - Confluence may summarize and link but must not duplicate technical records.
-  - Preserve [UNVALIDATED] on unproven implementation or effectiveness claims.
 -->
 
 ---
 
 ## 1. Purpose
 
-This folder contains versioned risk documentation for HomeEdge AI Platform.
-
-Use it for:
-
-- the project risk and treatment model;
-- concrete living Risk Records;
-- traceability from risk to treatment, Jira, ADR, and evidence;
-- links from Jira evidence and Confluence stakeholder summaries.
-
-Do not use this index to accept risk automatically.
+This folder contains versioned risk documentation for HomeEdge AI Platform. Risk/treatment truth lives in each Risk Record; Jira coordinates work; Confluence may summarize/link only; the Project Owner decides treatment approval and residual risk where required.
 
 ---
 
@@ -49,9 +33,9 @@ Do not use this index to accept risk automatically.
 
 | Need | Use | Rule |
 |---|---|---|
-| Risk and treatment model | `risk-model-baseline.md` | Defines lifecycle, source verification, traceability, orphan rules, and decision boundaries. |
-| Concrete Risk Records | `records/` | Each record is the canonical living dossier for the risk and its treatments. |
-| Risk Record template | `../templates/risk-assessment.md` | Use when an explicit task creates or revises a Risk Record. |
+| Risk and treatment model | `risk-model-baseline.md` | Defines lifecycle, source verification, traceability, orphan rules and decision boundaries. |
+| Concrete Risk Records | `records/` | Canonical living dossiers. |
+| Risk Record template | `../templates/risk-assessment.md` | Use for explicit risk work. |
 | ADR relationship | `../adr/template.md` | Use only when a stable architectural decision is required. |
 
 ---
@@ -71,10 +55,10 @@ Do not use this index to accept risk automatically.
 | R-009 | `records/R-009-stakeholder-maturity-misread.md` | Stakeholder Visibility / Claims | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-010 | `records/R-010-risk-driven-scope-creep.md` | Documentation / Compliance | To be reviewed by IHAP-40 | Pending Project Owner |
 | R-011 | `records/R-011-environmental-sensor-placement-bias.md` | Technical / Claims | RT-R011-01 Proposed | Pending Project Owner |
-| R-012 | `records/R-012-unprotected-li-ion-battery-fault.md` | Technical / Compliance-Claims | RT-R012-01 Approved; implementation/effectiveness pending | Pending Project Owner |
-| R-013 | `records/R-013-edge-power-rail-transfer-integrity.md` | Technical / Data-integrity consequence | RT-R013-01 Approved; implementation/effectiveness pending | Pending Project Owner |
+| R-012 | `records/R-012-unprotected-li-ion-battery-fault.md` | Technical / Compliance-Claims | **RT-R012-01 Proposed** | Pending Project Owner |
+| R-013 | `records/R-013-edge-power-rail-transfer-integrity.md` | Technical / Data-integrity consequence | **RT-R013-01 Proposed** | Pending Project Owner |
 
-IHAP-39 defines the model only. IHAP-40 owns the earlier record migration and review. R-011 was introduced by IHAP-45 from concrete environmental-sensor evidence and has its own proposed treatment and event-driven review trigger. R-012 and R-013 were introduced by IHAP-56 after post-merge review of ADR-0007; their treatments are approved architecturally but remain neither Implemented nor Verified. IHAP-55 performs implementation/physical verification and IHAP-57 coordinates the later effectiveness update.
+R-012 and R-013 were introduced by IHAP-56 after post-merge review of ADR-0007. Their treatment rationale is documented, but lifecycle remains **Proposed** because ADR-0007/PR #34 acceptance predates those treatment records and is not valid approval evidence for them. IHAP-55 is the intended implementation/verification owner; IHAP-57 coordinates later lifecycle/effectiveness updates after an explicit treatment decision and physical evidence.
 
 ---
 
@@ -83,8 +67,6 @@ IHAP-39 defines the model only. IHAP-40 owns the earlier record migration and re
 ```text
 Risk Record -> Risk Treatment -> Jira coordination -> optional ADR -> evidence -> effectiveness review -> Project Owner decision
 ```
-
-The index may expose status and routing. It must not duplicate treatment rationale, source registers, evidence, or decision reasoning from the Risk Record.
 
 ---
 
@@ -95,10 +77,10 @@ GitHub Risk Records define risk and treatment truth.
 Jira coordinates work and links evidence.
 ADRs document stable architectural decisions when required.
 Confluence summarizes and links for stakeholders.
-Project Owner decides residual risk.
+Project Owner decides treatment approval and residual risk.
 ```
 
-Confluence must not duplicate long-form risk or treatment documentation. Stakeholder summaries must preserve `[UNVALIDATED]` where evidence is missing.
+Preserve `[UNVALIDATED]` where evidence is missing.
 
 ---
 
@@ -106,11 +88,9 @@ Confluence must not duplicate long-form risk or treatment documentation. Stakeho
 
 A record requires review when it lacks a treatment, monitoring, explicit decision, current source verification, required Jira coordination, or current effectiveness review.
 
-Do not mark a newly identified risk orphan while treatment triage is active. Apply the full rule from `risk-model-baseline.md`.
+R-011 is not orphaned because RT-R011-01 is Proposed with coordination and review trigger.
 
-R-011 is not orphaned: RT-R011-01 is Proposed, IHAP-51/IHAP-50 provide coordination, ADR-0002 contains the inverse link and the next review is event-driven.
-
-R-012 and R-013 are not orphaned: RT-R012-01 and RT-R013-01 are Approved, IHAP-55 owns implementation/verification, IHAP-57 tracks effectiveness updates, and ADR-0007 provides the inverse architectural links. Residual-risk decisions remain Pending Project Owner.
+R-012 and R-013 are not orphaned: each has a **Proposed** treatment, IHAP-55/IHAP-57 coordination, inverse ADR-0007 links and explicit pending-evidence state. Proposed treatment status does not imply approval, implementation, verification or risk acceptance.
 
 ---
 
