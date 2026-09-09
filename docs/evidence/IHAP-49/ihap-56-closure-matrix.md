@@ -3,6 +3,7 @@
 **Purpose:** one canonical review matrix for PR #35. It separates the 2026-09-07 Project Owner-approved ADR-0007 / PR #34 baseline from post-merge IHAP-56 treatment and validation proposals. No Proposed row may be represented as Accepted until explicit Project Owner approval exists.
 
 **Latest closure sweep:** 2026-09-09  
+**Matrix freeze for next review:** this revision; change only to remediate a new independently reported finding.  
 **Merge gate:** latest-head independent review with zero unresolved blocking findings; Proposed amendment/treatment scope remains unapproved until an explicit Project Owner decision.
 
 ## Decision-state invariants
