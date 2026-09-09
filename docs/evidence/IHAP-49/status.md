@@ -1,64 +1,40 @@
 # IHAP-49 — Execution Status
 
 - Jira: **Completata**
-- Original GitHub branch: `ihap-49-edge-power-subsystem-decision`
-- Original pull request: **#34 — merged 2026-09-07**
-- Merge commit on `main`: `fb5188a615bc9a1b55bbea65863e64a4ad22f548`
+- Original pull request: **#34 — merged 2026-09-07** (`fb5188a615bc9a1b55bbea65863e64a4ad22f548`)
 - ADR: **ADR-0007 — Accepted baseline 2026-09-07**
-- ADR post-acceptance amendment: **IHAP-56 additions Proposed; not yet Project Owner approved**
+- Post-acceptance IHAP-56 amendment/treatments: **Proposed; not yet Project Owner approved**
 - Post-merge remediation: **IHAP-56 / PR #35 — in review before merge**
-- Project Owner decisions recorded in the accepted baseline:
-  - normal regulated 5 V USB-C source;
-  - LG INR18650-MJ1 1S backup only;
-  - cost-first selection after minimum gates;
-  - custom modular core PCB as final reference direction;
-  - no redundant TPS61023/TPS2116 breakout procurement;
-  - preferred first integrated PMIC direction: MP2636GR-P plus downstream regulated 5 V stage or reviewed equivalent topology;
-  - 5 V product SYS target 4.75–5.25 V with **>=0.5 A continuous across accepted battery and valid USB-input ranges** and >=1.0 A headroom target;
-  - reverse insertion prevented electrically or mechanically; procedure alone insufficient;
-  - accepted quantitative power ownership transfer from ADR-0001/0002/0004/0005 to IHAP-55.
-- Owned 4056E breakout: **bench/control evidence only; rejected as final implementation**
-- Custom PCB implementation / physical validation: **IHAP-55, blocked until IHAP-56 gate is resolved**
-- Canonical power-risk treatment/effectiveness tracking: **R-012/R-013 + IHAP-57; RT-R012-01/RT-R013-01 Proposed**
-- Enclosure / holder serviceability validation: **IHAP-51**
-- Backup autonomy: **`[UNVALIDATED]` until downstream endurance evidence**
-- Definitive assembled-board replication cost: **deferred to IHAP-55 / IHAP-17 reconciliation**
+- IHAP-55 custom PCB execution: **blocked until IHAP-56 gate is resolved**
+- R-012 / R-013 treatments: **RT-R012-01 / RT-R013-01 Proposed**; physical effectiveness `[UNVALIDATED]`
 
-## Post-merge remediation boundary
+## Accepted baseline preserved
 
-PR #34 is historical acceptance evidence and remains merged. IHAP-56 exists because later review found documentation/protection/traceability regressions that must be corrected without rewriting the accepted product direction or inheriting the earlier approval event.
+- regulated 5 V USB-C normal source;
+- LG INR18650-MJ1 backup only;
+- custom modular core PCB direction;
+- MP2636GR-P first direction + downstream regulated 5 V stage/reviewed equivalent;
+- 5 V SYS 4.75–5.25 V, >=0.5 A continuous **across accepted battery and valid USB-input ranges**, >=1.0 A headroom target;
+- USB priority / automatic takeover / prohibited backfeed / no-reset target `[UNVALIDATED]`;
+- reverse insertion prevented electrically or mechanically, procedure alone insufficient;
+- accepted quantitative ownership transfer from ADR-0001/0002/0004/0005.
 
-`ihap-56-closure-matrix.md` is the cross-file regression router. Every material requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation/evidence and approval boundary.
+## Proposed IHAP-56 overlay
 
-### Accepted remediation of documentation/traceability defects
-
-IHAP-56 preserves and accurately propagates the already accepted PR #34 baseline, including explicit post-MP2636 regulated 5 V topology, reverse-insertion prevention, accepted 0.5 A battery/USB range capability, source/rail/headroom/transfer constraints and accepted ADR-0001/0002/0004/0005 ownership transfer.
-
-### Proposed treatment / validation additions awaiting explicit Project Owner decision
-
-- source-side over-current interruption ahead of every conductor claimed as protected; any segment before the element remains explicit residual exposure until separately controlled/verified;
-- mandatory NTC normal/hot/cold/open/short functional validation;
-- manufacturer-derived numeric thermal PASS/FAIL limits plus justified MP2636 junction-temperature/derating method;
-- worst-case ILIM <=1.50 A + V14 combined source-limit/system-priority verification;
-- component-derived 3.3 V steady/transient PASS criteria;
-- bidirectional <=100 µs V7 strengthening;
-- V8/V9 high/mid/valid-low battery strengthening, with low-point loaded margin above cutoff;
-- quantified backfeed criteria for open and attached-unpowered upstream USB conditions;
-- explicit restoration reset/brownout FAIL criterion for proposed no-reset effectiveness;
-- numeric V10 low-voltage cutoff/recovery/hysteresis;
-- V15-A/V15-B bounded electrical reverse-blocking tests with USB absent and present;
-- ADR-0003/reed-current ownership transfer to IHAP-55.
-
-These additions remain **Proposed** until explicitly approved. Physical custom-board behavior, no-reset transfer, treatment effectiveness, final current measurements and autonomy remain `[UNVALIDATED]`.
+- source-side over-current interruption with explicit uncovered-segment handling;
+- NTC normal/hot/cold/open/short verification;
+- numeric thermal criteria + justified MP2636 junction estimate/derating;
+- ILIM <=1.50 A + V14;
+- component-derived 3.3 V criteria;
+- bidirectional <=100 µs V7;
+- high/mid/valid-low V8/V9 with loaded cutoff margin, quantified backfeed and zero-reset restoration criterion;
+- numeric V10;
+- V13 installed/production-identical path;
+- V15-A/V15-B with USB absent/present;
+- ADR-0003 ownership extension.
 
 ## Review gate
 
-Codex review history on PR #35:
+The 2026-09-09 global closure sweep reconciled all **16 changed PR files** against `ihap-56-closure-matrix.md` and addressed the eight latest P1/P2 findings together. **Author remediation is frozen now.** No additional document changes should occur before the next independent review unless needed to fix a newly reported finding or state/tooling inconsistency.
 
-- pass on `fa2f3842c9`: 8 findings, remediated;
-- pass on `214eac063c`: 6 findings, remediated;
-- subsequent pass: 8 further P1/P2 boundary/verification findings, all addressed by the 2026-09-09 global closure sweep.
-
-The global closure sweep reconciles all **16 changed PR surfaces** and freezes the closure/regression matrix before the next independent review.
-
-**Author remediation is now frozen pending external review.** PR #35 remains blocked. Required next gate: traceably resolve prior finding threads, run a fresh Codex/review-agent pass on the frozen latest head, and merge only if that pass has no unresolved blocking finding. Even after a clean review, Proposed treatment/amendment lifecycle must not advance without explicit Project Owner approval. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
+PR #35 remains blocked until prior threads are traceably resolved and a fresh latest-head Codex/review-agent pass reports no unresolved blocking finding. A clean technical review does not itself approve the Proposed treatments; lifecycle changes still require explicit Project Owner approval.
