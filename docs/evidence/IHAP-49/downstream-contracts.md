@@ -2,7 +2,7 @@
 
 ## Approval boundary
 
-The 2026-09-07 Project Owner approval covers ADR-0007 / PR #34. IHAP-56 introduces additional R-012/R-013 treatment and validation detail that remains **Proposed** until explicit Project Owner approval. Downstream tasks must distinguish those two layers.
+The 2026-09-07 Project Owner approval covers ADR-0007 / PR #34. IHAP-56 introduces additional R-012/R-013 treatment and validation detail that remains **Proposed** until explicit Project Owner approval. Downstream tasks must distinguish those two layers. `ihap-56-closure-matrix.md` is the cross-file state router.
 
 ## IHAP-50 — Interconnect and Prototype Assembly
 
@@ -26,7 +26,7 @@ IHAP-55 is the primary implementation consumer of ADR-0007, `custom-pcb-power-co
 IHAP-55 must implement or explicitly supersede through reviewed evidence:
 
 - custom core PCB rather than stacked power breakouts;
-- normal USB-C 5 V input with correct Type-C sink termination;
+- normal USB-C 5 V input with correct Type-C sink termination and functional C-to-C operation in both DUT plug orientations;
 - 5 V source profile >=1.5 A available/advertised;
 - LG INR18650-MJ1 1S backup cell;
 - preferred first PMIC direction: `MP2636GR-P`;
@@ -36,7 +36,7 @@ IHAP-55 must implement or explicitly supersede through reviewed evidence:
 - NTC battery-temperature monitoring;
 - system-load priority while charging;
 - regulated 5.0 V SYS;
-- >=0.5 A continuous / >=1.0 A transient/headroom design capability;
+- **>=0.5 A continuous across the accepted battery range and valid USB-input range** / >=1.0 A transient/headroom design capability;
 - automatic USB-priority battery takeover;
 - prohibited backfeed into upstream USB;
 - no-reset transfer as the reference target, still `[UNVALIDATED]`;
@@ -52,12 +52,15 @@ The following must remain **Proposed** and must not be treated as accepted IHAP-
 
 - configured input-current limit whose worst-case maximum including tolerance is <=1.50 A plus V14 combined source-limit/system-priority verification;
 - mandatory NTC normal/hot/cold/open/short functional verification;
-- **cell-side over-current interruption** protecting holder/BAT-net faults upstream of PMIC SYS/boost limiting;
-- V13 installed-path over-current verification through the actual fabricated battery-service path;
-- bounded V15 electrical reverse-polarity verification when electrical blocking is used;
-- manufacturer-derived thermal acceptance table and numeric PASS/FAIL limits;
+- **source-side over-current interruption** ahead of every holder/service conductor claimed as protected, with a separate explicit control/verification for any unavoidable segment between cell contact and interruption element;
+- V13 installed/production-identical over-current verification through every conductor claimed as protected;
+- bounded V15-A/V15-B electrical reverse-polarity verification with USB absent and USB present when electrical blocking is used;
+- manufacturer-derived thermal acceptance plus a justified MP2636 junction-temperature estimate or conservative derived case/board limit; package temperature alone is insufficient;
+- component-derived 3.3 V steady/transient PASS band, initially bounded by ESP32-C3 3.0–3.6 V until tighter populated loads are frozen;
 - V7 bidirectional baseline<->1 A waveform capture with <=100 µs 10–90% current edges;
-- V8/V9 transfer/restoration at high/mid/low battery conditions, including zero restoration-attributable reset/brownout for proposed no-reset effectiveness verification;
+- V8/V9 transfer/restoration at high/mid/**valid-low** battery conditions; low nominal 2.90±0.05 V must also retain >=100 mV loaded BATT margin above maximum cutoff;
+- quantified backfeed checks: open DUT VBUS <=0.30 V and current into an attached unpowered source <=1.0 mA after settling unless tighter component/source limits apply;
+- zero restoration-attributable reset/brownout for proposed no-reset effectiveness verification;
 - numeric V10 cutoff/recovery/hysteresis policy;
 - extension of quantitative ownership transfer to **ADR-0003 / reed current**.
 
@@ -94,4 +97,4 @@ IHAP-43 must not imply that the fabricated PCB, proposed treatment approval/effe
 
 ## Runtime / event integrity
 
-IHAP-49 does not redefine runtime/event contracts. No-reset transfer is the accepted hardware target and remains `[UNVALIDATED]`. If downstream evidence shows a controlled reboot is unavoidable, that result must be explicit and runtime/event validation must account for reboot/event-integrity behavior rather than silently accepting duplicates or gaps. The stronger high/mid/low and zero-reset-restoration criteria proposed by IHAP-56 remain pending approval.
+IHAP-49 does not redefine runtime/event contracts. No-reset transfer is the accepted hardware target and remains `[UNVALIDATED]`. If downstream evidence shows a controlled reboot is unavoidable, that result must be explicit and runtime/event validation must account for reboot/event-integrity behavior rather than silently accepting duplicates or gaps. The stronger high/mid/valid-low and zero-reset-restoration criteria proposed by IHAP-56 remain pending approval.
