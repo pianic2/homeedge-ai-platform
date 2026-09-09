@@ -22,7 +22,8 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Jira tracks ADR work state and evidence links only.
   - Confluence may summarize or link ADRs for stakeholder navigation, but must not duplicate long-form ADR content.
   - ADR status changes to Accepted, Rejected or Superseded require Project Owner approval.
-  - A later amendment must not be represented as accepted by an earlier approval event.
+  - A later amendment inside an Accepted ADR remains Proposed until a new explicit Project Owner decision exists.
+  - Do not create ADRs only to increase document count.
   - Preserve [UNVALIDATED] on unproven claims.
   - Do not introduce production-ready, safety-critical, commercial-ready, certification or security-grade claims.
 -->
@@ -33,7 +34,7 @@ HIDDEN_ANTI_REGRESSION_RULES:
 
 This folder contains Architecture Decision Records for HomeEdge AI Platform.
 
-ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work and evidence links. They do not approve themselves: acceptance requires Project Owner approval. A post-acceptance amendment requires its own explicit approval boundary.
+ADRs record reviewed architectural decisions, their context, alternatives, consequences, risks, follow-up work and evidence links. They do not approve themselves: acceptance requires Project Owner approval.
 
 ---
 
@@ -93,7 +94,7 @@ Every ADR should link Jira work, PR evidence, related ADRs when relevant, and ev
 | [ADR-0004](ADR-0004-local-status-display.md) | Local Status Display | **Accepted** | [IHAP-53](https://niccolopiazzi01.atlassian.net/browse/IHAP-53) | [PR #31](https://github.com/pianic2/homeedge-ai-platform/pull/31) | Accepted 2026-08-31. Reference MVP includes a 0.96-inch-class 128×64 monochrome I2C local status/debug display; exact controller/provenance/power/replacement reproducibility remain bounded by evidence. Accepted ADR-0007 baseline transfers display-current and resulting sleep/power-policy execution to IHAP-55. |
 | [ADR-0005](ADR-0005-mvp-presence-sensor.md) | MVP Presence Sensor | **Accepted** | [IHAP-46](https://niccolopiazzi01.atlassian.net/browse/IHAP-46) | [PR #25](https://github.com/pianic2/homeedge-ai-platform/pull/25), [PR #33](https://github.com/pianic2/homeedge-ai-platform/pull/33) | Accepted 2026-09-01. Selects HLK-LD2410C-class radar for local boolean presence only; onset/release and replacement-equivalence limitations remain explicit. Accepted ADR-0007 baseline transfers quantitative final-node radar/power execution to IHAP-55. |
 | [ADR-0006](ADR-0006-mvp-central-node-hardware-profile.md) | MVP Central Node Hardware Profile | **Accepted** | [IHAP-52](https://niccolopiazzi01.atlassian.net/browse/IHAP-52) | [PR #30](https://github.com/pianic2/homeedge-ai-platform/pull/30) | Accepted 2026-09-05. Vendor-neutral 64-bit Linux profile; Raspberry Pi 4 Model B >=4 GB is the reference implementation. The validated specimen uses 8 GB RAM, nominal 32 GB A1 microSD, Raspberry Pi OS Lite 64-bit, 5.1 V / 3 A PSU and case + heatsink + fan. Final workload sufficiency, storage endurance/retention and AI acceleration remain `[UNVALIDATED]`. |
-| [ADR-0007](ADR-0007-edge-power-subsystem.md) | Edge Power Subsystem | **Accepted baseline; Proposed IHAP-56 amendment** | [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49), remediation [IHAP-56](https://niccolopiazzi01.atlassian.net/browse/IHAP-56) | [PR #34](https://github.com/pianic2/homeedge-ai-platform/pull/34), remediation [PR #35](https://github.com/pianic2/homeedge-ai-platform/pull/35) | Accepted 2026-09-07 baseline: regulated 5 V USB-C normal source, LG INR18650-MJ1 1S backup, MP2636GR-P-class first direction plus downstream regulated 5 V stage/reviewed equivalent, reverse-insertion prevention, NTC monitoring and downstream physical validation. IHAP-56 later proposes cell-side over-current interruption, mandatory NTC fault-state tests, numeric thermal/low-voltage criteria, stronger V7/V8/V9/V13/V14/V15 tests and ADR-0003 ownership transfer. Those additions remain **Proposed** until explicit Project Owner approval. R-012/R-013 remain Pending Evidence; no-reset transfer and autonomy remain `[UNVALIDATED]`. |
+| [ADR-0007](ADR-0007-edge-power-subsystem.md) | Edge Power Subsystem | **Accepted baseline; Proposed IHAP-56 amendment** | [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49), remediation [IHAP-56](https://niccolopiazzi01.atlassian.net/browse/IHAP-56) | [PR #34](https://github.com/pianic2/homeedge-ai-platform/pull/34), remediation [PR #35](https://github.com/pianic2/homeedge-ai-platform/pull/35) | Accepted 2026-09-07 baseline: regulated 5 V USB-C normal source, LG INR18650-MJ1 1S backup, MP2636GR-P-class first direction plus downstream regulated 5 V stage/reviewed equivalent, **>=0.5 A continuous across accepted battery/valid USB-input ranges**, reverse-insertion prevention, NTC monitoring and downstream physical validation. IHAP-56 later proposes source-side over-current/upstream-segment treatment, mandatory NTC fault tests, numeric thermal/junction and low-voltage criteria, measurable backfeed/3.3 V criteria, stronger V7/V8/V9/V13/V14/V15 tests and ADR-0003 ownership transfer. Those additions remain **Proposed** until explicit Project Owner approval. R-012/R-013 remain Pending Evidence; no-reset transfer and autonomy remain `[UNVALIDATED]`. |
 
 ---
 
