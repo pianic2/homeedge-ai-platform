@@ -21,9 +21,9 @@ This directory contains the evidence package for IHAP-49. The accepted architect
 
 ## Accepted electrical baseline
 
-- USB-C normal input: 5 V, no PD requirement; correct Type-C sink termination and C-to-C 5 V operation required.
+- USB-C normal input: 5 V, no PD requirement; correct Type-C sink termination and C-to-C 5 V operation required. Functional V2 evidence covers **both DUT plug orientations**.
 - Reference source: 5 V with at least 1.5 A available/advertised; system-load-priority input limiting required.
-- Product SYS: 5.0 V regulated, 4.75–5.25 V steady-state validation band, >=0.5 A continuous, >=1.0 A transient/headroom target.
+- Product SYS: 5.0 V regulated, 4.75–5.25 V steady-state validation band, **>=0.5 A continuous across the accepted battery range and valid USB-input range**, >=1.0 A transient/headroom target.
 - Battery CV target 4.2 V; nominal charge current approximately 1.0 A.
 - NTC monitoring required.
 - USB priority + automatic battery takeover; upstream USB backfeed prohibited.
@@ -35,14 +35,16 @@ This directory contains the evidence package for IHAP-49. The accepted architect
 
 The following items were introduced after PR #34 and are **Proposed**, not part of the 2026-09-07 acceptance record:
 
-- RT-R012-01 cell-side over-current interruption and installed-path V13 verification;
+- RT-R012-01 source-side over-current interruption ahead of every service conductor claimed as protected; any segment before the element remains explicit residual exposure until separately controlled/verified;
 - mandatory NTC normal/hot/cold/open/short verification;
-- manufacturer-derived numeric thermal PASS/FAIL limits;
+- manufacturer-derived numeric thermal PASS/FAIL limits plus a justified MP2636 junction-temperature/derating method;
 - worst-case ILIM <=1.50 A plus V14 combined node+charging verification;
+- component-derived 3.3 V steady/transient PASS criteria;
 - bidirectional V7 with <=100 µs current edges;
-- V8/V9 high/mid/low battery transfer/restoration and zero restoration-attributable reset for proposed no-reset effectiveness verification;
+- V8/V9 high/mid/**valid-low** transfer/restoration, low-point margin above cutoff, quantified backfeed and zero restoration-attributable reset for proposed no-reset effectiveness verification;
 - V10 cutoff 2.70±0.05 V, no deliberate <2.50 V operation, restart >=3.00±0.05 V or valid USB;
-- bounded V15 reverse-blocking simulator test when electrical protection is used;
+- V13 actual/production-identical source-side protection-path verification;
+- bounded V15-A/V15-B reverse-blocking simulator tests with USB absent and present when electrical protection is used;
 - extension of quantitative ownership transfer to **ADR-0003 / reed current**.
 
 RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified. ADR-0007 acceptance partially mitigates the associated risks at the accepted architecture-baseline level but does not approve the later treatment detail or accept residual risk.
@@ -55,9 +57,10 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 
 ## Implementation / validation handoff
 
-- `validation-plan.md` separates the accepted PR #34 test baseline from the Proposed IHAP-56 strengthening.
-- `downstream-contracts.md` separates accepted IHAP-55 obligations from Proposed treatment gates.
-- `custom-pcb-power-contract.md` preserves the same approval boundary.
+- `ihap-56-closure-matrix.md` — canonical review matrix for Accepted-vs-Proposed state across PR #35.
+- `validation-plan.md` — accepted PR #34 test baseline plus Proposed IHAP-56 strengthening.
+- `downstream-contracts.md` — accepted IHAP-55 obligations vs Proposed treatment gates.
+- `custom-pcb-power-contract.md` — same approval boundary and detailed power contract.
 - IHAP-55 remains blocked by IHAP-56 until the remediation/approval gate is resolved.
 - IHAP-51 owns holder retention, battery accessibility and enclosure/serviceability.
 - IHAP-50 owns the final connection matrix.
@@ -66,14 +69,6 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 ## Planning autonomy boundary
 
 Planning calculations indicate approximately 12–20 h for a 3.5 Ah-class cell, with roughly 16 h as a central estimate under the current load model. **Autonomy remains `[UNVALIDATED]` until measured on the fabricated custom implementation.**
-
-## Runbooks / plans
-
-- `validation-plan.md` — accepted baseline + Proposed remediation validation overlay.
-- `downstream-contracts.md` — downstream ownership and approval boundary.
-- `custom-pcb-power-contract.md` — accepted baseline + Proposed remediation overlay.
-- `charger-characterization-runbook.md` — staged runbook for the owned 4056E board.
-- `IHAP49-CHARGER-C0-C1-01/run-record.md` — executed C0/C1 evidence.
 
 ## Approval boundary
 
