@@ -61,4 +61,4 @@ Codex review history on PR #35:
 
 The 2026-09-09 global closure sweep addresses all eight together across all **16 changed PR surfaces** and adds the closure/regression matrix instead of patching one review comment at a time.
 
-**PR #35 remains blocked.** Required next gate: resolve all superseded/current review threads with traceable replies, run a fresh Codex/review-agent pass on the latest head, and merge only if that latest pass has no unresolved blocking finding. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
+**PR #35 remains blocked.** Required next gate: resolve all superseded/current review threads with traceable replies, run a fresh Codex/review-agent pass on the latest head, and merge only if that latest pass has no unresolved blocking finding. Even after a clean review, Proposed treatment/amendment lifecycle must not advance without explicit Project Owner approval. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
