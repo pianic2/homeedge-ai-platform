@@ -33,7 +33,7 @@ Accepted downstream conditions from PR #34:
 - **procedure or polarity labeling alone is not an acceptable reverse-insertion control**;
 - ordinary installation/service must include either electrical reverse-battery blocking/protection or a mechanically keyed holder/interface/enclosure that physically prevents reversed insertion.
 
-IHAP-56 later proposes an additional **cell-side over-current interruption** requirement covering holder-lead/BAT-net faults upstream of PMIC SYS/boost limiting. That control is part of Proposed RT-R012-01 and is **not** represented here as retroactively accepted by the 2026-09-07 PR #34 decision.
+IHAP-56 later proposes RT-R012-01 source-side over-current protection. **The existing holder leads are not automatically protected by a fuse/switch placed only on the downstream PCB.** A treatment may claim coverage only for conductors physically downstream of the interruption element. If this owned holder is retained with unprotected leads between the cell contact and the PCB, the design must either add protection at/near the holder source contact or explicitly retain that segment as residual exposure with a separate reviewed control/verification. This is Proposed treatment scope and is not represented as retroactively accepted by PR #34.
 
 Final fit/retention evidence belongs to IHAP-55 / IHAP-51. Any proposed electrical cell-side treatment belongs to IHAP-55 only after the amendment/treatment approval boundary is resolved and is tracked canonically by `docs/risks/records/R-012-unprotected-li-ion-battery-fault.md`.
 
@@ -79,7 +79,7 @@ It remains useful as historical procurement evidence, component-characterization
 
 ## Selected cell relation
 
-The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. The accepted baseline makes protection a system responsibility and requires reverse-insertion prevention. The tighter cell-side interruption, mandatory NTC-fault, numeric thermal/low-voltage and V13/V15 details introduced by IHAP-56 remain **Proposed** until explicitly approved.
+The selected reference cell is **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650 Li-ion. The accepted baseline makes protection a system responsibility and requires reverse-insertion prevention. The tighter source-side interruption, mandatory NTC-fault, numeric thermal/low-voltage and V13/V15 details introduced by IHAP-56 remain **Proposed** until explicitly approved.
 
 ## Evidence handling
 
