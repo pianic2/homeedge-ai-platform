@@ -86,7 +86,7 @@ Traceable review evidence:
 | PR #35 Codex pass 2 | `chatgpt-codex-connector[bot]` | commit `214eac063c` | 6 P1/P2 findings; remediated |
 | PR #35 Codex pass 3 | `chatgpt-codex-connector[bot]` | later IHAP-56 head | 8 further P1/P2 findings: upstream holder fault coverage, reversed insertion with USB present, junction-temperature method, accepted 0.5 A range regression, low-transfer/cutoff overlap, qualitative backfeed, missing 3.3 V criteria, and one-orientation-only USB-C validation |
 | Global closure sweep | author remediation pass | all 16 PR #35 changed surfaces + canonical risk model | Accepted/Proposed matrix created; all 8 pass-3 findings and dependent surfaces remediated together before rerunning review |
-| Final latest-head review | PR #35 review agent | latest head after closure sweep | **Pending**; PR #35 must not merge until no unresolved blocking finding remains |
+| Final latest-head review | PR #35 review agent | frozen head after closure sweep | **Pending**; PR #35 must not merge until no unresolved blocking finding remains |
 
 ## Author self-check by lane — not independent PASS evidence
 
@@ -106,4 +106,4 @@ Traceable review evidence:
 
 On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. PR #34 merged and Jira IHAP-49 moved to Completata.
 
-IHAP-56 does not revoke that product decision. It remediates post-merge documentation/protection/risk-traceability findings while preserving the approval boundary. **PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the newest-head independent review reports no unresolved blocking findings and the Proposed treatment/amendment decision boundary is explicitly resolved. A clean technical review is necessary for merge quality but is not itself Project Owner approval of the Proposed treatments.**
+IHAP-56 does not revoke that product decision. It remediates post-merge documentation/protection/risk-traceability findings while preserving the approval boundary. **PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the frozen-head independent review reports no unresolved blocking findings and the Proposed treatment/amendment decision boundary is explicitly resolved. A clean technical review is necessary for merge quality but is not itself Project Owner approval of the Proposed treatments.**
