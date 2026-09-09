@@ -49,7 +49,7 @@ RT-R012-01 and RT-R013-01 remain **Proposed**. ADR-0007 acceptance does not appr
 
 `requirement → Accepted/Proposed state → canonical source/owner → downstream consumer → validation/evidence → approval boundary`.
 
-This matrix is specifically intended to prevent another incremental patch loop where a local finding is fixed but a dependent contract/risk/validation surface drifts.
+The 2026-09-09 closure sweep reconciles **all 16 changed PR files** against this matrix before the next external review. This is specifically intended to prevent another incremental patch loop where a local finding is fixed but a dependent contract/risk/validation surface drifts.
 
 ## Procurement direction
 
