@@ -14,6 +14,7 @@
   - custom modular core PCB as final reference direction;
   - no redundant TPS61023/TPS2116 breakout procurement;
   - preferred first integrated PMIC direction: MP2636GR-P plus downstream regulated 5 V stage or reviewed equivalent topology;
+  - 5 V product SYS target 4.75–5.25 V with **>=0.5 A continuous across accepted battery and valid USB-input ranges** and >=1.0 A headroom target;
   - reverse insertion prevented electrically or mechanically; procedure alone insufficient;
   - accepted quantitative power ownership transfer from ADR-0001/0002/0004/0005 to IHAP-55.
 - Owned 4056E breakout: **bench/control evidence only; rejected as final implementation**
@@ -27,24 +28,37 @@
 
 PR #34 is historical acceptance evidence and remains merged. IHAP-56 exists because later review found documentation/protection/traceability regressions that must be corrected without rewriting the accepted product direction or inheriting the earlier approval event.
 
+`ihap-56-closure-matrix.md` is now the cross-file regression router. Every requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation and approval boundary.
+
 ### Accepted remediation of documentation/traceability defects
 
-IHAP-56 must preserve and accurately propagate the already accepted PR #34 baseline, including explicit post-MP2636 regulated 5 V topology, reverse-insertion prevention, accepted source/rail/headroom/transfer constraints and accepted ADR-0001/0002/0004/0005 ownership transfer.
+IHAP-56 must preserve and accurately propagate the already accepted PR #34 baseline, including explicit post-MP2636 regulated 5 V topology, reverse-insertion prevention, accepted 0.5 A battery/USB range capability, source/rail/headroom/transfer constraints and accepted ADR-0001/0002/0004/0005 ownership transfer.
 
 ### Proposed treatment / validation additions awaiting explicit Project Owner decision
 
-- cell-side over-current interruption for holder/BAT-net faults upstream of PMIC SYS limiting and installed-path V13 verification;
+- source-side over-current interruption ahead of every conductor claimed as protected; any segment before the element remains explicit residual exposure until separately controlled/verified;
 - mandatory NTC normal/hot/cold/open/short functional validation;
-- manufacturer-derived numeric thermal PASS/FAIL limits;
+- manufacturer-derived numeric thermal PASS/FAIL limits plus justified MP2636 junction-temperature/derating method;
 - worst-case ILIM <=1.50 A + V14 combined source-limit/system-priority verification;
+- component-derived 3.3 V steady/transient PASS criteria;
 - bidirectional <=100 µs V7 strengthening;
-- V8/V9 high/mid/low battery strengthening, including explicit restoration reset/brownout FAIL criterion for proposed no-reset effectiveness;
+- V8/V9 high/mid/valid-low battery strengthening, with low-point loaded margin above cutoff;
+- quantified backfeed criteria for open and attached-unpowered upstream USB conditions;
+- explicit restoration reset/brownout FAIL criterion for proposed no-reset effectiveness;
 - numeric V10 low-voltage cutoff/recovery/hysteresis;
-- V15 bounded electrical reverse-blocking test when applicable;
+- V15-A/V15-B bounded electrical reverse-blocking tests with USB absent and present;
 - ADR-0003/reed-current ownership transfer to IHAP-55.
 
 These additions remain **Proposed** until explicitly approved. Physical custom-board behavior, no-reset transfer, treatment effectiveness, final current measurements and autonomy remain `[UNVALIDATED]`.
 
 ## Review gate
 
-The Codex pass on `214eac063c` found 6 additional P1/P2 issues. PR #35 remains blocked until all six are remediated, their threads are resolved, and a **new review on the latest head** returns with no unresolved blocking finding. No merge or IHAP-55 unblock occurs before that gate.
+Codex review history on PR #35:
+
+- pass on `fa2f3842c9`: 8 findings, remediated;
+- pass on `214eac063c`: 6 findings, remediated;
+- subsequent pass exposed **8 further P1/P2 boundary/verification findings**: upstream holder-fault coverage, reversed insertion with USB present, MP2636 junction verification method, accepted 0.5 A range regression, low transfer/cutoff overlap, qualitative backfeed criterion, missing 3.3 V PASS criteria and one-orientation-only USB-C validation.
+
+The 2026-09-09 closure sweep addresses all eight together and propagates the fixes through the canonical matrix/contracts/risk records rather than patching one thread at a time.
+
+**PR #35 remains blocked.** Required next gate: resolve all superseded/current review threads with traceable replies, run a fresh Codex/review-agent pass on the latest head, and merge only if that latest pass has no unresolved blocking finding. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
