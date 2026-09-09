@@ -48,7 +48,8 @@
 9. USB-C-to-USB-C functional validation exercises both DUT plug orientations.
 10. Accepted 0.5 A continuous capability is tested at relevant valid USB/battery range endpoints rather than nominal points only.
 11. Proposed low transfer condition must maintain explicit loaded BATT margin above the maximum cutoff and an enabled battery path before USB removal.
-12. No merge until latest-head independent review has no unresolved blocking finding.
+12. A clean review does not approve Proposed treatment/amendment scope; that remains a separate Project Owner decision.
+13. No merge until latest-head independent review has no unresolved blocking finding.
 
 ## Current review finding closure targets
 
