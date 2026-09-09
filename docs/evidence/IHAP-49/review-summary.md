@@ -49,7 +49,7 @@ RT-R012-01 and RT-R013-01 remain **Proposed**. ADR-0007 acceptance does not appr
 
 `requirement → Accepted/Proposed state → canonical source/owner → downstream consumer → validation/evidence → approval boundary`.
 
-The 2026-09-09 closure sweep reconciles **all 16 changed PR files** against this matrix before the next external review. This is specifically intended to prevent another incremental patch loop where a local finding is fixed but a dependent contract/risk/validation surface drifts.
+The 2026-09-09 closure sweep reconciles **all 16 changed PR files** against this matrix before the next external review. Author remediation is frozen on the next review head; further changes require a new independent finding or state reconciliation.
 
 ## Procurement direction
 
@@ -57,10 +57,6 @@ The 2026-09-09 closure sweep reconciles **all 16 changed PR files** against this
 - existing holder: retain, no replacement purchase at the decision stage;
 - existing 4056E: bench/control evidence only;
 - TPS61023/TPS2116/additional charger/boost/mux breakouts: do not purchase solely to emulate the final custom PCB without a specific blocker and Project Owner approval.
-
-## Why the 4056E gaps no longer block the architectural decision
-
-The owned 4056E module was characterized enough to bound its use: `4056E` and `8205A` were observed, the protection-controller identity remains unknown, legacy USB-A-to-C input sanity passed, tested C-to-C input did not work, and R3 in-circuit measurement was inconclusive. The module is rejected as the final reference implementation, so unresolved RPROG/protection-controller details are inventory limitations rather than architecture-decision blockers.
 
 ## Downstream handoff boundary
 
@@ -76,34 +72,16 @@ IHAP-50 owns the connection matrix. IHAP-51 owns enclosure, holder retention and
 
 ## Review provenance
 
-Traceable review evidence:
-
 | Review artifact | Reviewer / authority | Target | Outcome |
 |---|---|---|---|
-| PR #34 review | `chatgpt-codex-connector[bot]` advisory reviewer | original IHAP-49 branch / PR #34 | Material findings remediated before the accepted merge; later post-merge review exposed additional gaps |
-| Project Owner approval | Project Owner | ADR-0007 / PR #34 | Authorized 2026-09-07 baseline acceptance, merge and IHAP-49 completion; not downstream physical evidence and not later treatment approval |
-| PR #35 Codex pass 1 | `chatgpt-codex-connector[bot]` | pre-remediation PR #35 head `fa2f3842c9` | 8 P1/P2 findings; remediated |
-| PR #35 Codex pass 2 | `chatgpt-codex-connector[bot]` | commit `214eac063c` | 6 P1/P2 findings; remediated |
-| PR #35 Codex pass 3 | `chatgpt-codex-connector[bot]` | later IHAP-56 head | 8 further P1/P2 findings: upstream holder fault coverage, reversed insertion with USB present, junction-temperature method, accepted 0.5 A range regression, low-transfer/cutoff overlap, qualitative backfeed, missing 3.3 V criteria, and one-orientation-only USB-C validation |
-| Global closure sweep | author remediation pass | all 16 PR #35 changed surfaces + canonical risk model | Accepted/Proposed matrix created; all 8 pass-3 findings and dependent surfaces remediated together before rerunning review |
-| Final latest-head review | PR #35 review agent | frozen head after closure sweep | **Pending**; PR #35 must not merge until no unresolved blocking finding remains |
+| PR #34 review | `chatgpt-codex-connector[bot]` | original IHAP-49 branch / PR #34 | Material findings remediated before the accepted merge; later review exposed additional gaps |
+| Project Owner approval | Project Owner | ADR-0007 / PR #34 | Authorized 2026-09-07 baseline acceptance, merge and IHAP-49 completion; not later treatment approval |
+| PR #35 Codex pass 1 | `chatgpt-codex-connector[bot]` | `fa2f3842c9` | 8 P1/P2 findings; remediated |
+| PR #35 Codex pass 2 | `chatgpt-codex-connector[bot]` | `214eac063c` | 6 P1/P2 findings; remediated |
+| PR #35 Codex pass 3 | `chatgpt-codex-connector[bot]` | later IHAP-56 head | 8 P1/P2 findings; all addressed by the global closure sweep |
+| Global closure sweep | author remediation pass | all 16 changed surfaces + risk model | Matrix-driven reconciliation complete; author changes frozen pending external review |
+| Final latest-head review | PR #35 review agent | frozen head after closure sweep | **Pending** |
 
-## Author self-check by lane — not independent PASS evidence
+## Current gate
 
-| Lane | Author check before external review |
-|---|---|
-| Power Electronics | accepted MP2636/post-regulator and 0.5 A range architecture is distinct from Proposed source-side/validation additions |
-| Battery / Li-ion boundary | unprotected-cell exposure is explicit; V13 never overclaims a segment before the interruption element; V15 covers USB absent/present when electrical blocking is proposed |
-| Hardware Compatibility | 5 V / 3.3 V domains and modular sensor boundaries remain aligned with accepted hardware ADRs; V2 covers both DUT Type-C orientations |
-| Testing & Evidence | accepted V1–V12 baseline is distinguished from Proposed strengthening; low transfer has cutoff margin; backfeed and 3.3 V criteria are measurable |
-| Thermal Evidence | proposed MP2636 Tj criterion requires a justified junction estimate/derived case ceiling rather than package-temperature substitution |
-| Security / Privacy | no new sensing or data collection scope is introduced |
-| Architecture Regression | PR #34 accepted product direction is preserved; post-acceptance amendments do not inherit earlier approval |
-| Cost Governance | redundant breakout procurement remains rejected; final cost requires real IHAP-55 evidence |
-| Source of Truth / ADR Conformance | R-012/R-013 use canonical categories and inverse `Partially mitigates` effects; treatment states remain Proposed; closure matrix routes state consistently |
-
-## Project Owner outcome and current gate
-
-On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. PR #34 merged and Jira IHAP-49 moved to Completata.
-
-IHAP-56 does not revoke that product decision. It remediates post-merge documentation/protection/risk-traceability findings while preserving the approval boundary. **PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the frozen-head independent review reports no unresolved blocking findings and the Proposed treatment/amendment decision boundary is explicitly resolved. A clean technical review is necessary for merge quality but is not itself Project Owner approval of the Proposed treatments.**
+**PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the frozen-head independent review reports no unresolved blocking findings. A clean technical review is necessary for merge quality but is not itself Project Owner approval of the Proposed treatments.**
