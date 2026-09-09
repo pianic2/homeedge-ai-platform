@@ -7,6 +7,8 @@
 
 The Project Owner approved ADR-0007 / PR #34 on 2026-09-07. That accepted baseline remains authoritative. IHAP-56 later added R-012/R-013 treatment detail and tighter validation criteria. Those later additions remain **Proposed** until explicitly approved and must not be represented as retroactively accepted merely because they are documented in this contract.
 
+`ihap-56-closure-matrix.md` is the review router for Accepted-vs-Proposed state. It does not itself approve any Proposed control.
+
 ## Accepted product-level decision
 
 - Normal node power: **regulated 5 V via USB-C**.
@@ -73,7 +75,7 @@ Accepted baseline reverse-polarity control requires either electrical blocking/p
 
 - Nominal target: **5.0 V regulated**.
 - Steady-state validation band: **4.75–5.25 V**, unless a downstream component requires tighter limits.
-- Minimum design capability: **>=0.5 A continuous**.
+- Minimum design capability: **>=0.5 A continuous across the accepted battery range and valid USB-input range**.
 - Transient/headroom target: **>=1.0 A** without reset or uncontrolled rail collapse.
 
 ### 3.3 V domain
@@ -102,16 +104,20 @@ The following additions are **Proposed** until explicit Project Owner approval:
 
 ### Proposed cell-side protection
 
-- add a cell-side over-current interruption element covering holder/BAT-net faults upstream of PMIC SYS/boost limiting;
+- add a cell-side over-current interruption element **at the source side of all in-scope holder/service wiring**, so ordinary holder leads and connector conductors intended to be covered are downstream of the interruption element;
+- if any conductor necessarily remains upstream of the interruption element, that segment is explicitly **not covered by V13** and must receive a separate reviewed control (mechanical insulation/routing/strain-relief or another source-side protective element) plus verification before RT-R012-01 can be approved/verified as covering holder wiring;
 - size threshold/time from legitimate current envelope and conductor/trace ampacity;
-- verify with V13 through the **installed fabricated battery-service path**, not merely a loose protection sample;
+- verify with V13 through the installed or production-identical fabricated battery-service path, not merely a loose protection sample;
 - use bounded current-limited fixtures; never intentionally hard-short the actual Li-ion cell.
 
 ### Proposed NTC / thermal strengthening
 
 - make normal/hot/cold/open/short NTC functional verification mandatory;
 - use manufacturer-derived numeric thermal limits as PASS/FAIL criteria;
-- proposed model limits include MJ1 charge **0–45 °C**, discharge **-20–60 °C**, and MP2636 recommended Tj **<=125 °C** during accepted operation;
+- proposed model limits include MJ1 charge **0–45 °C**, discharge **-20–60 °C**, and MP2636 recommended Tj **<=125 °C** during treatment validation;
+- a package/case/board temperature reading is **not** a direct substitute for junction temperature;
+- before a thermal PASS, IHAP-55 must document a manufacturer-supported or conservatively derived junction-temperature method using measured electrical loss/dissipation, datasheet thermal parameters applicable to the final PCB, ambient temperature, layout/copper conditions and measurement/model uncertainty; alternatively it may derive and freeze a conservative case/board-temperature ceiling that guarantees Tj remains within the registered limit;
+- if no justified conversion/derating exists, the run cannot satisfy the proposed MP2636 thermal treatment criterion;
 - register exact post-regulator/3.3 V regulator/inductor/protection limits before thermal treatment evidence can pass.
 
 ### Proposed source-current-limit / dynamic strengthening
@@ -120,10 +126,31 @@ The following additions are **Proposed** until explicit Project Owner approval:
 - strengthen V7 to both baseline->1 A and 1 A->baseline with measured **<=100 µs** 10–90% current edges unless final measured load behavior requires faster;
 - retain the accepted rail/reset/recovery limits on both edges.
 
+### Proposed 3.3 V verification strengthening
+
+- the final populated 3.3 V rail PASS band is the **intersection of the manufacturer supply ranges of every populated 3.3 V load**;
+- until exact downstream parts are frozen, the ESP32-C3 **3.0–3.6 V** operating range is the initial outer bound; any tighter peripheral limit supersedes it;
+- V2, V5, strengthened V7 and strengthened V8/V9 must measure the 3.3 V rail at the ESP32-C3 supply/test point and keep it inside the frozen component-derived band without reset/brownout attributable to the power event.
+
 ### Proposed transfer / restoration strengthening
 
-- execute V8/V9 at high **4.10±0.10 V**, mid **3.60±0.10 V**, low **2.80±0.05 V** battery conditions;
+- execute V8/V9 at high **4.10±0.10 V**, mid **3.60±0.10 V**, and a low condition nominally **2.90±0.05 V**;
+- the low condition must also maintain **>=100 mV measured BATT headroom above the maximum permitted cutoff under the pre-transfer load** and the battery path must be enabled before USB removal; if load sag violates that margin, raise the simulator setpoint until the condition is valid and record the actual value;
 - for proposed no-reset effectiveness verification, **any restoration-attributable ESP32 reset/brownout is FAIL**, even if no reset loop occurs.
+
+### Proposed quantified backfeed verification
+
+For strengthened V8/V9, test both:
+
+1. upstream USB disconnected/open; and
+2. a representative upstream source attached but unpowered, where that source can safely tolerate the test.
+
+Proposed PASS criteria, unless the selected isolation component/source imposes tighter values:
+
+- with the upstream port open, DUT USB VBUS remains **<=0.30 V** after settling while operating from battery;
+- with an attached unpowered source, steady current driven from DUT toward the upstream source is **<=1.0 mA** after settling;
+- no source oscillation or abnormal heating occurs;
+- connector voltage/current, measurement point and settling interval are recorded.
 
 ### Proposed low-voltage numeric policy
 
@@ -134,7 +161,13 @@ The following additions are **Proposed** until explicit Project Owner approval:
 
 ### Proposed electrical reverse-blocking verification
 
-If electrical blocking is relied upon, V15 uses a 4.20 V / 10 mA current-limited simulator through the normal service interface and proposes <=1 mA steady reversed-source current, product rails <=0.3 V, no damage/heating and normal recovery. The actual Li-ion cell is never intentionally reverse-connected.
+If electrical blocking is relied upon, V15 has two bounded cases with the real Li-ion cell removed:
+
+- **V15-A — USB absent:** reverse a 4.20 V battery simulator through the normal service interface with a 10 mA source limit; proposed PASS requires <=1 mA steady reverse-source current, product 5 V/3.3 V rails <=0.3 V, no damage/heating and normal recovery after correct polarity;
+- **V15-B — USB present:** power the node from the accepted 5 V USB source and connect a **bidirectional/source-sink-capable** simulator reversed at the battery service interface, 4.20 V magnitude with source/sink current bounded to 10 mA. Proposed PASS requires absolute steady battery-port current attributable to the reversed connection **<=1 mA**, the protected internal BAT node to stay inside the frozen charger/PMIC battery-node envelope (maximum **4.25 V** for this proposed test), every reverse-protection device to remain below its frozen voltage/current rating including uncertainty, normal product rails from USB, and no abnormal heating/damage;
+- the actual Li-ion cell is never intentionally reverse-connected.
+
+If mechanical keying alone is selected, electrical reverse-drive is N/A and V1/V3 must prove ordinary reversed insertion is physically impossible.
 
 ### Proposed ADR-0003 ownership correction
 
@@ -162,4 +195,4 @@ ADR-0007 acceptance partially mitigates both risks at the accepted architecture-
 
 ## Handoff / closure boundary
 
-`validation-plan.md` separates the accepted physical-test baseline from the Proposed IHAP-56 additions. `downstream-contracts.md` separates accepted IHAP-55 obligations from proposed treatment gates. IHAP-49 remains completed on the accepted PR #34 decision. IHAP-55 must not consume Proposed additions as mandatory until explicit approval exists, and remains blocked by IHAP-56 while that remediation gate is open.
+`validation-plan.md` separates the accepted physical-test baseline from the Proposed IHAP-56 additions. `downstream-contracts.md` separates accepted IHAP-55 obligations from proposed treatment gates. `ihap-56-closure-matrix.md` is the cross-file regression router. IHAP-49 remains completed on the accepted PR #34 decision. IHAP-55 must not consume Proposed additions as mandatory until explicit approval exists, and remains blocked by IHAP-56 while that remediation gate is open.
