@@ -58,7 +58,11 @@ This folder contains versioned risk documentation for HomeEdge AI Platform. Risk
 | R-012 | `records/R-012-unprotected-li-ion-battery-fault.md` | Technical | **RT-R012-01 Proposed** | Pending Project Owner |
 | R-013 | `records/R-013-edge-power-rail-transfer-integrity.md` | Technical | **RT-R013-01 Proposed** | Pending Project Owner |
 
-R-012 and R-013 were introduced by IHAP-56 after post-merge review of ADR-0007. Their canonical Category fields use only the vocabulary defined by `risk-model-baseline.md`; compliance/claim or data-integrity consequences are recorded in each dossier's rationale/stakeholder surface instead of inventing category values. Their treatment rationale is documented, but lifecycle remains **Proposed** because ADR-0007/PR #34 acceptance predates those treatment records and is not valid approval evidence for them. IHAP-55 is the intended implementation/verification owner after applicable approval; IHAP-57 coordinates later lifecycle/effectiveness updates after an explicit treatment decision and physical evidence.
+R-012 and R-013 were introduced by IHAP-56 after post-merge review of ADR-0007. Their canonical Category fields use only the vocabulary defined by `risk-model-baseline.md`; compliance/claim or data-integrity consequences are recorded in each dossier's rationale/stakeholder surface instead of inventing category values. Their treatment lifecycle remains **Proposed** because ADR-0007/PR #34 acceptance predates those treatment records and is not valid approval evidence for them.
+
+The latest IHAP-56 closure sweep also preserves explicit treatment boundaries: R-012 cannot claim over-current coverage for conductors upstream of the source-side interruption element, and R-013 cannot claim verified 5 V/3.3 V/backfeed/thermal/transfer effectiveness before approved implementation evidence. `../evidence/IHAP-49/ihap-56-closure-matrix.md` routes Accepted-vs-Proposed state but does not approve either treatment.
+
+IHAP-55 is the intended implementation/verification owner after applicable approval; IHAP-57 coordinates later lifecycle/effectiveness updates after an explicit treatment decision and physical evidence.
 
 ---
 
@@ -90,7 +94,7 @@ A record requires review when it lacks a treatment, monitoring, explicit decisio
 
 R-011 is not orphaned because RT-R011-01 is Proposed with coordination and review trigger.
 
-R-012 and R-013 are not orphaned: each has a **Proposed** treatment, IHAP-55/IHAP-57 coordination, inverse ADR-0007 links with an allowed ADR effect, and explicit pending-evidence state. Proposed treatment status does not imply approval, implementation, verification or risk acceptance.
+R-012 and R-013 are not orphaned: each has a **Proposed** treatment, IHAP-55/IHAP-57 coordination, inverse ADR-0007 links with an allowed ADR effect, explicit approval boundaries and Pending Evidence state. Proposed treatment status does not imply approval, implementation, verification or risk acceptance.
 
 ---
 
