@@ -61,6 +61,7 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 - `validation-plan.md` — accepted PR #34 test baseline plus Proposed IHAP-56 strengthening.
 - `downstream-contracts.md` — accepted IHAP-55 obligations vs Proposed treatment gates.
 - `custom-pcb-power-contract.md` — same approval boundary and detailed power contract.
+- The 2026-09-09 regression sweep reconciled **all 16 files changed by PR #35** against that matrix before the next review request.
 - IHAP-55 remains blocked by IHAP-56 until the remediation/approval gate is resolved.
 - IHAP-51 owns holder retention, battery accessibility and enclosure/serviceability.
 - IHAP-50 owns the final connection matrix.
