@@ -68,7 +68,7 @@ module              +---------+-----------+-----------+-----------+
 - **MP2636 input pass-through is an intermediate node, not the regulated product 5 V rail.**
 - A downstream 5 V regulation stage, or explicitly reviewed equivalent topology, is required so valid USB input and battery operation feed the same regulated 5.0 V product bus.
 - Product 5 V SYS steady-state validation band: **4.75–5.25 V** unless a downstream part requires tighter limits.
-- Minimum product SYS design capability: **>=0.5 A continuous** and **>=1.0 A transient/headroom**.
+- Minimum product SYS design capability: **>=0.5 A continuous across the accepted battery range and valid USB-input range** and **>=1.0 A transient/headroom**.
 - USB reference source: 5 V with at least 1.5 A available/advertised.
 - Charging target: 4.2 V CV, ~1.0 A nominal charge current.
 - Charging while operating is allowed only through the integrated system power-path implementation and remains subject to physical validation.
@@ -86,10 +86,11 @@ The following details were added after PR #34 and are **Proposed**, not part of 
 LG INR18650-MJ1
       |
       v
-PROPOSED cell-side protection boundary
-- over-current interruption covering holder/BAT-net faults
-  upstream of PMIC SYS/boost limiting
-- installed-path V13 verification
+PROPOSED source-side over-current boundary
+- must sit ahead of every holder/service conductor
+  that RT-R012-01 claims as protected
+- any conductor before the interruption element remains
+  explicit residual exposure until separately controlled/verified
       |
       v
 accepted reverse-insertion control / PMIC BAT path
@@ -98,15 +99,17 @@ accepted reverse-insertion control / PMIC BAT path
 Also Proposed:
 
 - mandatory NTC hot/cold/open/short functional verification;
-- numeric thermal PASS/FAIL criteria;
+- numeric thermal PASS/FAIL criteria plus a justified MP2636 junction-temperature/derating method;
 - worst-case ILIM <=1.50 A + V14 combined-load verification;
+- component-derived 3.3 V steady/transient PASS criteria;
 - bidirectional <=100 µs V7 strengthening;
-- high/mid/low V8/V9 strengthening with zero restoration-attributable reset for proposed no-reset effectiveness;
+- high/mid/valid-low V8/V9 strengthening, with low BATT margin above cutoff and zero restoration-attributable reset for proposed no-reset effectiveness;
+- quantified backfeed criteria for open and attached-unpowered upstream USB conditions;
 - numeric 2.70/3.00 V low-voltage policy;
-- V15 bounded electrical reverse-blocking verification;
+- V15-A/V15-B bounded electrical reverse-blocking verification with USB absent and present;
 - ADR-0003/reed-current ownership transfer to IHAP-55.
 
-RT-R012-01 and RT-R013-01 remain Proposed. This diagram must not be used to imply those later controls are already approved, implemented or verified.
+RT-R012-01 and RT-R013-01 remain Proposed. This diagram must not be used to imply those later controls are already approved, implemented or verified. `ihap-56-closure-matrix.md` is the state router.
 
 ## Modular boundary
 
