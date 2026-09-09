@@ -57,11 +57,12 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 
 ## Implementation / validation handoff
 
-- `ihap-56-closure-matrix.md` — canonical review matrix for Accepted-vs-Proposed state across PR #35.
+- `ihap-56-closure-matrix.md` — frozen review matrix for Accepted-vs-Proposed state across PR #35.
 - `validation-plan.md` — accepted PR #34 test baseline plus Proposed IHAP-56 strengthening.
 - `downstream-contracts.md` — accepted IHAP-55 obligations vs Proposed treatment gates.
 - `custom-pcb-power-contract.md` — same approval boundary and detailed power contract.
-- The 2026-09-09 regression sweep reconciled **all 16 files changed by PR #35** against that matrix before the next review request.
+- The 2026-09-09 regression sweep reconciled **all 16 files changed by PR #35** against that matrix.
+- Author remediation is frozen pending the next independent review; further code/doc changes require a new review finding or state-reconciliation need.
 - IHAP-55 remains blocked by IHAP-56 until the remediation/approval gate is resolved.
 - IHAP-51 owns holder retention, battery accessibility and enclosure/serviceability.
 - IHAP-50 owns the final connection matrix.
