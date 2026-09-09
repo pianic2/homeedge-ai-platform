@@ -106,4 +106,4 @@ Traceable review evidence:
 
 On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. PR #34 merged and Jira IHAP-49 moved to Completata.
 
-IHAP-56 does not revoke that product decision. It remediates post-merge documentation/protection/risk-traceability findings while preserving the approval boundary. **PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the newest-head independent review reports no unresolved blocking findings and the Proposed treatment/amendment decision boundary is explicitly resolved.**
+IHAP-56 does not revoke that product decision. It remediates post-merge documentation/protection/risk-traceability findings while preserving the approval boundary. **PR #35 remains blocked from merge and IHAP-55 remains blocked from execution until the newest-head independent review reports no unresolved blocking findings and the Proposed treatment/amendment decision boundary is explicitly resolved. A clean technical review is necessary for merge quality but is not itself Project Owner approval of the Proposed treatments.**
