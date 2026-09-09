@@ -28,11 +28,11 @@
 
 PR #34 is historical acceptance evidence and remains merged. IHAP-56 exists because later review found documentation/protection/traceability regressions that must be corrected without rewriting the accepted product direction or inheriting the earlier approval event.
 
-`ihap-56-closure-matrix.md` is now the cross-file regression router. Every material requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation/evidence and approval boundary.
+`ihap-56-closure-matrix.md` is the cross-file regression router. Every material requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation/evidence and approval boundary.
 
 ### Accepted remediation of documentation/traceability defects
 
-IHAP-56 must preserve and accurately propagate the already accepted PR #34 baseline, including explicit post-MP2636 regulated 5 V topology, reverse-insertion prevention, accepted 0.5 A battery/USB range capability, source/rail/headroom/transfer constraints and accepted ADR-0001/0002/0004/0005 ownership transfer.
+IHAP-56 preserves and accurately propagates the already accepted PR #34 baseline, including explicit post-MP2636 regulated 5 V topology, reverse-insertion prevention, accepted 0.5 A battery/USB range capability, source/rail/headroom/transfer constraints and accepted ADR-0001/0002/0004/0005 ownership transfer.
 
 ### Proposed treatment / validation additions awaiting explicit Project Owner decision
 
@@ -57,8 +57,8 @@ Codex review history on PR #35:
 
 - pass on `fa2f3842c9`: 8 findings, remediated;
 - pass on `214eac063c`: 6 findings, remediated;
-- subsequent pass exposed **8 further P1/P2 boundary/verification findings**: upstream holder-fault coverage, reversed insertion with USB present, MP2636 junction verification method, accepted 0.5 A range regression, low transfer/cutoff overlap, qualitative backfeed criterion, missing 3.3 V PASS criteria and one-orientation-only USB-C validation.
+- subsequent pass: 8 further P1/P2 boundary/verification findings, all addressed by the 2026-09-09 global closure sweep.
 
-The 2026-09-09 global closure sweep addresses all eight together across all **16 changed PR surfaces** and adds the closure/regression matrix instead of patching one review comment at a time.
+The global closure sweep reconciles all **16 changed PR surfaces** and freezes the closure/regression matrix before the next independent review.
 
-**PR #35 remains blocked.** Required next gate: resolve all superseded/current review threads with traceable replies, run a fresh Codex/review-agent pass on the latest head, and merge only if that latest pass has no unresolved blocking finding. Even after a clean review, Proposed treatment/amendment lifecycle must not advance without explicit Project Owner approval. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
+**PR #35 remains blocked.** No further author changes should be made before the next review unless needed to reconcile a tooling/state issue. Required next gate: traceably resolve prior finding threads, run a fresh Codex/review-agent pass on the frozen latest head, and merge only if that pass has no unresolved blocking finding. Even after a clean review, Proposed treatment/amendment lifecycle must not advance without explicit Project Owner approval. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
