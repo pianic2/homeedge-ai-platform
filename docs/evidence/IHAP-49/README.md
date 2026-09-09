@@ -71,6 +71,8 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 
 Planning calculations indicate approximately 12–20 h for a 3.5 Ah-class cell, with roughly 16 h as a central estimate under the current load model. **Autonomy remains `[UNVALIDATED]` until measured on the fabricated custom implementation.**
 
-## Approval boundary
+## Approval / merge boundary
 
 On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**. That approval covers the architectural baseline only. The later IHAP-56 treatment/validation amendments remain Proposed until an explicit Project Owner decision records approval. Neither layer establishes safety, certification, production readiness, validated no-reset transfer or measured autonomy.
+
+PR #35 must not merge until its latest-head independent review has no unresolved blocking finding. A clean review alone does not advance Proposed treatment lifecycle without an explicit Project Owner decision.
