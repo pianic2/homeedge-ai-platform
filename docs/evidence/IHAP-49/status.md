@@ -28,7 +28,7 @@
 
 PR #34 is historical acceptance evidence and remains merged. IHAP-56 exists because later review found documentation/protection/traceability regressions that must be corrected without rewriting the accepted product direction or inheriting the earlier approval event.
 
-`ihap-56-closure-matrix.md` is now the cross-file regression router. Every requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation and approval boundary.
+`ihap-56-closure-matrix.md` is now the cross-file regression router. Every material requirement is classified as Accepted or Proposed and mapped to its canonical owner, downstream consumer, validation/evidence and approval boundary.
 
 ### Accepted remediation of documentation/traceability defects
 
@@ -59,6 +59,6 @@ Codex review history on PR #35:
 - pass on `214eac063c`: 6 findings, remediated;
 - subsequent pass exposed **8 further P1/P2 boundary/verification findings**: upstream holder-fault coverage, reversed insertion with USB present, MP2636 junction verification method, accepted 0.5 A range regression, low transfer/cutoff overlap, qualitative backfeed criterion, missing 3.3 V PASS criteria and one-orientation-only USB-C validation.
 
-The 2026-09-09 closure sweep addresses all eight together and propagates the fixes through the canonical matrix/contracts/risk records rather than patching one thread at a time.
+The 2026-09-09 global closure sweep addresses all eight together across all **16 changed PR surfaces** and adds the closure/regression matrix instead of patching one review comment at a time.
 
 **PR #35 remains blocked.** Required next gate: resolve all superseded/current review threads with traceable replies, run a fresh Codex/review-agent pass on the latest head, and merge only if that latest pass has no unresolved blocking finding. IHAP-55 remains blocked until the remediation/approval boundary is resolved.
