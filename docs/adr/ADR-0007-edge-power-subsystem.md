@@ -2,7 +2,7 @@
 
 **Status:** Accepted  
 **Date:** 2026-09-05  
-**Updated:** 2026-09-08 — IHAP-56 post-merge remediation  
+**Updated:** 2026-09-09 — IHAP-56 post-merge remediation  
 **Accepted:** 2026-09-07  
 **Amendment status:** **Proposed** — IHAP-56 remediation controls added after PR #34 are not yet Project Owner approved  
 **Project:** [ITS] [EDGE] HomeEdge AI Platform  
@@ -42,9 +42,10 @@ HIDDEN_ANTI_REGRESSION_RULES:
   - Final reference implementation converges to a custom core PCB, not stacked charger/boost/mux breakouts.
   - MP2636 is the preferred charger/power-path/battery-boost PMIC candidate, not evidence by itself of a regulated 5.0 V USB-powered SYS rail.
   - The accepted final board direction includes post-regulation or an equivalent reviewed topology that keeps the product SYS rail regulated in both USB and battery modes.
+  - Accepted 0.5 A continuous capability applies across the accepted battery range and valid USB-input range.
   - Accepted quantitative power ownership transfer covers ADR-0001, ADR-0002, ADR-0004 and ADR-0005; ADR-0003 extension remains Proposed until approved.
   - Reverse-cell procedure alone is not an acceptable control in the accepted baseline.
-  - Cell-side over-current interruption, mandatory NTC fault-state verification, numeric thermal/low-voltage criteria, V13/V14/V15, bidirectional <=100 us V7, high/mid/low V8/V9 and the ADR-0003 ownership extension are IHAP-56 Proposed amendments until explicit Project Owner approval.
+  - Detailed cell-side interruption, NTC fault-state verification, numeric thermal/low-voltage criteria, V13/V14/V15, quantified backfeed, bidirectional <=100 us V7, high/mid/low V8/V9 and the ADR-0003 ownership extension are IHAP-56 Proposed amendments until explicit Project Owner approval.
   - RT-R012-01 and RT-R013-01 remain Proposed until explicit Project Owner treatment approval evidence exists.
   - ADR acceptance does not approve later treatment lifecycle, accept residual risk, or close R-012/R-013.
   - Do not infer validated autonomy from capacity arithmetic.
@@ -177,7 +178,7 @@ Accepted product 5 V SYS target:
 
 - nominal: **5.0 V regulated**;
 - steady-state validation band: **4.75–5.25 V**, unless a downstream selected component requires a tighter limit;
-- minimum design capability: **>=0.5 A continuous**;
+- minimum design capability: **>=0.5 A continuous across the accepted battery range and valid USB-input range**;
 - transient/headroom target: **>=1.0 A** without reset or uncontrolled rail collapse.
 
 These figures are design-capability requirements, not expected continuous node consumption.
@@ -207,17 +208,19 @@ The owned charger/protection board is **not selected as the final custom-PCB pow
 
 The following remediation additions were created after PR #34 and are **Proposed** until explicit Project Owner approval. They must not be consumed by IHAP-55 as accepted ADR requirements merely because this file's baseline status is `Accepted`:
 
-- `RT-R012-01`: explicit cell-side over-current interruption covering holder/BAT-net faults upstream of PMIC SYS limiting;
+- `RT-R012-01`: source-side cell over-current interruption covering all in-scope holder/service wiring, or an explicit separately controlled upstream segment when source-side placement is impossible;
 - mandatory NTC normal/hot/cold/open/short functional verification;
-- manufacturer-derived numeric thermal PASS/FAIL limits and pre-test thermal table;
+- manufacturer-derived numeric thermal PASS/FAIL limits plus a justified junction-temperature/derating method;
 - first-reference numeric low-voltage cutoff/recovery/hysteresis policy;
 - worst-case input-current-limit <=1.50 A plus combined node+charging V14 verification;
 - bidirectional baseline↔1 A V7 with <=100 µs current-edge requirement;
-- high/mid/low battery V8/V9 transfer/restoration coverage, including explicit zero-reset restoration criterion for no-reset effectiveness verification;
-- installed-path V13 cell-side over-current verification and V15 bounded electrical reverse-blocking verification;
+- high/mid/low battery V8/V9 transfer/restoration coverage with low-point margin above cutoff and explicit zero-reset restoration criterion for no-reset effectiveness verification;
+- measurable backfeed thresholds for open and attached-unpowered upstream USB conditions;
+- installed/production-identical V13 cell-side over-current verification and V15 bounded electrical reverse-blocking verification with USB absent and present;
+- component-derived 3.3 V steady/transient rail criteria across relevant power events;
 - extension of quantitative ownership transfer to **ADR-0003 / reed current**.
 
-These additions may be reviewed and strengthened inside PR #35 while Proposed. Approval of ADR-0007 / PR #34 does not approve them retroactively.
+Detailed Proposed criteria live in `docs/evidence/IHAP-49/validation-plan.md`, `custom-pcb-power-contract.md`, R-012/R-013, and `ihap-56-closure-matrix.md`. These additions may be reviewed and strengthened inside PR #35 while Proposed. Approval of ADR-0007 / PR #34 does not approve them retroactively.
 
 ---
 
@@ -256,7 +259,7 @@ These additions may be reviewed and strengthened inside PR #35 while Proposed. A
 - Maintaining a regulated 5 V product bus requires an additional on-board regulation function beyond MP2636's input pass-through behavior.
 - Battery-related electrical and thermal behavior depends on the integrated design and must be physically validated.
 - No-reset transfer, thermal behavior, charge current and measured runtime remain implementation evidence.
-- The unprotected MJ1 requires system-level controls; the additional cell-side interruption and detailed verification scheme proposed by IHAP-56 are not yet accepted amendments.
+- The unprotected MJ1 requires system-level controls; the additional detailed treatment/verification scheme proposed by IHAP-56 is not yet an accepted amendment.
 
 ### Claim boundary
 
@@ -271,7 +274,7 @@ ADR-0007 affects two canonical power risks. The table below distinguishes the **
 | Risk | Treatment | ADR effect | Remaining exposure |
 |---|---|---|---|
 | [R-012 — Unprotected 1S Li-ion Battery Fault and Cell-Side Protection](../risks/records/R-012-unprotected-li-ion-battery-fault.md) | `RT-R012-01` — **Proposed** | **Partially mitigates** through the accepted backup-only, system-responsibility protection and reverse-polarity-prevention baseline | Cell-side interruption, NTC fault-state, numeric low-voltage/thermal detail, implementation and effectiveness remain Proposed / `[UNVALIDATED]` |
-| [R-013 — Edge Power Rail and Source-Transfer Integrity](../risks/records/R-013-edge-power-rail-transfer-integrity.md) | `RT-R013-01` — **Proposed** | **Partially mitigates** through the accepted regulated product SYS, post-regulation/equivalent, USB priority, anti-backfeed and headroom/source-transfer baseline | Detailed source-limit, dynamic, high/mid/low restoration and effectiveness evidence remain Proposed / `[UNVALIDATED]` |
+| [R-013 — Edge Power Rail and Source-Transfer Integrity](../risks/records/R-013-edge-power-rail-transfer-integrity.md) | `RT-R013-01` — **Proposed** | **Partially mitigates** through the accepted regulated product SYS, post-regulation/equivalent, USB priority, anti-backfeed and headroom/source-transfer baseline | Detailed source-limit, dynamic, high/mid/low restoration, quantified backfeed, 3.3 V and effectiveness evidence remain Proposed / `[UNVALIDATED]` |
 
 The Risk Records contain the inverse ADR links. Accepted ADR status does not make either treatment `Approved`, `In Progress`, `Implemented` or `Verified`, and does not accept residual risk.
 
@@ -287,7 +290,7 @@ The Risk Records contain the inverse ADR links. Accepted ADR status does not mak
 | Select and justify downstream regulated 5 V stage and 3.3 V regulator | IHAP-55 |
 | Implement accepted reverse-insertion prevention | IHAP-55 / IHAP-51 for physical keying if used |
 | Execute PCB ERC/DRC/DFM, fabrication and staged bring-up | IHAP-55 |
-| Execute accepted 0.5 A continuous and 1.0 A headroom validation | IHAP-55 |
+| Execute accepted 0.5 A continuous validation across the accepted battery and valid USB-input ranges plus 1.0 A headroom validation | IHAP-55 |
 | Execute accepted USB loss/restoration/backfeed validation | IHAP-55 |
 | Execute final-node quantitative power measurements transferred from ADR-0001/0002/0004/0005 | IHAP-55 |
 | Measure backup endurance before any measured autonomy claim | IHAP-55 |
@@ -300,9 +303,9 @@ The Risk Records contain the inverse ADR links. Accepted ADR status does not mak
 | Item | Tracking |
 |---|---|
 | Obtain explicit Project Owner decision for RT-R012-01 / RT-R013-01 and the amendment package | IHAP-56 / IHAP-57 |
-| Cell-side over-current interruption + installed-path V13 | Proposed — IHAP-55 after approval |
+| Source-side cell over-current protection / upstream-segment control + V13 | Proposed — IHAP-55 after approval |
 | Mandatory NTC normal/hot/cold/open/short verification | Proposed — IHAP-55 after approval |
-| Numeric thermal and low-voltage criteria; V14/V15; strengthened V7/V8/V9 | Proposed — IHAP-55 after approval |
+| Numeric thermal/junction method, 3.3 V criteria, low-voltage criteria, quantified backfeed, V14/V15 and strengthened V7/V8/V9 | Proposed — IHAP-55 after approval |
 | Extend quantitative ownership to ADR-0003/reed current | Proposed — requires explicit approval/accepted reassignment |
 | Update treatment lifecycle/effectiveness from decision + implementation/verification evidence | IHAP-57 after approval/evidence |
 
@@ -323,6 +326,7 @@ The results of IHAP-55 may supersede ADR-0007 if physical evidence shows the acc
 | Jira decision issue | [IHAP-49](https://niccolopiazzi01.atlassian.net/browse/IHAP-49) |
 | Jira remediation issue | [IHAP-56](https://niccolopiazzi01.atlassian.net/browse/IHAP-56) |
 | Project Owner decision record | `docs/evidence/IHAP-49/decision-record.md` |
+| IHAP-56 closure/regression matrix | `docs/evidence/IHAP-49/ihap-56-closure-matrix.md` |
 | Custom-PCB power contract | `docs/evidence/IHAP-49/custom-pcb-power-contract.md` |
 | Owned hardware evidence | `docs/evidence/IHAP-49/owned-hardware-evidence.md` |
 | Charger characterization run | `docs/evidence/IHAP-49/IHAP49-CHARGER-C0-C1-01/run-record.md` |
@@ -344,6 +348,7 @@ The results of IHAP-55 may supersede ADR-0007 if physical evidence shows the acc
 
 ```text
 [x] Accepted PR #34 baseline and Proposed IHAP-56 amendment scope are explicitly separated.
+[x] Accepted 0.5 A continuous range qualifiers are preserved.
 [x] No later treatment/amendment detail is represented as retroactively accepted.
 [x] R-012/R-013 inverse links declare the allowed effect `Partially mitigates` for the accepted baseline.
 [x] RT-R012-01 / RT-R013-01 remain Proposed pending explicit Project Owner approval.
