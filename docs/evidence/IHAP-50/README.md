@@ -1,7 +1,7 @@
 # IHAP-50 — Interconnect Evidence
 
 **Issue:** IHAP-50  
-**Status:** execution checkpoint — static design review complete; integrated gate pending  
+**Status:** execution checkpoint — static design review complete; integrated gate ready for physical execution  
 **Branch:** `ihap-50-interconnect-prototype-assembly`  
 **PR:** #36
 
@@ -13,6 +13,7 @@ This evidence index records the sources, review findings and evidence boundary u
 
 - [`docs/architecture/ihap-50-interconnect-prototype-assembly.md`](../../architecture/ihap-50-interconnect-prototype-assembly.md)
 - [`docs/architecture/ihap-50-connection-matrix.json`](../../architecture/ihap-50-connection-matrix.json)
+- [`tools/hardware-validation/ihap-50-interconnect/README.md`](../../../tools/hardware-validation/ihap-50-interconnect/README.md)
 
 ## Accepted source inputs
 
@@ -69,24 +70,69 @@ GPIO7  I2C_SCL
 GPIO10 SPARE_DIGITAL
 ```
 
-The machine-readable matrix was bumped to schema version `1.1` and the human-readable specification now contains the same corrected allocation.
+The machine-readable matrix was bumped to schema version `1.1` and the human-readable specification contains the same corrected allocation.
 
-### Static no-regression observations after SR-50-01
+### SR-50-02 — validation harness configured service TX despite receive-only baseline
+
+**Severity before remediation:** MAJOR  
+**Status:** REMEDIATED
+
+The first integrated-harness implementation passed GPIO1 to `uart_set_pin()` as the UART TX pin even though the specification classifies that net as service-only and disabled by default. No product requirement or Accepted evidence required the harness to drive LD2410C RX.
+
+Remediation commit `1efab860c404ee4bc30222f068fb0ad0ac5945c0` changed the harness to:
+
+- configure UART1 RX only on GPIO0;
+- pass `UART_PIN_NO_CHANGE` for TX;
+- keep GPIO1 only as a physical/reference contract reservation;
+- emit `radar_tx_service_configured=false` in the boot evidence record;
+- make the host evaluator fail if service TX is unexpectedly enabled.
+
+This keeps the IHAP-50 physical gate aligned with the receive-only LD2410C path already demonstrated by IHAP-46 and prevents an unreviewed configuration/control surface from being introduced merely by the test harness.
+
+### Static no-regression observations after remediation
 
 1. No strapping pin is allocated.
 2. GPIO20/GPIO21 remain free for UART0/recovery when practical.
 3. One real ADC-capable spare is preserved on GPIO5.
 4. A second digital margin pin remains available on GPIO10.
 5. Radar UART no longer collides with the shared I2C bus.
-6. OLED+BME280 can share I2C without address collision in the accepted evidence set.
-7. Breadboard and loose Dupont wiring remain development/validation-only.
-8. Generic `PH2.0` remains prototype inventory until exact mating parts and footprint are frozen in IHAP-55.
-9. Audio remains zero-allocation.
-10. Proposed IHAP-56 controls remain Proposed; this task does not upgrade them.
+6. GPIO1 service TX is physically reserved but not configured by the validation firmware.
+7. OLED+BME280 can share I2C without address collision in the accepted evidence set.
+8. DHT11 and BME280 are tested as alternative environmental profiles rather than as an artificial simultaneous requirement.
+9. Breadboard and loose Dupont wiring remain development/validation-only.
+10. Generic `PH2.0` remains prototype inventory until exact mating parts and footprint are frozen in IHAP-55.
+11. Audio remains zero-allocation.
+12. Proposed IHAP-56 controls remain Proposed; this task does not upgrade them.
+
+## Integrated gate implementation
+
+The physical gate lives under:
+
+```text
+tools/hardware-validation/ihap-50-interconnect/
+```
+
+It contains:
+
+- ESP-IDF validation firmware;
+- a pure host-side evaluator;
+- unit tests for standard/precision profiles and regression conditions;
+- a guided serial runner;
+- local-only `runs/` storage protected by `.gitignore`;
+- one human runbook with exact wiring and commands.
+
+The firmware emits structured JSON boot and sample records. The host runner records the exact git commit, validates the profile-specific expectations, guides the MC-38 open/closed/disconnected phases, records operator OLED/polarity confirmation, and produces local summary JSON/Markdown without automatically publishing raw serial telemetry.
+
+The evaluator logic was exercised locally against seven synthetic scenarios covering both valid profiles plus ADC mapping, service-TX, BME identity, radar-frame and door-state regressions. This is host logic evidence only; it does not replace the required ESP-IDF build or physical run.
 
 ## Integrated evidence still required
 
-The lean integrated gate is intentionally limited to properties that cannot be proven statically:
+Two lean physical runs remain:
+
+1. `IHAP50-STANDARD-01` — OLED + LD2410C + MC-38 + DHT11; includes the door open/closed/disconnected phases.
+2. `IHAP50-PRECISION-01` — OLED + LD2410C + BME280 on shared I2C; DHT11 disconnected; door phases are not duplicated.
+
+Together they cover:
 
 - boot/reset/flashing/recovery with selected peripherals attached;
 - OLED+BME280 coexistence on GPIO6/GPIO7;
@@ -94,11 +140,10 @@ The lean integrated gate is intentionally limited to properties that cannot be p
 - LD2410C receive UART on GPIO0 at 256000 baud while other interfaces operate;
 - MC-38 HIGH/LOW mapping plus disconnected-wire observation on GPIO3;
 - practical availability/usability of GPIO5 as ADC-capable spare and GPIO10 as digital spare on the exact implementation;
-- effective I2C and DHT pull-up network before final PCB population values are frozen;
-- connector pin-order, polarity/keying and strain-relief review.
+- connector pin-order and polarity review.
 
-Quantitative rail, load-step, battery, source-transfer and thermal evidence remains IHAP-55 / ADR-0007 scope. Proposed IHAP-56 strengthening is not silently treated as Accepted.
+Exact final PCB I2C/DHT pull-up population remains an IHAP-55 schematic/BOM freeze item because breakout-module pull-ups must be reconciled against the final board rather than inferred from the prototype. Quantitative rail, load-step, battery, source-transfer and thermal evidence also remains IHAP-55 / ADR-0007 scope. Proposed IHAP-56 strengthening is not silently treated as Accepted.
 
 ## Claim boundary
 
-Current evidence supports a **reviewed proposed interconnect design**, not a validated custom PCB. Final simultaneous behavior, exact connector SKU compatibility, final enclosure harness lengths and production maturity remain `[UNVALIDATED]`.
+Current evidence supports a **reviewed proposed interconnect design with a ready physical validation harness**, not a validated custom PCB. Final simultaneous behavior, exact connector SKU compatibility, final enclosure harness lengths and production maturity remain `[UNVALIDATED]` until their owning gates complete.
