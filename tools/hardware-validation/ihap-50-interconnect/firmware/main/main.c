@@ -15,10 +15,10 @@
 #include "freertos/task.h"
 
 #define HARNESS_NAME "ihap50-integrated-interconnect-harness"
-#define SCHEMA_VERSION "1.1.0"
+#define SCHEMA_VERSION "1.2.0"
 
 #define PIN_RADAR_RX GPIO_NUM_0
-#define PIN_RADAR_TX GPIO_NUM_1
+#define PIN_RADAR_TX_SERVICE GPIO_NUM_1
 #define PIN_DOOR GPIO_NUM_3
 #define PIN_DHT GPIO_NUM_4
 #define PIN_ADC_SPARE GPIO_NUM_5
@@ -37,7 +37,6 @@
 #define LD2410_BAUD 256000
 #define UART_RX_BUFFER_SIZE 1024
 #define FRAME_BUFFER_SIZE 128
-
 #define DHT_BIT_THRESHOLD_US 50
 
 static const uint8_t FRAME_HEADER[] = {0xF4, 0xF3, 0xF2, 0xF1};
@@ -100,7 +99,12 @@ static void configure_dht(void)
 
 static dht_sample_t read_dht11(void)
 {
-    dht_sample_t sample = {.valid = false, .temperature_c = 0.0f, .humidity_percent = 0.0f, .status = "TIMEOUT"};
+    dht_sample_t sample = {
+        .valid = false,
+        .temperature_c = 0.0f,
+        .humidity_percent = 0.0f,
+        .status = "TIMEOUT",
+    };
     uint8_t data[5] = {0};
     uint32_t pulse = 0;
 
@@ -198,9 +202,20 @@ static esp_err_t oled_init(void)
         0x00,
         0xAE, 0xD5, 0x80, 0xA8, 0x3F, 0xD3, 0x00, 0x40,
         0x8D, 0x14, 0x20, 0x00, 0xA1, 0xC8, 0xDA, 0x12,
-        0x81, 0x7F, 0xD9, 0xF1, 0xDB, 0x40, 0xA4, 0xA6, 0xAF
+        0x81, 0x7F, 0xD9, 0xF1, 0xDB, 0x40, 0xA4, 0xA6, 0xAF,
     };
     return i2c_master_transmit(s_oled, sequence, sizeof(sequence), I2C_TIMEOUT_MS);
+}
+
+static bool oled_visual_gate(void)
+{
+    const uint8_t all_on[] = {0x00, 0xA5};
+    const uint8_t ram_display[] = {0x00, 0xA4};
+    if (i2c_master_transmit(s_oled, all_on, sizeof(all_on), I2C_TIMEOUT_MS) != ESP_OK) {
+        return false;
+    }
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    return i2c_master_transmit(s_oled, ram_display, sizeof(ram_display), I2C_TIMEOUT_MS) == ESP_OK;
 }
 
 static bool oled_ping(void)
@@ -306,6 +321,7 @@ static void consume_radar(uint8_t *buffer, size_t *used)
         if (*used < 6U) {
             return;
         }
+
         const size_t total = (size_t)read_le16(&buffer[4]) + 10U;
         if (total < 10U || total > FRAME_BUFFER_SIZE) {
             register_invalid_frame();
@@ -336,6 +352,7 @@ static void radar_task(void *arg)
         if (n <= 0) {
             continue;
         }
+
         portENTER_CRITICAL(&s_radar_lock);
         s_radar.uart_bytes += (uint32_t)n;
         portEXIT_CRITICAL(&s_radar_lock);
@@ -364,7 +381,10 @@ static esp_err_t configure_radar_uart(void)
     };
     ESP_RETURN_ON_ERROR(uart_driver_install(LD2410_UART, UART_RX_BUFFER_SIZE, 0, 0, NULL, 0), "IHAP50", "UART install");
     ESP_RETURN_ON_ERROR(uart_param_config(LD2410_UART, &cfg), "IHAP50", "UART config");
-    return uart_set_pin(LD2410_UART, PIN_RADAR_TX, PIN_RADAR_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
+
+    /* Receive-only by design. GPIO1 is reserved in the interconnect contract but
+       is not attached to the UART peripheral in this validation harness. */
+    return uart_set_pin(LD2410_UART, UART_PIN_NO_CHANGE, PIN_RADAR_RX, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
 }
 
 static radar_state_t radar_snapshot(void)
@@ -387,17 +407,25 @@ void app_main(void)
 
     ESP_ERROR_CHECK(configure_i2c());
     ESP_ERROR_CHECK(oled_init());
+    const bool oled_visual_transfer_ok = oled_visual_gate();
     ESP_ERROR_CHECK(configure_radar_uart());
     xTaskCreate(radar_task, "ihap50_radar", 4096, NULL, 10, NULL);
 
+    const char *detected_profile = s_bme_present ? "precision" : "standard";
     printf(
         "{\"record_type\":\"boot\",\"schema_version\":\"%s\",\"firmware\":\"%s\",\"idf_version\":\"%s\","
+        "\"detected_profile\":\"%s\","
         "\"pins\":{\"radar_rx\":0,\"radar_tx_service\":1,\"door\":3,\"dht\":4,\"adc_spare\":5,\"i2c_sda\":6,\"i2c_scl\":7,\"digital_spare\":10},"
-        "\"adc_spare_pull_test\":%s,\"digital_spare_pull_test\":%s,\"bme280_present\":%s}\n",
-        SCHEMA_VERSION, HARNESS_NAME, esp_get_idf_version(),
+        "\"radar_tx_service_configured\":false,\"adc_spare_pull_test\":%s,\"digital_spare_pull_test\":%s,"
+        "\"bme280_present\":%s,\"oled_visual_transfer_ok\":%s}\n",
+        SCHEMA_VERSION,
+        HARNESS_NAME,
+        esp_get_idf_version(),
+        detected_profile,
         adc_spare_gpio_ok ? "true" : "false",
         digital_spare_gpio_ok ? "true" : "false",
-        s_bme_present ? "true" : "false");
+        s_bme_present ? "true" : "false",
+        oled_visual_transfer_ok ? "true" : "false");
     fflush(stdout);
 
     uint32_t seq = 0;
@@ -415,11 +443,13 @@ void app_main(void)
 
         printf(
             "{\"record_type\":\"integrated_sample\",\"seq\":%lu,"
-            "\"oled_ok\":%s,\"bme280_present\":%s,\"bme280_ok\":%s,\"bme280_chip_id\":\"0x%02X\","
+            "\"profile\":\"%s\",\"oled_ok\":%s,"
+            "\"bme280_present\":%s,\"bme280_ok\":%s,\"bme280_chip_id\":\"0x%02X\","
             "\"dht11_ok\":%s,\"dht11_status\":\"%s\",\"temperature_c\":%.1f,\"humidity_percent\":%.1f,"
-            "\"radar_fresh\":%s,\"radar_target_state\":%u,\"radar_valid_frames\":%lu,\"radar_invalid_frames\":%lu,\"radar_uart_bytes\":%lu,"
-            "\"door_raw\":%d}\n",
+            "\"radar_fresh\":%s,\"radar_target_state\":%u,\"radar_valid_frames\":%lu,"
+            "\"radar_invalid_frames\":%lu,\"radar_uart_bytes\":%lu,\"door_raw\":%d}\n",
             (unsigned long)seq,
+            detected_profile,
             oled_ok ? "true" : "false",
             s_bme_present ? "true" : "false",
             bme_ok ? "true" : "false",
