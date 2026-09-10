@@ -1,85 +1,31 @@
-# IHAP-49 — Final Review Summary
+# IHAP-49 — Review and Acceptance Summary
 
-## Decision accepted by Project Owner
+## Accepted baseline
 
-IHAP-49 closes the **power architecture decision** rather than forcing a temporary breakout-stack implementation.
+Project Owner approval on 2026-09-07 applies to ADR-0007 / PR #34: regulated 5 V USB-C normal source; LG INR18650-MJ1 backup only; one custom modular core PCB; MP2636 first direction plus downstream 5 V regulation/reviewed equivalent; 5 V SYS 4.75–5.25 V with >=0.5 A continuous **across accepted battery and valid USB-input ranges** and >=1 A headroom; USB priority/takeover/backfeed prohibition; no-reset target `[UNVALIDATED]`; NTC monitoring; electrical/mechanical reverse-insertion prevention; quantitative ownership transfer from ADR-0001/0002/0004/0005.
 
-Accepted reference contract:
+## Proposed IHAP-56 overlay
 
-- normal source: **regulated 5 V USB-C**;
-- battery role: **backup only** for blackout/cable-input interruption;
-- selected cell: **LG INR18650-MJ1**, EAN/GTIN `8438493099829`, flat-top unprotected 18650;
-- final hardware direction: **one custom modular core PCB**;
-- preferred first integrated PMIC: **MPS MP2636GR-P**;
-- battery CV target: **4.2 V**;
-- nominal charge-current target: **~1.0 A**;
-- reference USB input: **5 V, >=1.5 A available/advertised**;
-- SYS target: **5.0 V regulated, >=0.5 A continuous, >=1.0 A transient/headroom**;
-- USB priority + automatic battery takeover;
-- backfeed into upstream USB prohibited;
-- **no-reset transfer is the reference target**;
-- NTC battery-temperature monitoring required;
-- unprotected cell means system-level protection is mandatory;
-- multi-day battery-only operation is not an MVP requirement;
-- planning autonomy remains ~12–20 h / ~16 h central and `[UNVALIDATED]`.
+RT-R012-01 / RT-R013-01 remain **Proposed**. The overlay contains source-side over-current + upstream residual handling, NTC fault-state verification, thermal/Tj method, ILIM/V14, component-derived 3.3 V criteria, bidirectional V7, high/mid/valid-low V8/V9 with cutoff margin/quantified backfeed/zero-reset restoration, numeric V10, V13 installed path, V15 USB absent/present and the ADR-0003 ownership extension. None inherits PR #34 approval.
 
-## Procurement direction
+## Global closure sweep
 
-Purchase only hardware that persists in the final architecture or removes a specific blocker.
+`ihap-56-closure-matrix.md` maps every material requirement to Accepted/Proposed state, canonical owner, downstream consumer, validation evidence and approval boundary. The 2026-09-09 sweep reconciled **all 16 files changed by PR #35** and addressed the latest eight review findings together:
 
-Current decision:
+1. upstream holder/service wiring before over-current protection;
+2. reverse insertion while USB is present;
+3. MP2636 junction-temperature verification method;
+4. lost accepted 0.5 A range qualifier;
+5. low transfer point overlapping cutoff tolerance;
+6. qualitative backfeed criterion;
+7. missing 3.3 V rail PASS criteria;
+8. USB-C functional testing in only one plug orientation.
 
-- LG MJ1 cells: **retain purchase**;
-- existing holder: **retain**, no new holder purchase now;
-- existing 4056E: bench/control evidence only;
-- TPS61023 breakout: **do not purchase solely for final architecture**;
-- TPS2116 breakout: **do not purchase solely for final architecture**;
-- additional charger/boost/mux modules: **do not purchase without a specific blocker**.
+## Review provenance / gate
 
-## Why the 4056E gaps no longer block closure
+- Codex pass `fa2f3842c9`: 8 findings, remediated.
+- Codex pass `214eac063c`: 6 findings, remediated.
+- Later Codex pass: 8 findings above, addressed by the global closure sweep.
+- **Author remediation is now frozen pending external review.**
 
-The owned 4056E module was characterized enough to bound its use:
-
-- `4056E` and `8205A` observed;
-- protection controller exists but exact identity/thresholds remain unknown;
-- legacy 5 V USB-A-to-C input sanity passed;
-- tested C-to-C fast-charge input did not work;
-- R3 in-circuit measurement was inconclusive.
-
-The module is **rejected as the final reference power implementation**, so unresolved RPROG/protection-controller details are inventory limitations, not blockers to the architecture decision.
-
-## Implementation handoff
-
-**IHAP-55 — Integrated Modular Edge PCB — Custom Mainboard Design and Prototype** owns:
-
-- schematic/layout/DFM;
-- MP2636 implementation or explicit reviewed supersession;
-- 3.3 V regulator;
-- USB-C input protection/CC implementation;
-- NTC/reverse-polarity implementation;
-- PCB fabrication/bring-up;
-- charge current / thermal evidence;
-- 5 V / 3.3 V rail measurements;
-- USB-to-battery switchover/restoration;
-- no-reset validation;
-- measured backup runtime;
-- final custom-board BOM and replication cost.
-
-IHAP-50 owns the connection matrix. IHAP-51 owns enclosure, holder retention and serviceability.
-
-## Review result by lane
-
-- **Power Electronics:** PASS for architecture decision; implementation evidence handed to IHAP-55.
-- **Battery Safety boundary:** PASS with residual physical validation explicit; no unsupported safety claim.
-- **Hardware Compatibility:** PASS at contract level; final board must preserve accepted sensor domains.
-- **Testing & Evidence:** PASS; planning arithmetic remains separated from measured runtime.
-- **Security / Privacy:** PASS; no new sensing/data scope introduced.
-- **Architecture Regression:** PASS; ESP32-C3, LD2410C, environmental profiles, reed and OLED decisions preserved.
-- **Cost Governance:** PASS; redundant breakout purchases eliminated and board-level cost deferred to real BOM evidence.
-- **Source of Truth:** PASS; ADR/evidence in GitHub, Jira workflow/handoff, Confluence not duplicated.
-
-## Project Owner outcome
-
-On **2026-09-07**, the Project Owner explicitly approved **ADR-0007 and PR #34**.
-
-The architectural decision is therefore accepted. PR merge and Jira completion are authorized. Physical custom-board validation proceeds in IHAP-55 and may supersede ADR-0007 only if downstream evidence contradicts the accepted contract.
+PR #35 remains blocked and IHAP-55 remains blocked. Prior review threads must be traceably resolved and a fresh review on the frozen latest head must report zero unresolved blocking findings before merge. A clean technical review does **not** approve the Proposed treatment/amendment lifecycle; that still requires explicit Project Owner decision evidence.
