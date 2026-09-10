@@ -15,7 +15,7 @@
 #include "freertos/task.h"
 
 #define HARNESS_NAME "ihap50-integrated-interconnect-harness"
-#define SCHEMA_VERSION "1.0.0"
+#define SCHEMA_VERSION "1.1.0"
 
 #define PIN_RADAR_RX GPIO_NUM_0
 #define PIN_RADAR_TX GPIO_NUM_1
@@ -46,6 +46,7 @@ static const uint8_t FRAME_FOOTER[] = {0xF8, 0xF7, 0xF6, 0xF5};
 static i2c_master_bus_handle_t s_i2c_bus;
 static i2c_master_dev_handle_t s_oled;
 static i2c_master_dev_handle_t s_bme;
+static bool s_bme_present;
 static portMUX_TYPE s_dht_lock = portMUX_INITIALIZER_UNLOCKED;
 static portMUX_TYPE s_radar_lock = portMUX_INITIALIZER_UNLOCKED;
 
@@ -176,15 +177,18 @@ static esp_err_t configure_i2c(void)
 
     const esp_err_t oled_probe = i2c_master_probe(s_i2c_bus, OLED_ADDR, I2C_TIMEOUT_MS);
     const esp_err_t bme_probe = i2c_master_probe(s_i2c_bus, BME280_ADDR, I2C_TIMEOUT_MS);
+    s_bme_present = bme_probe == ESP_OK;
+
     printf("{\"record_type\":\"i2c_probe\",\"oled_0x3c\":%s,\"bme280_0x76\":%s}\n",
            oled_probe == ESP_OK ? "true" : "false",
-           bme_probe == ESP_OK ? "true" : "false");
+           s_bme_present ? "true" : "false");
     fflush(stdout);
 
     ESP_RETURN_ON_ERROR(oled_probe, "IHAP50", "OLED 0x3C not found");
-    ESP_RETURN_ON_ERROR(bme_probe, "IHAP50", "BME280 0x76 not found");
     ESP_RETURN_ON_ERROR(add_i2c_device(OLED_ADDR, &s_oled), "IHAP50", "OLED add");
-    ESP_RETURN_ON_ERROR(add_i2c_device(BME280_ADDR, &s_bme), "IHAP50", "BME add");
+    if (s_bme_present) {
+        ESP_RETURN_ON_ERROR(add_i2c_device(BME280_ADDR, &s_bme), "IHAP50", "BME add");
+    }
     return ESP_OK;
 }
 
@@ -207,6 +211,9 @@ static bool oled_ping(void)
 
 static bool bme280_read_chip_id(uint8_t *chip_id)
 {
+    if (!s_bme_present || s_bme == NULL) {
+        return false;
+    }
     const uint8_t reg = BME280_CHIP_ID_REG;
     return i2c_master_transmit_receive(s_bme, &reg, 1, chip_id, 1, I2C_TIMEOUT_MS) == ESP_OK;
 }
@@ -386,10 +393,11 @@ void app_main(void)
     printf(
         "{\"record_type\":\"boot\",\"schema_version\":\"%s\",\"firmware\":\"%s\",\"idf_version\":\"%s\","
         "\"pins\":{\"radar_rx\":0,\"radar_tx_service\":1,\"door\":3,\"dht\":4,\"adc_spare\":5,\"i2c_sda\":6,\"i2c_scl\":7,\"digital_spare\":10},"
-        "\"adc_spare_pull_test\":%s,\"digital_spare_pull_test\":%s}\n",
+        "\"adc_spare_pull_test\":%s,\"digital_spare_pull_test\":%s,\"bme280_present\":%s}\n",
         SCHEMA_VERSION, HARNESS_NAME, esp_get_idf_version(),
         adc_spare_gpio_ok ? "true" : "false",
-        digital_spare_gpio_ok ? "true" : "false");
+        digital_spare_gpio_ok ? "true" : "false",
+        s_bme_present ? "true" : "false");
     fflush(stdout);
 
     uint32_t seq = 0;
@@ -407,12 +415,13 @@ void app_main(void)
 
         printf(
             "{\"record_type\":\"integrated_sample\",\"seq\":%lu,"
-            "\"oled_ok\":%s,\"bme280_ok\":%s,\"bme280_chip_id\":\"0x%02X\","
+            "\"oled_ok\":%s,\"bme280_present\":%s,\"bme280_ok\":%s,\"bme280_chip_id\":\"0x%02X\","
             "\"dht11_ok\":%s,\"dht11_status\":\"%s\",\"temperature_c\":%.1f,\"humidity_percent\":%.1f,"
             "\"radar_fresh\":%s,\"radar_target_state\":%u,\"radar_valid_frames\":%lu,\"radar_invalid_frames\":%lu,\"radar_uart_bytes\":%lu,"
             "\"door_raw\":%d}\n",
             (unsigned long)seq,
             oled_ok ? "true" : "false",
+            s_bme_present ? "true" : "false",
             bme_ok ? "true" : "false",
             chip_id,
             dht.valid ? "true" : "false",
