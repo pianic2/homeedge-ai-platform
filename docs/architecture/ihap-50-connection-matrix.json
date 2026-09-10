@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "issue": "IHAP-50",
   "status": "proposed_until_project_owner_approval",
   "reference_mcu": "ESP32-C3",
@@ -16,48 +16,34 @@
       "GPIO1": "RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY",
       "GPIO3": "DOOR_SENSE",
       "GPIO4": "ENV_DHT_DATA",
-      "GPIO5": "I2C_SDA",
-      "GPIO6": "I2C_SCL",
-      "GPIO7": "SPARE_DIGITAL",
-      "GPIO10": "SPARE_ADC_CAPABLE"
+      "GPIO5": "SPARE_ADC_CAPABLE",
+      "GPIO6": "I2C_SDA",
+      "GPIO7": "I2C_SCL",
+      "GPIO10": "SPARE_DIGITAL"
     }
   },
   "nets": [
     {
       "name": "SYS_5V",
       "voltage": "5V regulated",
-      "consumers": [
-        "LD2410C",
-        "3.3V regulator input"
-      ],
+      "consumers": ["LD2410C", "3.3V regulator input"],
       "owner": "ADR-0007/IHAP-55"
     },
     {
       "name": "SYS_3V3",
       "voltage": "3.3V regulated",
-      "consumers": [
-        "ESP32-C3",
-        "OLED",
-        "ENV profile",
-        "door pull-up"
-      ],
+      "consumers": ["ESP32-C3", "OLED", "ENV profile", "door pull-up"],
       "owner": "ADR-0007/IHAP-55"
     },
     {
       "name": "I2C_SDA",
-      "gpio": "GPIO5",
-      "consumers": [
-        "OLED",
-        "BME280 profile"
-      ]
+      "gpio": "GPIO6",
+      "consumers": ["OLED", "BME280 profile"]
     },
     {
       "name": "I2C_SCL",
-      "gpio": "GPIO6",
-      "consumers": [
-        "OLED",
-        "BME280 profile"
-      ]
+      "gpio": "GPIO7",
+      "consumers": ["OLED", "BME280 profile"]
     },
     {
       "name": "RADAR_RX_FROM_LD2410C_TX",
@@ -82,52 +68,53 @@
       "gpio": "GPIO4",
       "direction": "bidirectional_single_wire",
       "pullup": "effective approx 5.1k to SYS_3V3"
+    },
+    {
+      "name": "SPARE_ADC_CAPABLE",
+      "gpio": "GPIO5",
+      "direction": "spare",
+      "adc_capability": "ADC2_CH0",
+      "note": "Preserves ADR-0001 spare ADC-capable GPIO requirement"
+    },
+    {
+      "name": "SPARE_DIGITAL",
+      "gpio": "GPIO10",
+      "direction": "spare"
     }
   ],
   "connectors": [
     {
       "id": "J_RADAR",
       "positions": 4,
-      "pins": {
-        "1": "GND",
-        "2": "SYS_5V",
-        "3": "RADAR_RX_FROM_LD2410C_TX",
-        "4": "RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY"
-      }
+      "pins": {"1": "GND", "2": "SYS_5V", "3": "RADAR_RX_FROM_LD2410C_TX", "4": "RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY"}
     },
     {
       "id": "J_OLED",
       "positions": 4,
-      "pins": {
-        "1": "GND",
-        "2": "SYS_3V3",
-        "3": "I2C_SCL",
-        "4": "I2C_SDA"
-      }
+      "pins": {"1": "GND", "2": "SYS_3V3", "3": "I2C_SCL", "4": "I2C_SDA"}
     },
     {
       "id": "J_ENV",
       "positions": 5,
-      "pins": {
-        "1": "GND",
-        "2": "SYS_3V3",
-        "3": "ENV_DHT_DATA",
-        "4": "I2C_SCL",
-        "5": "I2C_SDA"
-      }
+      "pins": {"1": "GND", "2": "SYS_3V3", "3": "ENV_DHT_DATA", "4": "I2C_SCL", "5": "I2C_SDA"}
     },
     {
       "id": "J_DOOR",
       "positions": 2,
-      "pins": {
-        "1": "GND",
-        "2": "DOOR_SENSE"
-      }
+      "pins": {"1": "GND", "2": "DOOR_SENSE"}
     }
   ],
   "mvp_zero_allocations": {
     "audio_gpio": 0,
     "audio_adc": 0,
     "audio_connector": 0
-  }
+  },
+  "review_history": [
+    {
+      "finding": "Initial draft incorrectly labeled GPIO10 as ADC-capable",
+      "severity": "MAJOR",
+      "disposition": "remediated_before_integrated_gate",
+      "correction": "GPIO5 reserved as ADC-capable spare; I2C moved to GPIO6/GPIO7; GPIO10 retained as digital spare"
+    }
+  ]
 }
