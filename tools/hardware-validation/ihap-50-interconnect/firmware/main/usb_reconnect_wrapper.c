@@ -16,5 +16,12 @@
 void app_main(void)
 {
     vTaskDelay(pdMS_TO_TICKS(IHAP50_USB_REENUMERATION_GUARD_MS));
+
+    /* Emitted before peripheral initialization so serial transport can be
+       distinguished from later sensor/I2C initialization failures. */
+    printf("{\"record_type\":\"harness_ready\",\"usb_reenumeration_guard_ms\":%d}\n",
+           IHAP50_USB_REENUMERATION_GUARD_MS);
+    fflush(stdout);
+
     ihap50_original_app_main();
 }
