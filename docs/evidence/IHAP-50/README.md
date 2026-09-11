@@ -1,13 +1,13 @@
 # IHAP-50 — Interconnect Evidence
 
 **Issue:** IHAP-50  
-**Status:** physical interconnect gate complete — STANDARD + PRECISION PASS; awaiting final PO approval  
+**Status:** **ACCEPTED by Project Owner — 2026-09-11**; physical gates complete; PR #36 awaiting Codex review before merge  
 **Branch:** `ihap-50-interconnect-prototype-assembly`  
 **PR:** #36
 
 ## Purpose
 
-This evidence index records the accepted source inputs, review findings, remediations and physical evidence for the IHAP-50 prototype interconnect baseline. It does **not** claim that the final custom PCB, power subsystem, enclosure integration or production node has been physically validated.
+This evidence index records the accepted source inputs, review findings, remediations, physical evidence and Project Owner acceptance for the IHAP-50 prototype interconnect baseline. It does **not** claim that the final custom PCB, power subsystem, enclosure integration or production node has been physically validated.
 
 ## Canonical outputs
 
@@ -28,9 +28,23 @@ Raw serial captures remain local under ignored `runs/` directories and are not c
 | ADR-0003 — MVP Door State Sensor | Accepted | reed-contact topology and semantic limitation |
 | ADR-0004 — Local Status Display | Accepted | 3.3 V I2C OLED and BME280 bus-sharing direction |
 | ADR-0005 — MVP Presence Sensor | Accepted | LD2410C 5 V/UART receive direction and boolean-only boundary |
-| IHAP-48 audio disposition | accepted closure | zero audio interconnect allocation |
+| IHAP-48 audio disposition | Accepted closure | zero audio interconnect allocation |
 | ADR-0007 — Edge Power Subsystem | Accepted | SYS_5V/SYS_3V3 domains and custom-PCB direction |
 | IHAP-56 / PR #35 | merged remediation | Accepted-vs-Proposed separation; strengthened controls remain Proposed unless separately accepted |
+
+## Accepted IHAP-50 contract
+
+The Project Owner explicitly approved IHAP-50 on **2026-09-11** after successful STANDARD and PRECISION physical gates and final regression review. The following are therefore Accepted IHAP-50 implementation decisions:
+
+- canonical GPIO/net allocation below;
+- breadboard and loose Dupont as validation/development-only;
+- keyed/polarized low-voltage connector classes as the final-reference direction while exact manufacturer series/SKU/footprint remains IHAP-55 scope;
+- MC-38 reference network: 10 kOhm pull-up to `SYS_3V3` + 1 kOhm series resistor to GPIO3, with 100 nF filter footprint DNP by default;
+- I2C/DHT board pull-up **footprint requirements and target/candidate values**, while exact final population remains IHAP-55 `[UNVALIDATED]` scope after effective module pull-ups are reconciled;
+- STANDARD and PRECISION as alternative environmental profiles;
+- ADR disposition: **no new ADR required**.
+
+Acceptance does **not** promote controls that remain explicitly Proposed under IHAP-56.
 
 ## Canonical GPIO contract
 
@@ -116,7 +130,7 @@ Door phases were intentionally not duplicated because STANDARD-11 already suppli
 
 ## No-regression review
 
-After remediation and physical execution:
+After remediation, physical execution and PO acceptance:
 
 1. no strapping pin is allocated;
 2. GPIO20/GPIO21 remain available for recovery/UART0 when practical;
@@ -126,16 +140,16 @@ After remediation and physical execution:
 6. GPIO1 remains service-only and undriven by the validation firmware;
 7. OLED and BME280 coexist on I2C without address collision in PRECISION;
 8. DHT11 and BME280 remain alternative accepted profiles, not a simultaneous product requirement;
-9. MC-38 HIGH/open, LOW/closed and broken-conductor-as-HIGH behavior is physically demonstrated for the proposed network;
+9. MC-38 HIGH/open, LOW/closed and broken-conductor-as-HIGH behavior is physically demonstrated for the **Accepted IHAP-50 reference network**;
 10. breadboard and loose Dupont wiring remain validation-only;
 11. generic `PH2.0` remains prototype inventory; exact connector manufacturer/series/footprint belongs to IHAP-55;
 12. audio remains zero-allocation;
-13. proposed IHAP-56 controls remain Proposed; IHAP-50 does not silently promote them;
-14. branch changes are confined to IHAP-50 specification, machine-readable matrix, evidence and validation tooling.
+13. controls explicitly remaining Proposed in IHAP-56 remain **Proposed**; IHAP-50 approval does not promote them;
+14. branch changes remain confined to IHAP-50 specification, machine-readable matrix, evidence and validation tooling.
 
 ## Downstream handoff
 
-IHAP-50 is sufficient to hand the canonical connection matrix and validated prototype interconnect behavior to:
+The Accepted IHAP-50 contract is sufficient to hand the canonical connection matrix and validated prototype interconnect behavior to:
 
 - **IHAP-55:** schematic/PCB implementation, exact connector/footprint freeze, effective I2C/DHT pull-up population, quantitative rail/load-step/source-transfer/thermal evidence;
 - **IHAP-51:** enclosure routing, connector access, harness lengths, keepouts and strain relief;
@@ -143,8 +157,12 @@ IHAP-50 is sufficient to hand the canonical connection matrix and validated prot
 
 ## ADR disposition
 
-**No new ADR is required for IHAP-50.** The task derives implementation/interconnect details from already Accepted architecture decisions and does not introduce a new cross-cutting architecture choice. The implementation contract and evidence remain in the architecture specification, connection matrix and this evidence index.
+**Accepted: no new ADR is required for IHAP-50.** The task derives implementation/interconnect details from already Accepted architecture decisions and does not introduce a new cross-cutting architecture choice. The implementation contract and evidence remain in the architecture specification, connection matrix and this evidence index.
+
+## Merge gate
+
+Project Owner acceptance is complete. PR #36 must **not be merged until Codex review has been received and resolved**. Any Codex finding is remediated on this same IHAP-50 branch/PR under the one-task/one-branch/one-PR rule; acceptance is rechecked if a remediation changes the Accepted contract.
 
 ## Claim boundary
 
-IHAP-50 evidence supports a **physically validated prototype interconnect baseline for the tested STANDARD and PRECISION profiles**. It does not validate the final custom PCB, exact production connector SKU, final enclosure harness lengths, battery/power behavior, certification, production reliability or commercial readiness. Those remain owned by their downstream gates and are `[UNVALIDATED]` here.
+IHAP-50 evidence supports an **Accepted, physically validated prototype interconnect baseline for the tested STANDARD and PRECISION profiles**. It does not validate the final custom PCB, exact production connector SKU, final enclosure harness lengths, battery/power behavior, certification, production reliability or commercial readiness. Those remain owned by their downstream gates and are `[UNVALIDATED]` here.
