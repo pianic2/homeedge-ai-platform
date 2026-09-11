@@ -1,0 +1,35 @@
+{
+  "schema_version": "1.1",
+  "run_id": "IHAP50-PRECISION-01",
+  "issue": "IHAP-50",
+  "profile": "precision",
+  "commit": "6e1200afe15492c283edc6afd39059b2947b7fae",
+  "captured_at_utc": "2026-09-11T09:49:02.310431+00:00",
+  "boot": {
+    "record_type": "boot",
+    "schema_version": "1.2.0",
+    "firmware": "ihap50-integrated-interconnect-harness",
+    "idf_version": "v6.0.1",
+    "detected_profile": "precision",
+    "pins": {"radar_rx": 0, "radar_tx_service": 1, "door": 3, "dht": 4, "adc_spare": 5, "i2c_sda": 6, "i2c_scl": 7, "digital_spare": 10},
+    "radar_tx_service_configured": false,
+    "adc_spare_pull_test": true,
+    "digital_spare_pull_test": true,
+    "bme280_present": true,
+    "oled_visual_transfer_ok": true
+  },
+  "operator_checks": {"oled_full_on_visible": true, "connector_pin_order_and_polarity_reviewed": true},
+  "baseline_sample_count": 6,
+  "door_phases": {},
+  "checks": {
+    "record_type": true, "firmware": true, "pins": true, "adc_spare": true, "digital_spare": true,
+    "radar_service_tx_disabled": true, "profile": true, "bme_presence": true, "oled_visual_transfer": true,
+    "sample_count": true, "oled_reliability": true, "radar_freshness": true, "radar_valid_frames": true,
+    "radar_no_invalid_frames": true, "profile_consistency": true, "bme_present": true,
+    "bme280_reliability": true, "bme280_identity": true, "operator_oled_visual_confirmation": true,
+    "operator_connector_polarity_review": true
+  },
+  "errors": [],
+  "result": "PASS",
+  "claim_boundary": "Integrated prototype interconnect evidence only; not final PCB/power/certification evidence."
+}
