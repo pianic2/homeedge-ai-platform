@@ -1,8 +1,19 @@
 # IHAP-49 — Edge Power Subsystem Decision Evidence
 
-**Status:** Accepted PR #34 decision package + **Proposed IHAP-56 remediation overlay** in PR #35
+**Status:** Accepted PR #34 decision package + **Proposed IHAP-56 remediation overlay**; PR #35 merged, Proposed controls remain unapproved unless separately accepted.
 
 This directory contains the evidence package for IHAP-49. The accepted architecture uses regulated 5 V USB-C as the normal node supply and a rechargeable single-cell Li-ion path only as backup for blackout or cable/input interruption.
+
+## Current lifecycle — reconciled 2026-09-11
+
+- IHAP-49: **Completata**.
+- ADR-0007 / PR #34 baseline: **Accepted**.
+- IHAP-56: **Completata**.
+- PR #35: **merged 2026-09-10** as `629ff78965a20481cf68954d6bcb8ac865fc27c2`.
+- IHAP-55: **In corso** from 2026-09-11.
+- RT-R012-01 / RT-R013-01: **Proposed**, not Approved/Implemented/Verified.
+
+See `ihap-56-post-merge-reconciliation.md` for the narrow supersession of stale pre-merge workflow statements. That reconciliation does not alter technical Accepted/Proposed boundaries.
 
 ## Accepted Project Owner direction — 2026-09-07
 
@@ -47,18 +58,15 @@ RT-R012-01 and RT-R013-01 remain **Proposed**, not Approved/Implemented/Verified
 
 ## Evidence / review routing
 
-- `ihap-56-closure-matrix.md` — frozen Accepted-vs-Proposed review matrix.
+- `ihap-56-post-merge-reconciliation.md` — current workflow/lifecycle reconciliation.
+- `ihap-56-closure-matrix.md` — Accepted-vs-Proposed review matrix.
 - `validation-plan.md` — accepted baseline + Proposed verification overlay.
 - `downstream-contracts.md` — accepted IHAP-55 obligations vs Proposed gates.
 - `custom-pcb-power-contract.md` — detailed electrical boundary.
-- `R-012` / `R-013` — canonical treatment dossiers.
+- R-012 / R-013 — canonical treatment dossiers.
 
-The 2026-09-09 regression sweep reconciled **all 16 files changed by PR #35** against the matrix. **Author remediation is frozen pending the next independent review.**
-
-IHAP-55 remains blocked by IHAP-56. IHAP-50 owns the connection matrix, IHAP-51 holder/enclosure serviceability, and IHAP-57 later treatment lifecycle/effectiveness after explicit approval and evidence.
+IHAP-50 owns the Accepted connection matrix. IHAP-55 now implements the custom-board work while preserving the Accepted/Proposed split. IHAP-51 provides the mechanical feedback loop before final layout freeze. IHAP-57 owns later treatment lifecycle/effectiveness after explicit approval and physical evidence.
 
 ## Planning / claim boundary
 
-Planning backup runtime remains approximately 12–20 h with ~16 h central estimate under the current model, but autonomy remains `[UNVALIDATED]` until measured. Neither Accepted nor Proposed documentation establishes safety, certification, production readiness, validated no-reset transfer or measured autonomy.
-
-PR #35 must not merge until its frozen latest-head independent review has no unresolved blocking finding. A clean review alone does not approve the Proposed treatment lifecycle.
+Planning backup runtime remains approximately 12–20 h with ~16 h central estimate under the current model, but autonomy remains `[UNVALIDATED]` until measured. Neither Accepted nor Proposed documentation establishes safety, certification, production readiness, validated no-reset transfer or measured autonomy. No procurement or fabrication is authorized by this lifecycle reconciliation.
