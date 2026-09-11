@@ -1,149 +1,150 @@
 # IHAP-50 — Interconnect Evidence
 
 **Issue:** IHAP-50  
-**Status:** execution checkpoint — static design review complete; integrated gate ready for physical execution  
+**Status:** physical interconnect gate complete — STANDARD + PRECISION PASS; awaiting final PO approval  
 **Branch:** `ihap-50-interconnect-prototype-assembly`  
 **PR:** #36
 
 ## Purpose
 
-This evidence index records the sources, review findings and evidence boundary used to derive the IHAP-50 interconnect specification. It does not claim that the final custom PCB or integrated node has already been physically validated.
+This evidence index records the accepted source inputs, review findings, remediations and physical evidence for the IHAP-50 prototype interconnect baseline. It does **not** claim that the final custom PCB, power subsystem, enclosure integration or production node has been physically validated.
 
 ## Canonical outputs
 
 - [`docs/architecture/ihap-50-interconnect-prototype-assembly.md`](../../architecture/ihap-50-interconnect-prototype-assembly.md)
 - [`docs/architecture/ihap-50-connection-matrix.json`](../../architecture/ihap-50-connection-matrix.json)
 - [`tools/hardware-validation/ihap-50-interconnect/README.md`](../../../tools/hardware-validation/ihap-50-interconnect/README.md)
+- [`IHAP50-STANDARD-11-summary.md`](IHAP50-STANDARD-11-summary.md) / [`json`](IHAP50-STANDARD-11-summary.json)
+- [`IHAP50-PRECISION-01-summary.md`](IHAP50-PRECISION-01-summary.md) / [`json`](IHAP50-PRECISION-01-summary.json)
+
+Raw serial captures remain local under ignored `runs/` directories and are not committed by default.
 
 ## Accepted source inputs
 
 | Input | State consumed | IHAP-50 use |
 |---|---|---|
-| ADR-0001 — MVP Edge Compute Platform | Accepted | ESP32-C3 GPIO/recovery baseline, eight safe application GPIO and spare ADC-capable requirement |
-| ADR-0002 — Environmental Sensor Profiles | Accepted | DHT11 and BME280 profile interfaces |
-| ADR-0003 — MVP Door State Sensor | Accepted | reed-contact topology and semantic limitations |
-| ADR-0004 — Local Status Display | Accepted | 3.3 V I2C OLED profile and BME280 bus-sharing direction |
-| ADR-0005 — MVP Presence Sensor | Accepted | LD2410C 5 V/UART direction and boolean-only product boundary |
+| ADR-0001 — MVP Edge Compute Platform | Accepted | ESP32-C3 GPIO/recovery baseline and spare ADC-capable requirement |
+| ADR-0002 — Environmental Sensor Profiles | Accepted | alternative DHT11 / BME280 profile interfaces |
+| ADR-0003 — MVP Door State Sensor | Accepted | reed-contact topology and semantic limitation |
+| ADR-0004 — Local Status Display | Accepted | 3.3 V I2C OLED and BME280 bus-sharing direction |
+| ADR-0005 — MVP Presence Sensor | Accepted | LD2410C 5 V/UART receive direction and boolean-only boundary |
 | IHAP-48 audio disposition | accepted closure | zero audio interconnect allocation |
-| ADR-0007 — Edge Power Subsystem | Accepted 2026-09-07 baseline | SYS_5V/SYS_3V3 domains and custom-PCB direction |
-| IHAP-56 / PR #35 | remediation merged | Accepted-vs-Proposed separation; later Proposed controls remain Proposed |
+| ADR-0007 — Edge Power Subsystem | Accepted | SYS_5V/SYS_3V3 domains and custom-PCB direction |
+| IHAP-56 / PR #35 | merged remediation | Accepted-vs-Proposed separation; strengthened controls remain Proposed unless separately accepted |
 
-## Primary-source review
-
-Espressif ESP32-C3 documentation was used to verify the mapping rather than inheriting assumptions from validation-fixture pinouts.
-
-Relevant static constraints:
-
-- GPIO2, GPIO8 and GPIO9 are strapping pins and remain outside the reference application mapping;
-- GPIO20/GPIO21 are kept available for UART0/recovery when practical;
-- external JTAG functions overlap GPIO4/GPIO5/GPIO6/GPIO7, while the reference design retains native USB Serial/JTAG/recovery and prioritizes application I/O on the mapped pins;
-- ADC-capable pins on ESP32-C3 are GPIO0 through GPIO5; GPIO5 provides ADC2_CH0;
-- GPIO10 is a valid digital application candidate but **not** ADC-capable;
-- peripheral signals such as I2C can be routed through the GPIO matrix, allowing the shared I2C bus to move to GPIO6/GPIO7.
-
-Accepted module evidence also confirms:
-
-- OLED address `0x3C` and BME280 address `0x76` do not collide;
-- earlier IHAP-46 LD2410C validation used receive-only UART at 256000 baud;
-- the accepted reed topology is HIGH when open and LOW when closed, with broken wire indistinguishable from open;
-- audio remains outside the reference MVP.
-
-## Static review history
-
-### SR-50-01 — incorrect ADC capability in initial draft
-
-**Severity before remediation:** MAJOR  
-**Status:** REMEDIATED
-
-Initial PR #36 draft mapping incorrectly labelled `GPIO10` as `SPARE_ADC_CAPABLE`. Official ESP32-C3 ADC mapping shows GPIO10 is not an ADC input. Leaving that mapping would have violated ADR-0001's requirement to preserve one spare ADC-capable GPIO.
-
-Remediation applied before any integrated test or PCB handoff:
+## Canonical GPIO contract
 
 ```text
-GPIO0  RADAR_RX_FROM_LD2410C_TX
-GPIO1  RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY
+GPIO0  RADAR_RX_FROM_LD2410C_TX       UART1 RX @ 256000
+GPIO1  RADAR_TX_TO_LD2410C_RX         SERVICE-ONLY reservation; disabled by default
 GPIO3  DOOR_SENSE
 GPIO4  ENV_DHT_DATA
-GPIO5  SPARE_ADC_CAPABLE (ADC2_CH0)
+GPIO5  SPARE_ADC_CAPABLE               ADC2_CH0
 GPIO6  I2C_SDA
 GPIO7  I2C_SCL
 GPIO10 SPARE_DIGITAL
 ```
 
-The machine-readable matrix was bumped to schema version `1.1` and the human-readable specification contains the same corrected allocation.
+GPIO2/GPIO8/GPIO9 remain excluded as strapping pins. GPIO20/GPIO21 remain free for recovery/UART0 when practical. Audio receives zero allocation.
 
-### SR-50-02 — validation harness configured service TX despite receive-only baseline
+## Review/remediation history
 
-**Severity before remediation:** MAJOR  
-**Status:** REMEDIATED
+### SR-50-01 — incorrect ADC capability — REMEDIATED
 
-The first integrated-harness implementation passed GPIO1 to `uart_set_pin()` as the UART TX pin even though the specification classifies that net as service-only and disabled by default. No product requirement or Accepted evidence required the harness to drive LD2410C RX.
+The initial draft incorrectly labelled GPIO10 as ADC-capable. The mapping was corrected so GPIO5 provides the required ADC-capable spare and GPIO10 remains digital-only. Human and machine-readable contracts were reconciled before physical validation.
 
-Remediation commit `1efab860c404ee4bc30222f068fb0ad0ac5945c0` changed the harness to:
+### SR-50-02 — validation UART TX exceeded receive-only baseline — REMEDIATED
 
-- configure UART1 RX only on GPIO0;
-- pass `UART_PIN_NO_CHANGE` for TX;
-- keep GPIO1 only as a physical/reference contract reservation;
-- emit `radar_tx_service_configured=false` in the boot evidence record;
-- make the host evaluator fail if service TX is unexpectedly enabled.
+The initial harness attached GPIO1 as UART TX even though the accepted LD2410C baseline is receive-only. The harness now configures only GPIO0 RX, leaves GPIO1 as a physical/service reservation and emits `radar_tx_service_configured=false`; the evaluator fails if that contract regresses.
 
-This keeps the IHAP-50 physical gate aligned with the receive-only LD2410C path already demonstrated by IHAP-46 and prevents an unreviewed configuration/control surface from being introduced merely by the test harness.
+### SR-50-03 — ESP32-C3 target / USB console configuration — REMEDIATED
 
-### Static no-regression observations after remediation
+A physical flash attempt exposed a harness configuration defect: the build invoked `esptool --chip esp32` while the ROM bootloader correctly identified the board as ESP32-C3. Comparison with accepted IHAP-46/IHAP-47 harnesses also showed that IHAP-50 had not pinned the USB Serial/JTAG console used by the collector.
 
-1. No strapping pin is allocated.
-2. GPIO20/GPIO21 remain free for UART0/recovery when practical.
-3. One real ADC-capable spare is preserved on GPIO5.
-4. A second digital margin pin remains available on GPIO10.
-5. Radar UART no longer collides with the shared I2C bus.
-6. GPIO1 service TX is physically reserved but not configured by the validation firmware.
-7. OLED+BME280 can share I2C without address collision in the accepted evidence set.
-8. DHT11 and BME280 are tested as alternative environmental profiles rather than as an artificial simultaneous requirement.
-9. Breadboard and loose Dupont wiring remain development/validation-only.
-10. Generic `PH2.0` remains prototype inventory until exact mating parts and footprint are frozen in IHAP-55.
-11. Audio remains zero-allocation.
-12. Proposed IHAP-56 controls remain Proposed; this task does not upgrade them.
+Remediation added `firmware/sdkconfig.defaults` with the ESP32-C3 target and USB Serial/JTAG console configuration. A 3.5 s native-USB re-enumeration guard is retained as defensive validation tooling. The board/ROM USB path was demonstrated healthy during recovery; no hardware failure was inferred from the aborted pre-remediation attempts.
 
-## Integrated gate implementation
+### SR-50-04 — stale serial samples crossed operator phase boundaries — REMEDIATED
 
-The physical gate lives under:
+The first guided runner could attribute `integrated_sample` records queued while an operator changed the MC-38 condition to the next phase. The runner now:
 
-```text
-tools/hardware-validation/ihap-50-interconnect/
-```
+- aborts immediately on requested/detected profile mismatch;
+- clears queued serial input after each operator-confirmed acquisition boundary;
+- records only fresh post-confirmation samples;
+- displays sequence numbers to make temporal progression visible.
 
-It contains:
+No sensor semantics or thresholds were weakened to obtain PASS.
 
-- ESP-IDF validation firmware;
-- a pure host-side evaluator;
-- unit tests for standard/precision profiles and regression conditions;
-- a guided serial runner;
-- local-only `runs/` storage protected by `.gitignore`;
-- one human runbook with exact wiring and commands.
+## Accepted physical evidence
 
-The firmware emits structured JSON boot and sample records. The host runner records the exact git commit, validates the profile-specific expectations, guides the MC-38 open/closed/disconnected phases, records operator OLED/polarity confirmation, and produces local summary JSON/Markdown without automatically publishing raw serial telemetry.
+### IHAP50-STANDARD-11 — PASS
 
-The evaluator logic was exercised locally against seven synthetic scenarios covering both valid profiles plus ADC mapping, service-TX, BME identity, radar-frame and door-state regressions. This is host logic evidence only; it does not replace the required ESP-IDF build or physical run.
+Commit under test: `6e1200afe15492c283edc6afd39059b2947b7fae`.
 
-## Integrated evidence still required
+Validated:
 
-Two lean physical runs remain:
+- detected STANDARD profile; BME280 absent as required;
+- exact canonical pin map;
+- GPIO5 ADC-spare and GPIO10 digital-spare pull tests PASS;
+- GPIO1 service TX disabled;
+- OLED communication stable plus visual startup confirmation;
+- DHT11 valid throughout baseline;
+- LD2410C fresh with valid frames and zero parsed invalid frames;
+- MC-38 OPEN/FAR = `1,1`;
+- MC-38 CLOSED/NEAR = `0,0`;
+- one MC-38 conductor disconnected = `1,1`;
+- OLED and radar remained alive through all door phases;
+- evaluator errors: none.
 
-1. `IHAP50-STANDARD-01` — OLED + LD2410C + MC-38 + DHT11; includes the door open/closed/disconnected phases.
-2. `IHAP50-PRECISION-01` — OLED + LD2410C + BME280 on shared I2C; DHT11 disconnected; door phases are not duplicated.
+The accepted phase samples were temporally separated by the SR-50-04 acquisition boundaries: OPEN seq 8/9, CLOSED seq 14/15, DISCONNECTED seq 17/18.
 
-Together they cover:
+### IHAP50-PRECISION-01 — PASS
 
-- boot/reset/flashing/recovery with selected peripherals attached;
-- OLED+BME280 coexistence on GPIO6/GPIO7;
-- DHT11 on GPIO4 while OLED and radar remain active;
-- LD2410C receive UART on GPIO0 at 256000 baud while other interfaces operate;
-- MC-38 HIGH/LOW mapping plus disconnected-wire observation on GPIO3;
-- practical availability/usability of GPIO5 as ADC-capable spare and GPIO10 as digital spare on the exact implementation;
-- connector pin-order and polarity review.
+Commit under test: `6e1200afe15492c283edc6afd39059b2947b7fae`.
 
-Exact final PCB I2C/DHT pull-up population remains an IHAP-55 schematic/BOM freeze item because breakout-module pull-ups must be reconciled against the final board rather than inferred from the prototype. Quantitative rail, load-step, battery, source-transfer and thermal evidence also remains IHAP-55 / ADR-0007 scope. Proposed IHAP-56 strengthening is not silently treated as Accepted.
+Validated:
+
+- detected PRECISION profile;
+- BME280 present on shared I2C at `0x76` with identity `0x60`;
+- BME280 communication successful across all six accepted baseline samples;
+- DHT11 absent (`NO_RESPONSE`) as required by the alternative profile setup;
+- OLED remained operational on the shared GPIO6/GPIO7 bus;
+- LD2410C remained fresh with valid frames and zero parsed invalid frames;
+- exact pin map, spare-pin checks and disabled radar service TX remained valid;
+- evaluator errors: none.
+
+Door phases were intentionally not duplicated because STANDARD-11 already supplied accepted MC-38 evidence.
+
+## No-regression review
+
+After remediation and physical execution:
+
+1. no strapping pin is allocated;
+2. GPIO20/GPIO21 remain available for recovery/UART0 when practical;
+3. GPIO5 preserves a real ADC-capable spare;
+4. GPIO10 preserves digital margin;
+5. radar receive UART does not collide with shared I2C;
+6. GPIO1 remains service-only and undriven by the validation firmware;
+7. OLED and BME280 coexist on I2C without address collision in PRECISION;
+8. DHT11 and BME280 remain alternative accepted profiles, not a simultaneous product requirement;
+9. MC-38 HIGH/open, LOW/closed and broken-conductor-as-HIGH behavior is physically demonstrated for the proposed network;
+10. breadboard and loose Dupont wiring remain validation-only;
+11. generic `PH2.0` remains prototype inventory; exact connector manufacturer/series/footprint belongs to IHAP-55;
+12. audio remains zero-allocation;
+13. proposed IHAP-56 controls remain Proposed; IHAP-50 does not silently promote them;
+14. branch changes are confined to IHAP-50 specification, machine-readable matrix, evidence and validation tooling.
+
+## Downstream handoff
+
+IHAP-50 is sufficient to hand the canonical connection matrix and validated prototype interconnect behavior to:
+
+- **IHAP-55:** schematic/PCB implementation, exact connector/footprint freeze, effective I2C/DHT pull-up population, quantitative rail/load-step/source-transfer/thermal evidence;
+- **IHAP-51:** enclosure routing, connector access, harness lengths, keepouts and strain relief;
+- **IHAP-17:** final BOM quantities/costs once IHAP-55 freezes exact parts.
+
+## ADR disposition
+
+**No new ADR is required for IHAP-50.** The task derives implementation/interconnect details from already Accepted architecture decisions and does not introduce a new cross-cutting architecture choice. The implementation contract and evidence remain in the architecture specification, connection matrix and this evidence index.
 
 ## Claim boundary
 
-Current evidence supports a **reviewed proposed interconnect design with a ready physical validation harness**, not a validated custom PCB. Final simultaneous behavior, exact connector SKU compatibility, final enclosure harness lengths and production maturity remain `[UNVALIDATED]` until their owning gates complete.
+IHAP-50 evidence supports a **physically validated prototype interconnect baseline for the tested STANDARD and PRECISION profiles**. It does not validate the final custom PCB, exact production connector SKU, final enclosure harness lengths, battery/power behavior, certification, production reliability or commercial readiness. Those remain owned by their downstream gates and are `[UNVALIDATED]` here.
