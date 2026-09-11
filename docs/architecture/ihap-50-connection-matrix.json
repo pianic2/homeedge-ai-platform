@@ -1,8 +1,13 @@
 {
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "issue": "IHAP-50",
-  "status": "proposed_until_project_owner_approval",
+  "status": "accepted_by_project_owner",
+  "accepted_at": "2026-09-11",
   "reference_mcu": "ESP32-C3",
+  "acceptance_evidence": {
+    "standard": "docs/evidence/IHAP-50/IHAP50-STANDARD-11-summary.json",
+    "precision": "docs/evidence/IHAP-50/IHAP50-PRECISION-01-summary.json"
+  },
   "pin_policy": {
     "reserved": {
       "GPIO2": "strapping",
@@ -61,13 +66,15 @@
       "name": "DOOR_SENSE",
       "gpio": "GPIO3",
       "direction": "input_to_mcu",
-      "bias": "10k pull-up to SYS_3V3"
+      "bias": "10k pull-up to SYS_3V3",
+      "series_resistor": "1k close to MCU input",
+      "optional_filter": "100nF footprint, DNP by default"
     },
     {
       "name": "ENV_DHT_DATA",
       "gpio": "GPIO4",
       "direction": "bidirectional_single_wire",
-      "pullup": "effective approx 5.1k to SYS_3V3"
+      "pullup": "board footprint targeting effective approx 5.1k to SYS_3V3; final population owned by IHAP-55"
     },
     {
       "name": "SPARE_ADC_CAPABLE",
@@ -109,12 +116,43 @@
     "audio_adc": 0,
     "audio_connector": 0
   },
+  "downstream_unvalidated": [
+    "exact_connector_manufacturer_series_mating_parts_and_footprints",
+    "effective_i2c_and_dht_pullup_population_on_final_pcb",
+    "final_harness_cut_lengths_and_enclosure_routing",
+    "final_pcb_power_rail_source_transfer_thermal_and_protection_behavior",
+    "production_reliability_certification_and_commercial_readiness"
+  ],
   "review_history": [
     {
+      "id": "SR-50-01",
       "finding": "Initial draft incorrectly labeled GPIO10 as ADC-capable",
       "severity": "MAJOR",
       "disposition": "remediated_before_integrated_gate",
       "correction": "GPIO5 reserved as ADC-capable spare; I2C moved to GPIO6/GPIO7; GPIO10 retained as digital spare"
+    },
+    {
+      "id": "SR-50-02",
+      "finding": "Validation harness initially configured the service-only radar TX path",
+      "severity": "MAJOR",
+      "disposition": "remediated",
+      "correction": "UART1 validation path is receive-only on GPIO0; GPIO1 remains reserved and unconfigured"
+    },
+    {
+      "id": "SR-50-03",
+      "finding": "Harness target/console configuration allowed ESP32 fallback instead of ESP32-C3 USB Serial/JTAG",
+      "severity": "MAJOR",
+      "disposition": "remediated",
+      "correction": "sdkconfig.defaults pins ESP32-C3 target and USB Serial/JTAG console"
+    },
+    {
+      "id": "SR-50-04",
+      "finding": "Queued serial samples could cross operator-confirmed physical phase boundaries",
+      "severity": "MAJOR",
+      "disposition": "remediated",
+      "correction": "Runner aborts profile mismatch, clears pre-condition input and captures fresh sequence-tagged samples"
     }
-  ]
+  ],
+  "adr_disposition": "accepted_no_new_adr_required",
+  "ihap56_boundary": "Controls explicitly remaining Proposed in IHAP-56 are not promoted by IHAP-50 approval"
 }
