@@ -70,6 +70,25 @@ class Collector:
                 time.sleep(0.5)
         raise RuntimeError(f"Impossibile aprire {self.port}: {last_error}")
 
+    def discard_pending(self, context: str) -> None:
+        """Discard records queued before an operator-confirmed acquisition boundary.
+
+        integrated_sample is emitted every five seconds. While the operator reads a
+        prompt or changes a physical condition, several old samples can accumulate
+        in the host serial buffer. They must never be attributed to the condition
+        confirmed after ENTER.
+        """
+        if self.ser is None or not self.ser.is_open:
+            self._connect()
+        assert self.ser is not None
+        try:
+            pending = self.ser.in_waiting
+            self.ser.reset_input_buffer()
+        except (SerialException, OSError) as exc:
+            self.ser = None
+            raise RuntimeError(f"Impossibile pulire il buffer seriale per {context}: {exc}") from exc
+        print(f"  acquisition boundary [{context}]: scartati {pending} byte pre-condizione")
+
     def read_record(self, timeout_s: float) -> dict:
         deadline = time.monotonic() + timeout_s
         while time.monotonic() < deadline:
@@ -105,11 +124,18 @@ class Collector:
 
     def collect_samples(self, count: int, timeout_per_sample_s: float = 8.0) -> list[dict]:
         samples: list[dict] = []
+        last_seq: int | None = None
         while len(samples) < count:
             sample = self.wait_for_type("integrated_sample", timeout_per_sample_s)
+            seq = sample.get("seq")
+            if isinstance(seq, int) and last_seq is not None and seq <= last_seq:
+                continue
+            if isinstance(seq, int):
+                last_seq = seq
             samples.append(sample)
             print(
                 f"  sample {len(samples)}/{count}: "
+                f"SEQ={sample.get('seq')} "
                 f"OLED={sample.get('oled_ok')} "
                 f"RADAR={sample.get('radar_fresh')} "
                 f"DOOR={sample.get('door_raw')}"
@@ -129,7 +155,7 @@ def make_summary(
     result,
 ) -> dict:
     return {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "run_id": run_id,
         "issue": "IHAP-50",
         "profile": profile,
@@ -236,10 +262,16 @@ def main() -> int:
         print(f"Boot gate: {'PASS' if boot_result.passed else 'FAIL'}")
         if boot_result.errors:
             print("  " + ", ".join(boot_result.errors))
+        if not boot_result.passed:
+            raise RuntimeError(
+                "Boot gate non coerente con il profilo richiesto; correggi il setup prima dell'acquisizione: "
+                + ", ".join(boot_result.errors)
+            )
 
         visual_confirmed = ask_yes("All'avvio l'OLED si è illuminato completamente per circa 1 secondo e poi è tornato normale?")
 
-        print(f"\nRaccolgo {args.samples} sample baseline (~{args.samples * 5}s).")
+        collector.discard_pending("baseline")
+        print(f"\nRaccolgo {args.samples} sample baseline freschi (~{args.samples * 5}s).")
         baseline = collector.collect_samples(args.samples)
         sample_result = evaluate_samples(baseline, args.profile, args.samples)
 
@@ -254,6 +286,7 @@ def main() -> int:
             for name, expected, instruction in phases:
                 print(f"\nDOOR {name.upper()}: {instruction}.")
                 input("Quando la condizione è stabile, premi INVIO: ")
+                collector.discard_pending(f"door-{name}")
                 phase_samples = collector.collect_samples(2)
                 door_phases[name] = phase_samples
                 results.append(evaluate_door_phase(phase_samples, expected, name))
@@ -301,7 +334,7 @@ def main() -> int:
 
     except (RuntimeError, TimeoutError, SerialException, OSError, KeyboardInterrupt) as exc:
         failure = {
-            "schema_version": "1.0",
+            "schema_version": "1.1",
             "run_id": args.run_id,
             "issue": "IHAP-50",
             "profile": args.profile,
