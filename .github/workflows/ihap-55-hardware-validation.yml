@@ -1,0 +1,47 @@
+name: IHAP-55 hardware validation
+on:
+  push:
+    branches: [ihap-55-integrated-modular-edge-pcb]
+  pull_request:
+    paths:
+      - 'hardware/edge-mainboard/**'
+      - 'tools/hardware-validation/ihap-55-mainboard/**'
+      - '.github/workflows/ihap-55-hardware-validation.yml'
+jobs:
+  contract-and-host:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Schematic contract regression
+        run: python3 tools/hardware-validation/ihap-55-mainboard/host/ihap55_contract_check.py
+      - name: Behavioral power envelope
+        run: python3 tools/hardware-validation/ihap-55-mainboard/host/ihap55_sim.py
+      - name: Host unit tests
+        run: python3 -m unittest discover -s tools/hardware-validation/ihap-55-mainboard/host/tests -v
+  kicad-erc-drc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Detect EDA sources
+        id: eda
+        shell: bash
+        run: |
+          test -f hardware/edge-mainboard/homeedge-edge-mainboard.kicad_sch && echo 'sch=true' >> "$GITHUB_OUTPUT" || echo 'sch=false' >> "$GITHUB_OUTPUT"
+          test -f hardware/edge-mainboard/homeedge-edge-mainboard.kicad_pcb && echo 'pcb=true' >> "$GITHUB_OUTPUT" || echo 'pcb=false' >> "$GITHUB_OUTPUT"
+      - name: KiCad ERC
+        if: steps.eda.outputs.sch == 'true'
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work kicad/kicad:10.0 \
+            kicad-cli sch erc --format json --severity-all --exit-code-violations \
+            -o hardware/edge-mainboard/erc.json hardware/edge-mainboard/homeedge-edge-mainboard.kicad_sch
+      - name: KiCad DRC
+        if: steps.eda.outputs.pcb == 'true'
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work kicad/kicad:10.0 \
+            kicad-cli pcb drc --format json --severity-all --exit-code-violations --schematic-parity \
+            -o hardware/edge-mainboard/drc.json hardware/edge-mainboard/homeedge-edge-mainboard.kicad_pcb
+      - name: EDA gate status
+        run: |
+          echo "schematic=${{ steps.eda.outputs.sch }} pcb=${{ steps.eda.outputs.pcb }}"
+          if [ "${{ steps.eda.outputs.sch }}" != true ]; then echo 'NOTICE: ERC not yet eligible; .kicad_sch absent.'; fi
+          if [ "${{ steps.eda.outputs.pcb }}" != true ]; then echo 'NOTICE: DRC not yet eligible; .kicad_pcb absent.'; fi

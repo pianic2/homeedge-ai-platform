@@ -1,0 +1,16 @@
+{
+  "schema_version":"1.0.0","issue":"IHAP-55","revision":"A","status":"IN_PROGRESS_UNVALIDATED",
+  "compute":{"ref":"U1","mpn":"ESP32-C3-MINI-1-N4X","supply":"SYS_3V3"},
+  "rails":{"VBUS_IN":{"nominal_v":5.0,"accepted_input_v":[4.75,5.25]},"BATT":{"cell":"LG INR18650-MJ1","cells":1,"role":"backup","validation_range_v":[2.7,4.2]},"MP_SYS":{"usb_mode":"pass_through","battery_mode_target_v":5.184,"status":"UNVALIDATED"},"SYS_5V":{"nominal_v":5.0,"steady_v":[4.75,5.25],"continuous_a":0.5,"transient_target_a":1.0},"SYS_3V3":{"nominal_v":3.318,"outer_bound_v":[3.0,3.6],"status":"component-derived final band pending"}},
+  "power":{"charger":{"ref":"U3","mpn":"MP2636GR-P","rsense_mohm":20.0,"riset_kohm":120.0,"charge_target_a":1.0,"boost_feedback":{"r_top_kohm":33.2,"r_bottom_kohm":10.0,"vref_v":1.2,"target_v":5.184}},"post_5v":{"ref":"U4","mpn":"TPS63802DLAR","inductor_uh":0.47,"cin_uf":10.0,"cout_uf":[22.0,22.0],"feedback":{"r_top_kohm":900.0,"r_bottom_kohm":100.0,"tolerance_pct":0.1,"vref_nom_v":0.5,"vref_tol_pct":1.0}},"reg_3v3":{"ref":"U5","mpn":"TLV62568DBVR","inductor_uh":2.2,"cin_uf":4.7,"cout_uf":22.0,"c_ff_pf":6.8,"feedback":{"r_top_kohm":453.0,"r_bottom_kohm":100.0,"tolerance_pct":0.1,"vref_range_v":[0.588,0.612]}}},
+  "usb":{"connector":"USB4105-GF-A","cc1_rd_ohm":5100,"cc2_rd_ohm":5100,"data_esd":"USBLC6-2SC6","d_minus_gpio":18,"d_plus_gpio":19,"series_resistor_footprints_ohm":[22,33],"population":"TBD during signal-integrity/layout review"},
+  "gpio":{"0":"RADAR_RX_FROM_LD2410C_TX","1":"RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY","3":"DOOR_SENSE","4":"ENV_DHT_DATA","5":"SPARE_ADC_CAPABLE","6":"I2C_SDA","7":"I2C_SCL","10":"SPARE_DIGITAL","18":"USB_D_MINUS","19":"USB_D_PLUS","20":"UART0_RX_RECOVERY","21":"UART0_TX_RECOVERY"},
+  "excluded_application_gpio":[2,8,9],
+  "interfaces":{"J_RADAR":["GND","SYS_5V","RADAR_RX_FROM_LD2410C_TX","RADAR_TX_TO_LD2410C_RX_SERVICE_ONLY"],"J_OLED":["GND","SYS_3V3","I2C_SCL","I2C_SDA"],"J_ENV":["GND","SYS_3V3","ENV_DHT_DATA","I2C_SCL","I2C_SDA"],"J_DOOR":["GND","DOOR_SENSE"],"J_BATT":["BATT","GND"]},
+  "door_network":{"pullup_ohm":10000,"series_ohm":1000,"filter_cap_nf":100,"filter_population":"DNP"},
+  "pullups":{"i2c":{"footprints":true,"population":"DNP_PENDING_MODULE_MEASUREMENT"},"dht":{"footprint":true,"population":"DNP_PENDING_MODULE_MEASUREMENT"}},
+  "health_monitor":{"ref":"U6","mpn":"TLA2024IRUGT","address":"0x48","supply":"SYS_3V3","addr_pin":"GND","channels":{"AIN0":{"net":"VBUS_IN","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN1":{"net":"BATT","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN2":{"net":"SYS_5V","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN3":{"net":"SYS_3V3","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0}},"decoupling_uf":0.1,"purpose":"programmatic board rail health monitoring; not a substitute for oscilloscope/DMM validation"},
+  "test_points":["GND","VBUS_IN","BATT","MP_SYS","SYS_5V","SYS_3V3","EN","GPIO9_BOOT","UART0_RX","UART0_TX"],
+  "prohibited":["audio_gpio","audio_adc","audio_connector","raw_radar_persistence"],
+  "open_items":["VBUS protection exact MPN","battery reverse-insertion implementation","NTC network exact values","I2C effective pullups","DHT effective pullup","final passive MPNs","thermal validation"]
+}
