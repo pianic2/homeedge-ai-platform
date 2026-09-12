@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -12,7 +13,9 @@
 #include "esp_rom_sys.h"
 #include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "freertos/task.h"
+#include "health_adc.h"
 
 #define HARNESS_NAME "ihap50-integrated-interconnect-harness"
 #define SCHEMA_VERSION "1.2.0"
@@ -46,6 +49,7 @@ static i2c_master_bus_handle_t s_i2c_bus;
 static i2c_master_dev_handle_t s_oled;
 static i2c_master_dev_handle_t s_bme;
 static bool s_bme_present;
+static SemaphoreHandle_t s_dht_mutex;
 static portMUX_TYPE s_dht_lock = portMUX_INITIALIZER_UNLOCKED;
 static portMUX_TYPE s_radar_lock = portMUX_INITIALIZER_UNLOCKED;
 
@@ -66,6 +70,15 @@ typedef struct {
 } radar_state_t;
 
 static radar_state_t s_radar;
+static bool s_adc_spare_gpio_ok;
+static bool s_digital_spare_gpio_ok;
+static bool s_oled_visual_transfer_ok;
+static bool s_health_adc_initialized;
+
+static const char *json_bool(bool value)
+{
+    return value ? "true" : "false";
+}
 
 static uint16_t read_le16(const uint8_t *data)
 {
@@ -107,6 +120,8 @@ static dht_sample_t read_dht11(void)
     };
     uint8_t data[5] = {0};
     uint32_t pulse = 0;
+
+    xSemaphoreTake(s_dht_mutex, portMAX_DELAY);
 
     gpio_set_direction(PIN_DHT, GPIO_MODE_OUTPUT_OD);
     gpio_set_level(PIN_DHT, 0);
@@ -154,6 +169,7 @@ static dht_sample_t read_dht11(void)
 done:
     gpio_set_direction(PIN_DHT, GPIO_MODE_INPUT);
     portEXIT_CRITICAL(&s_dht_lock);
+    xSemaphoreGive(s_dht_mutex);
     return sample;
 }
 
@@ -396,20 +412,140 @@ static radar_state_t radar_snapshot(void)
     return snapshot;
 }
 
+static void skip_json_space(const char **cursor)
+{
+    while (isspace((unsigned char)**cursor)) {
+        ++(*cursor);
+    }
+}
+
+static bool consume_json_char(const char **cursor, char expected)
+{
+    skip_json_space(cursor);
+    if (**cursor != expected) {
+        return false;
+    }
+    ++(*cursor);
+    return true;
+}
+
+static bool consume_json_literal(const char **cursor, const char *literal)
+{
+    skip_json_space(cursor);
+    const size_t length = strlen(literal);
+    if (strncmp(*cursor, literal, length) != 0) {
+        return false;
+    }
+    *cursor += length;
+    return true;
+}
+
+/* Intentionally accepts only the three-field validation protocol in its
+   documented order. Unsupported JSON forms fail closed. */
+static bool parse_board_request(const char *request, bool *standard)
+{
+    const char *cursor = request;
+    if (!consume_json_char(&cursor, '{') ||
+        !consume_json_literal(&cursor, "\"cmd\"") ||
+        !consume_json_char(&cursor, ':') ||
+        !consume_json_literal(&cursor, "\"self_test\"") ||
+        !consume_json_char(&cursor, ',') ||
+        !consume_json_literal(&cursor, "\"profile\"") ||
+        !consume_json_char(&cursor, ':')) {
+        return false;
+    }
+    if (consume_json_literal(&cursor, "\"standard\"")) {
+        *standard = true;
+    } else if (consume_json_literal(&cursor, "\"precision\"")) {
+        *standard = false;
+    } else {
+        return false;
+    }
+    if (!consume_json_char(&cursor, ',') ||
+        !consume_json_literal(&cursor, "\"schema\"") ||
+        !consume_json_char(&cursor, ':') ||
+        !consume_json_literal(&cursor, "\"ihap55.board.v1\"") ||
+        !consume_json_char(&cursor, '}')) {
+        return false;
+    }
+    skip_json_space(&cursor);
+    return *cursor == '\0';
+}
+
+/* This is a validation-only command endpoint. A malformed or unknown request
+   never produces a successful board_self_test record. */
+static void board_command_task(void *arg)
+{
+    (void)arg;
+    char request[192];
+    while (true) {
+        if (fgets(request, sizeof(request), stdin) == NULL) {
+            clearerr(stdin);
+            vTaskDelay(pdMS_TO_TICKS(100));
+            continue;
+        }
+        bool standard = false;
+        if (!parse_board_request(request, &standard)) {
+            printf("{\"record_type\":\"board_command_error\",\"reason\":\"invalid_request\"}\n");
+            fflush(stdout);
+            continue;
+        }
+
+        ihap55_rail_health_t rails = {0};
+        const bool adc_read_ok = s_health_adc_initialized &&
+                                 ihap55_health_adc_read(&rails) == ESP_OK;
+        const bool rails_ok = adc_read_ok &&
+                              rails.vbus_in_v >= 4.75f && rails.vbus_in_v <= 5.25f &&
+                              rails.batt_v >= 2.5f && rails.batt_v <= 4.25f &&
+                              rails.sys5v_v >= 4.75f && rails.sys5v_v <= 5.25f &&
+                              rails.sys3v3_v >= 3.0f && rails.sys3v3_v <= 3.6f;
+        const bool oled_ok = s_oled_visual_transfer_ok && oled_ping();
+        uint8_t chip_id = 0;
+        const bool bme_ok = bme280_read_chip_id(&chip_id) && chip_id == BME280_CHIP_ID;
+        const dht_sample_t dht = standard ? read_dht11() : (dht_sample_t){0};
+        const radar_state_t radar = radar_snapshot();
+        const int64_t age_us = esp_timer_get_time() - radar.last_valid_frame_us;
+        const bool radar_ok = radar.has_valid_frame && age_us >= 0 && age_us <= 2000000;
+        const int door = gpio_get_level(PIN_DOOR);
+        const bool door_ok = door == 0 || door == 1;
+        const bool pass = rails_ok && oled_ok && radar_ok && door_ok &&
+                          s_adc_spare_gpio_ok && s_digital_spare_gpio_ok &&
+                          (standard ? dht.valid : bme_ok);
+
+        printf("{\"record_type\":\"board_self_test\",\"schema\":\"ihap55.board.v1\","
+               "\"profile\":\"%s\",\"pass\":%s,"
+               "\"checks\":{\"usb_console\":true,\"health_adc\":%s,\"oled\":%s,"
+               "\"radar\":%s,\"door_level_valid\":%s,\"spare_adc\":%s,"
+               "\"spare_digital\":%s,\"service_tx_disabled\":true,"
+               "\"dht11\":%s,\"bme280\":%s,\"bme280_chip_id\":%u},"
+               "\"rails\":{\"VBUS_IN\":%.3f,\"BATT\":%.3f,\"SYS_5V\":%.3f,\"SYS_3V3\":%.3f}}\n",
+               standard ? "standard" : "precision", json_bool(pass), json_bool(rails_ok),
+               json_bool(oled_ok), json_bool(radar_ok), json_bool(door_ok),
+               json_bool(s_adc_spare_gpio_ok), json_bool(s_digital_spare_gpio_ok),
+               json_bool(dht.valid), json_bool(bme_ok), (unsigned)chip_id,
+               rails.vbus_in_v, rails.batt_v, rails.sys5v_v, rails.sys3v3_v);
+        fflush(stdout);
+    }
+}
+
 void app_main(void)
 {
     memset(&s_radar, 0, sizeof(s_radar));
+    s_dht_mutex = xSemaphoreCreateMutex();
+    configASSERT(s_dht_mutex != NULL);
     configure_door();
     configure_dht();
 
-    const bool adc_spare_gpio_ok = spare_pin_pull_test(PIN_ADC_SPARE);
-    const bool digital_spare_gpio_ok = spare_pin_pull_test(PIN_DIGITAL_SPARE);
+    s_adc_spare_gpio_ok = spare_pin_pull_test(PIN_ADC_SPARE);
+    s_digital_spare_gpio_ok = spare_pin_pull_test(PIN_DIGITAL_SPARE);
 
     ESP_ERROR_CHECK(configure_i2c());
+    s_health_adc_initialized = ihap55_health_adc_init(s_i2c_bus) == ESP_OK;
     ESP_ERROR_CHECK(oled_init());
-    const bool oled_visual_transfer_ok = oled_visual_gate();
+    s_oled_visual_transfer_ok = oled_visual_gate();
     ESP_ERROR_CHECK(configure_radar_uart());
     xTaskCreate(radar_task, "ihap50_radar", 4096, NULL, 10, NULL);
+    xTaskCreate(board_command_task, "ihap55_command", 4096, NULL, 5, NULL);
 
     const char *detected_profile = s_bme_present ? "precision" : "standard";
     printf(
@@ -422,10 +558,10 @@ void app_main(void)
         HARNESS_NAME,
         esp_get_idf_version(),
         detected_profile,
-        adc_spare_gpio_ok ? "true" : "false",
-        digital_spare_gpio_ok ? "true" : "false",
+        s_adc_spare_gpio_ok ? "true" : "false",
+        s_digital_spare_gpio_ok ? "true" : "false",
         s_bme_present ? "true" : "false",
-        oled_visual_transfer_ok ? "true" : "false");
+        s_oled_visual_transfer_ok ? "true" : "false");
     fflush(stdout);
 
     uint32_t seq = 0;

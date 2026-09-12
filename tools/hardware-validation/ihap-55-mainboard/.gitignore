@@ -1,0 +1,5 @@
+firmware/build/
+firmware/sdkconfig
+firmware/sdkconfig.old
+host/__pycache__/
+host/tests/__pycache__/

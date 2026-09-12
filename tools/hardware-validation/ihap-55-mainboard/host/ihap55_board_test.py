@@ -1,13 +1,15 @@
 #!/usr/bin/env python3
 from __future__ import annotations
-import argparse,json,time
+import argparse,json,math,time
 from pathlib import Path
 RAILS={'VBUS_IN':(4.75,5.25),'SYS_5V':(4.75,5.25),'SYS_3V3':(3.0,3.6),'BATT':(2.5,4.25)}
 REQUIRED_CHECKS=('usb_console','health_adc','oled','radar','door_level_valid','spare_adc','spare_digital','service_tx_disabled')
 def evaluate(r,profile):
  bad=[]
  if r.get('record_type')!='board_self_test':bad.append('wrong record_type')
+ if r.get('schema')!='ihap55.board.v1':bad.append('wrong schema')
  if r.get('profile')!=profile:bad.append('profile mismatch')
+ if r.get('pass') is not True:bad.append('firmware did not pass')
  checks=r.get('checks',{})
  for k in REQUIRED_CHECKS:
   if checks.get(k) is not True:bad.append(f'check failed: {k}')
@@ -15,10 +17,12 @@ def evaluate(r,profile):
  if profile=='precision':
   if checks.get('bme280') is not True:bad.append('PRECISION requires BME280')
   if checks.get('bme280_chip_id') not in (0x60,96):bad.append('BME280 chip id != 0x60')
- for n,v in r.get('rails',{}).items():
-  if n in RAILS and v is not None:
-   lo,hi=RAILS[n]
-   if not lo<=float(v)<=hi:bad.append(f'{n}={v} outside {lo}..{hi} V')
+ rails=r.get('rails',{})
+ for n,(lo,hi) in RAILS.items():
+  v=rails.get(n)
+  if isinstance(v,bool) or not isinstance(v,(int,float)) or not math.isfinite(v):
+   bad.append(f'{n} missing or non-finite')
+  elif not lo<=v<=hi:bad.append(f'{n}={v} outside {lo}..{hi} V')
  return bad
 def transact(port,profile,timeout):
  try:import serial

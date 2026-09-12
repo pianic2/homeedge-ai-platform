@@ -8,7 +8,7 @@ python3 host/ihap55_sim.py
 python3 -m unittest discover -s host/tests -v
 ```
 
-Revision-A expected result: contract PASS, 28/28 continuous corner-screen cases PASS, 8 unit tests PASS.
+Current local result (2026-09-12): contract PASS, 28/28 behavioral corner-screen cases PASS, 12 unit tests PASS. The screen does not establish physical rail behavior.
 
 ## Fabricated board
 
