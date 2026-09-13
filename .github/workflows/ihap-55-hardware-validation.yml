@@ -16,6 +16,8 @@ jobs:
         run: python3 tools/hardware-validation/ihap-55-mainboard/host/ihap55_contract_check.py
       - name: Behavioral power envelope
         run: python3 tools/hardware-validation/ihap-55-mainboard/host/ihap55_sim.py
+      - name: Manufacturer-equation arithmetic
+        run: python3 tools/hardware-validation/ihap-55-mainboard/host/ihap55_power_math.py
       - name: Host unit tests
         run: python3 -m unittest discover -s tools/hardware-validation/ihap-55-mainboard/host/tests -v
   kicad-erc-drc:

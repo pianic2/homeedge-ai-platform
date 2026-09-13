@@ -18,6 +18,8 @@ Channels:
 
 `ADDR=GND` selects address `0x48`. U6 is powered by `SYS_3V3` and has local 100 nF decoupling.
 
+**Revision-A open finding (2026-09-12):** the passive 47 kOhm divider values are only nominal measurement candidates. The manufacturer analog-input limit is GND..VDD in operation and VDD+0.3 V absolute. If VBUS/BATT is live before SYS_3V3, direct connection can violate that limit. Supply-off-safe isolation/protection is required before schematic freeze; this does not change the four-channel observability objective.
+
 ## Software observability contract
 
 Native USB Serial/JTAG becomes the reference bring-up/test transport. A host command requests a structured self-test; firmware checks the existing IHAP-50 hardware contract and reports TLA2024 rail readings.

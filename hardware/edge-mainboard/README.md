@@ -1,7 +1,7 @@
 # HomeEdge Edge Mainboard — IHAP-55
 
 **EDA baseline:** KiCad 10.0.6 stable  
-**Status:** initialized; schematic source not yet frozen
+**Status:** revision-A electrical contract under validation; no native schematic or PCB source yet
 
 This directory is the canonical PCB source workspace for IHAP-55.
 
@@ -18,7 +18,7 @@ hardware/edge-mainboard/
 
 ## Current design gates
 
-The workspace is intentionally initialized **before** creating a schematic that would silently freeze unreviewed component values.
+The workspace remains before native schematic capture because the 2026-09-12 manufacturer review found that the direct 47 kOhm board-health dividers can violate the TLA2024 AIN limit while SYS_3V3 is off. Power-path protection, reverse-cell prevention and NTC implementation also remain incomplete. `docs/evidence/IHAP-55/open-items.md` and `power-calculations.md` record the evidence and required remediation; no ERC/DRC result is implied.
 
 Current architecture candidate is documented in:
 
@@ -31,7 +31,7 @@ Before first schematic freeze:
 2. complete 3.3 V regulator calculations;
 3. freeze USB-C CC/data/protection implementation;
 4. verify ESP32-C3-MINI-1-N4X pin availability against the Accepted IHAP-50 map;
-5. measure/identify actual module-side I2C/DHT pull-ups;
+5. retain DNP I2C/DHT pull-up footprints and measure/identify actual module-side pull-ups before final population; this measurement does not block independent design work;
 6. separate Accepted power requirements from Proposed IHAP-56 controls;
 7. retain all exact MPN and footprint evidence in the IHAP-55 source register.
 

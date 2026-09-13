@@ -189,6 +189,20 @@ Official evidence:
 
 KiCad 10.0.6 is the current stable bug-fix release observed on 2026-09-11. Nightly/testing builds are not the project baseline.
 
+## SR-55-10 — Board-health ADC candidate and supply-off finding
+
+**Candidate:** Texas Instruments `TLA2024IRUGT`.
+
+Manufacturer evidence: [TLA2024 datasheet SBAS846](https://www.ti.com/lit/ds/symlink/tla2024.pdf), reviewed 2026-09-12.
+
+- Four-channel 12-bit I2C ADC; ADDR tied to GND selects `0x48`.
+- Recommended analog input range is GND to VDD; absolute maximum is VDD + 0.3 V.
+- At ±4.096 V FSR, the stated typical common-mode input impedance is 6 MΩ.
+- The revision-A 47 kΩ/47 kΩ divider on VBUS drives 2.625 V at VBUS=5.25 V, which exceeds the absolute limit when the ADC's SYS_3V3 supply is absent. This is a **demonstrated topology defect**, not a measured board failure.
+- The 47 kΩ network also has approximately −0.390% typical gain bias from the specified ADC input impedance; it is not a calibrated rail meter.
+
+**Design state:** `[UNVALIDATED]` pending a supply-off-safe input isolation/protection network and recalculated divider/firmware scale. Do not freeze the original passive-only four-channel monitor topology into a fabrication schematic.
+
 ## Evidence boundary
 
 No dated price above is a purchase authorization or definitive IHAP-17 cost. Prices exclude shipping unless explicitly stated, can change, and must be refreshed at the procurement/BOM gate. Final BOM requires exact passive/inductor/protection MPNs, quantities and fabrication/assembly allocation.

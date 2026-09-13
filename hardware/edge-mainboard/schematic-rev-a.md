@@ -81,6 +81,8 @@ Four 47 kOhm / 47 kOhm 1:2 monitor dividers:
 - AIN2 SYS_5V;
 - AIN3 SYS_3V3.
 
+**2026-09-12 design review:** this passive-only network is not safe to freeze: with VBUS/BATT present and TLA2024 VDD absent, an AIN can exceed the datasheet's VDD+0.3 V absolute limit. Add and verify supply-off isolation/protection before KiCad capture; update divider scaling if the topology changes. See `docs/evidence/IHAP-55/power-calculations.md`.
+
 Firmware reports these rails over native USB during `self_test`. This is diagnostic evidence, not a replacement for calibrated DMM/oscilloscope tests.
 
 ## Required pre-layout gates

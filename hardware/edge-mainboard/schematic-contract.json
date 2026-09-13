@@ -10,6 +10,7 @@
   "door_network":{"pullup_ohm":10000,"series_ohm":1000,"filter_cap_nf":100,"filter_population":"DNP"},
   "pullups":{"i2c":{"footprints":true,"population":"DNP_PENDING_MODULE_MEASUREMENT"},"dht":{"footprint":true,"population":"DNP_PENDING_MODULE_MEASUREMENT"}},
   "health_monitor":{"ref":"U6","mpn":"TLA2024IRUGT","address":"0x48","supply":"SYS_3V3","addr_pin":"GND","channels":{"AIN0":{"net":"VBUS_IN","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN1":{"net":"BATT","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN2":{"net":"SYS_5V","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0},"AIN3":{"net":"SYS_3V3","divider":{"top_ohm":47000,"bottom_ohm":47000},"scale":2.0}},"decoupling_uf":0.1,"purpose":"programmatic board rail health monitoring; not a substitute for oscilloscope/DMM validation"},
+  "review_findings":{"tla2024_unpowered_input":"FAIL_UNRESOLVED: passive 47k/47k divider may exceed AIN <= VDD+0.3V when SYS_3V3 is absent"},
   "test_points":["GND","VBUS_IN","BATT","MP_SYS","SYS_5V","SYS_3V3","EN","GPIO9_BOOT","UART0_RX","UART0_TX"],
   "prohibited":["audio_gpio","audio_adc","audio_connector","raw_radar_persistence"],
   "open_items":["VBUS protection exact MPN","battery reverse-insertion implementation","NTC network exact values","I2C effective pullups","DHT effective pullup","final passive MPNs","thermal validation"]
