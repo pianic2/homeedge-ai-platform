@@ -203,6 +203,20 @@ Manufacturer evidence: [TLA2024 datasheet SBAS846](https://www.ti.com/lit/ds/sym
 
 **Design state:** `[UNVALIDATED]` pending a supply-off-safe input isolation/protection network and recalculated divider/firmware scale. Do not freeze the original passive-only four-channel monitor topology into a fabrication schematic.
 
+## SR-55-11 — Supply-off ADC isolation candidate (unfrozen)
+
+Manufacturer evidence reviewed 2026-09-13: [TI TMUX1511 Rev.B](https://www.ti.com/lit/ds/symlink/tmux1511.pdf), [TI TPS3839 Rev.D](https://www.ti.com/lit/ds/symlink/tps3839.pdf).
+
+- TMUX1511 provides four SPST signal paths with powered-off protection up to 3.6 V; the candidate divided VBUS maximum is 2.625 V. This does **not** prove ADC input safety through a partial `SYS_3V3` ramp or collapse.
+- TPS3839K33DBZR has a 2.857/2.930/2.974 V falling-threshold min/typ/max, active-low push-pull RESET, 120–350 ms startup release delay, and 20 µs **typical**, not maximum, falling propagation. RESET is undefined below 0.6 V supply.
+- The minimum supervisor threshold leaves only 0.532 V theoretical ADC safety headroom. A 24 µs, 0.5 A sensitivity on the candidate 22 µF nominal 3.3 V output capacitor gives 0.545 V ideal-capacitor droop. This combination is **not design-frozen**. SEL pull-down, effective capacitance, worst-case response and input leakage/error still require verification.
+
+## SR-55-12 — Rejected battery ideal-diode candidate
+
+Manufacturer evidence reviewed 2026-09-13: [TI LM66100 datasheet](https://www.ti.com/lit/ds/symlink/lm66100.pdf), [MPS MP2636 Rev.1.02](https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/EN/sku/MP2636/document_id/1443/).
+
+LM66100's reverse-current blocking is **not** a drop-in reverse-cell control for the bidirectional MP2636 BATT path: charging and battery-backed discharge require opposite current directions. No LM66100 series placement is approved. A mechanically keyed holder/enclosure or a verified bidirectional electrical solution remains to be designed within the Accepted ADR-0007 baseline.
+
 ## Evidence boundary
 
 No dated price above is a purchase authorization or definitive IHAP-17 cost. Prices exclude shipping unless explicitly stated, can change, and must be refreshed at the procurement/BOM gate. Final BOM requires exact passive/inductor/protection MPNs, quantities and fabrication/assembly allocation.

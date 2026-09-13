@@ -1,6 +1,6 @@
 # IHAP-55 simulation evidence — 2026-09-12
 
-Input baseline HEAD `f5c94a2429f27e88161305896eb5fb85566dd636` plus the uncommitted IHAP-55 simulation files. The TI archives were fetched from the official URLs and SHA-256 verified by `python3 hardware/edge-mainboard/simulation/fetch_vendor_models.py`; exact hashes and model versions are in `hardware/edge-mainboard/simulation/vendor-model-manifest.json`. Vendor libraries are Git-ignored.
+Input baseline HEAD `f5c94a2429f27e88161305896eb5fb85566dd636` plus the IHAP-55 simulation files committed as `8bd0fc8`. The TI archives were fetched from the official URLs and SHA-256 verified by `python3 hardware/edge-mainboard/simulation/fetch_vendor_models.py`; exact hashes and model versions are in `hardware/edge-mainboard/simulation/vendor-model-manifest.json`. Vendor libraries are Git-ignored.
 
 | Gate | Executed command / tool | Exit | Result |
 |---|---|---:|---|

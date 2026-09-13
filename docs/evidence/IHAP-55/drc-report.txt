@@ -1,0 +1,5 @@
+IHAP-55 DRC gate — 2026-09-13
+STATUS: NOT EXECUTED
+INPUT: hardware/edge-mainboard/homeedge-edge-mainboard.kicad_pcb does not exist.
+REASON: Preliminary PCB follows schematic/ERC and a defensible power/protection implementation. Board dimensions, antenna keepout and connector coordinates are not frozen.
+CLAIM: No DRC PASS, no PCB validation.

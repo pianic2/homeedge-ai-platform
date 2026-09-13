@@ -1,0 +1,7 @@
+IHAP-55 ERC gate — 2026-09-13
+STATUS: NOT EXECUTED
+INPUT: hardware/edge-mainboard/homeedge-edge-mainboard.kicad_sch does not exist.
+REASON: Revision-A power/ADC protection circuitry is not technically frozen; creating a schematic that appears complete would misrepresent the current design state.
+CLAIM: No ERC PASS, no schematic validation.
+TOOLCHAIN: KiCad Flatpak `org.kicad.KiCad` 10.0.6 is installed and `flatpak run --command=kicad-cli org.kicad.KiCad --version` returned `10.0.6` (exit 0); host `kicad-cli` is absent. Tool availability does not constitute ERC evidence.
+NEXT GATE: freeze and source-link the supply-off-safe TLA2024 network, MP2636 protection/NTC/input-limit implementation, a bidirectional or mechanical reverse-cell control, and a boost `ROLIM` that preserves the 0.5 A continuous/1.0 A transient contract; then run native KiCad ERC and retain the command output.
