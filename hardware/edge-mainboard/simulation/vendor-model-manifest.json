@@ -1,0 +1,33 @@
+{
+  "schema": "ihap55.vendor-models.v1",
+  "checked_utc": "2026-09-12",
+  "redistribution": "Vendor model files are intentionally ignored and not committed.",
+  "models": [
+    {
+      "part": "TPS63802DLAR",
+      "vendor_package": "SLVMCX1C.ZIP",
+      "url": "https://www.ti.com/lit/zip/SLVMCX1",
+      "zip_sha256": "19e0bd80a35629f3084746796a51c4724346337077cb54aa96f6012190b0c8e6",
+      "library_in_zip": "SLVMCX1B/TPS63802_PSPICE_TRANS/TPS63802_TRANS.LIB",
+      "library_sha256": "7167f36c58e5e0281d2fdbee8a9cdca42c603d8a595788792351655a9351499e",
+      "subcircuit": "TPS63802_TRANS",
+      "model_version": "Final 1.00, 03APR2019",
+      "limitations": "TI model omits temperature effects and quiescent current."
+    },
+    {
+      "part": "TLV62568DBVR",
+      "vendor_package": "SLVMBV4B.ZIP",
+      "url": "https://www.ti.com/lit/zip/SLVMBV4",
+      "zip_sha256": "cbbead2f94e07375f259b7931cac8e1f27594b65548dcaba7c08632965916ca7",
+      "library_in_zip": "TLV62568_PSPICE_TRANS/TLV62568_TRANS.LIB",
+      "library_sha256": "5ed25a725d9abc316154562b1ee81e2f25e8832f1d591d8c30e51e4fec61df5a",
+      "subcircuit": "TLV62568_TRANS",
+      "model_version": "Final 1.1, 08DEC2016",
+      "limitations": "Vendor PSpice compatibility and electrothermal fidelity require independent validation."
+    }
+  ],
+  "mp2636": {
+    "exact_official_model_obtained": false,
+    "status": "No exact publicly accessible MP2636 switching model obtained; no substitute is represented as physical switching simulation."
+  }
+}

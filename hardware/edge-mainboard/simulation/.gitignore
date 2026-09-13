@@ -1,4 +1,5 @@
 vendor-models/
+__pycache__/
 *.raw
 *.log
 *.out
