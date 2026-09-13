@@ -46,6 +46,12 @@ def main() -> None:
                                             mp["boost_feedback"]["r_bottom_kohm"]),
             "input_limit_candidate_30k1_nominal_a": 43.3 / 30.1 - 0.05,
             "input_limit_30k1_status": "candidate only; min/max and USB power budget unresolved",
+            "boost_rolim_sensitivity": {
+                "220k8_nominal_a": 2400 * 0.92 / (220.8 * 20),
+                "110k4_nominal_a": 2400 * 0.92 / (110.4 * 20),
+                "90k3_nominal_a": 2400 * 0.92 / (90.3 * 20),
+                "status": "220k8 rejected against product target; 110k4 and 90k3 candidates only",
+            },
         },
         "tps63802": {
             "sys5_nominal_v": feedback(f5["vref_nom_v"], f5["r_top_kohm"],
@@ -87,6 +93,9 @@ def main() -> None:
         },
     }
     assert abs(result["mp2636"]["charge_current_nominal_a"] - 1) < 1e-9
+    assert abs(result["mp2636"]["boost_rolim_sensitivity"]["220k8_nominal_a"] - 0.5) < 1e-9
+    assert abs(result["mp2636"]["boost_rolim_sensitivity"]["110k4_nominal_a"] - 1.0) < 1e-9
+    assert 1.2 < result["mp2636"]["boost_rolim_sensitivity"]["90k3_nominal_a"] < 1.3
     assert abs(result["tps63802"]["sys5_nominal_v"] - 5) < 1e-9
     print(json.dumps(result, indent=2))
 
