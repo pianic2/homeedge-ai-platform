@@ -17,3 +17,22 @@ Reviewer rerun on 2026-09-13: `idf.py build` exit **0** with no source changes t
 The first build failed with `-Werror=misleading-indentation` in the pre-existing compact `health_adc.c`; it was reformatted and rebuilt successfully. IHAP-55 now initializes the TLA2024 on I2C, reads all four channels on command, includes rail validity in a terminal JSON `board_self_test`, preserves the IHAP-50 integrated sample stream, and serializes DHT access between tasks. Host evaluator tests passed 12/12 after fail-closed checks were tightened.
 
 **PASS — firmware build only.** USB command reception, real ADC accuracy, sensor/connector function and GPIO electrical behavior on a fabricated mainboard remain `[UNVALIDATED]`. The firmware's rail thresholds are diagnostic, not calibrated proof of the accepted power contract.
+
+## Current rerun — 2026-09-20
+
+Input HEAD: `d070e5aacbeaebc5a7ab6da1edd006adfdf7a238`.
+
+From `tools/hardware-validation/ihap-55-mainboard/firmware/`:
+
+```bash
+source /home/optimus/.espressif/v6.0.1/esp-idf/export.sh
+idf.py build
+```
+
+ESP-IDF v6.0.1 / ESP32-C3 build exit **0**. The generated binary is `build/ihap55_mainboard_harness.bin`, size `0x2f2b0` bytes, with `0xd0d50` bytes (82%) free in the 1 MiB app partition. SHA-256:
+
+```text
+c73862b0a59d0d45a34df8a4ecb8afb5b983541fb05b7bae12fc28192bc8964c
+```
+
+**PASS — firmware build only.** No board was flashed or physically exercised; USB, TLA2024, rail accuracy, connector behavior and sensor checks remain `[UNVALIDATED]`.

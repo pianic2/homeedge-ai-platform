@@ -18,3 +18,9 @@ Input HEAD at intake: `f5c94a2429f27e88161305896eb5fb85566dd636`. Local worktree
 | GitHub CLI | `gh --version`; `gh auth status` | 2.46.0; cached token invalid; public API used read-only for PR status |
 
 The earlier Docker checks recorded above are historical intake evidence. The CI workflow has since been moved to the official KiCad PPA on Ubuntu 24.04 with an exact 10.0.6 version check; this removes the moving Docker-tag concern by design. Its installation step was **skipped** in [run 34757325971](https://github.com/pianic2/homeedge-ai-platform/actions/runs/34757325971) because no schematic/PCB exists, so CI PPA installation has not itself been verified. The user Flatpak installation and CLI version are verified. The downloaded TI model ZIPs are local and ignored by Git; their hashes are in `simulation-summary.md`.
+
+## Current intake rerun — 2026-09-20
+
+`python3 --version` returned 3.13.5; `git --version` returned 2.47.3; `docker --version` returned 26.1.5; and `gh --version` returned 2.46.0. Host `kicad-cli`, host `ngspice`, and host `idf.py` are absent. ESP-IDF v6.0.1 is available from `/home/optimus/.espressif/v6.0.1/esp-idf/` and produced the fresh firmware build recorded in `firmware-build-report.md`.
+
+The user Flatpak KiCad CLI invocation was retried but failed before tool startup with `Unable to allocate instance id`; no ERC/DRC command was therefore executed. `gh pr view 37` could not reach `api.github.com`, and `git fetch origin` could not update the read-only `.git/FETCH_HEAD`. No remote or PR state is inferred from those failures.
