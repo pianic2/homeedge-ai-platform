@@ -5,7 +5,7 @@ Input baseline HEAD `f5c94a2429f27e88161305896eb5fb85566dd636` plus the firmware
 Commands executed in `tools/hardware-validation/ihap-55-mainboard/firmware/`:
 
 ```bash
-source /home/optimus/.espressif/v6.0.1/esp-idf/export.sh
+source $HOME/.espressif/v6.0.1/esp-idf/export.sh
 idf.py set-target esp32c3
 idf.py build
 ```
