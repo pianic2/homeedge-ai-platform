@@ -1,7 +1,16 @@
-IHAP-55 ERC gate — 2026-09-20
-STATUS: NOT EXECUTED for IHAP-55
-INPUT: hardware/edge-mainboard/homeedge-edge-mainboard.kicad_sch does not exist.
-REASON: A temporary KiCad demo schematic was parser-tested and returned exit 0 for netlist export, but it was unrelated to IHAP-55 and was discarded. Its ERC output (55 violations) is not IHAP-55 evidence and is intentionally not retained.
-CLAIM: No ERC PASS, no schematic validation.
-TOOLCHAIN: KiCad Flatpak 10.0.6 successfully returned its version when run with the required host Flatpak access.
-BLOCKER: The IHAP-55 contract still has unresolved supply-off-safe TLA2024 input protection, MP2636 protection/NTC/input-limit implementation, reverse-cell prevention, and VBUS protection/topology decisions. No native schematic may be fabricated around those unresolved decisions.
+ERC report (2026-09-21T11:22:14, Encoding UTF8)
+Report includes: Errors, Warnings, Exclusions
+
+***** Sheet /
+[multiple_net_names]: Both GND and USB_D_MINUS are attached to the same items; GND will be used in the netlist
+    ; warning
+    @(16.51 mm, 38.10 mm): Label 'GND'
+    @(21.59 mm, 27.94 mm): Label 'USB_D_MINUS'
+
+ ** ERC messages: 1  Errors 0  Warnings 1
+
+ ** Ignored checks:
+    - Global label only appears once in the schematic
+    - Four connection points are joined together
+    - SPICE model issue
+    - Assigned footprint doesn't match footprint filters

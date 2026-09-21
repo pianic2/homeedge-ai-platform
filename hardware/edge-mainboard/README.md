@@ -1,7 +1,7 @@
 # HomeEdge Edge Mainboard — IHAP-55
 
 **EDA baseline:** KiCad 10.0.6 stable  
-**Status:** revision-A electrical contract under validation; no native schematic or PCB source yet
+**Status:** revision-A native capture under validation; ERC has one unresolved warning and DRC has unresolved schematic-parity/footprint mapping findings
 
 This directory is the canonical PCB source workspace for IHAP-55.
 
@@ -18,7 +18,7 @@ hardware/edge-mainboard/
 
 ## Current design gates
 
-The workspace remains before native schematic capture because the 2026-09-12 manufacturer review found that the direct 47 kOhm board-health dividers can violate the TLA2024 AIN limit while SYS_3V3 is off. Power-path protection, reverse-cell prevention and NTC implementation also remain incomplete. `docs/evidence/IHAP-55/open-items.md` and `power-calculations.md` record the evidence and required remediation; no ERC/DRC result is implied.
+The native schematic and preliminary PCB now exist and load in KiCad. The 2026-09-12 manufacturer review still blocks electrical freeze because direct 47 kOhm board-health dividers can violate the TLA2024 AIN limit while SYS_3V3 is off. Power-path protection, reverse-cell prevention and NTC implementation also remain incomplete. Current ERC/DRC results and remaining parity findings are recorded in `docs/evidence/IHAP-55/erc-report.txt`, `drc-report.txt`, and `pcb-preliminary-review.md`; neither gate is a PASS.
 
 Current architecture candidate is documented in:
 
