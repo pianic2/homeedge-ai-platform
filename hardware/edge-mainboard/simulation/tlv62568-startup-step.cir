@@ -1,0 +1,19 @@
+* IHAP-55 TLV62568 vendor-model transient: 5 V input, 50 -> 500 mA load
+* Run from hardware/edge-mainboard/simulation after fetching the TI model.
+.include vendor-models/TLV62568_TRANS.LIB
+Vinput vin 0 PWL(0 0 0.1m 0 0.11m 5 5m 5)
+Cin vin 0 4.7u
+XU5 vin fb sw vin 0 TLV62568_TRANS
+Lout sw out 2.2u
+Cout out 0 22u
+Rtop out fb 453k
+Rbottom fb 0 100k
+Cff out fb 6.8p
+Ridle out 0 66
+Istep out 0 PWL(0 0 2m 0 2.01m 0.45 3m 0.45 3.01m 0 5m 0)
+.tran 1u 5m 0 100n
+.meas tran vout_before AVG v(out) FROM=1.5m TO=1.9m
+.meas tran vout_step_min MIN v(out) FROM=2m TO=3m
+.meas tran vout_step_max MAX v(out) FROM=3m TO=4m
+.meas tran vout_final AVG v(out) FROM=4.5m TO=4.9m
+.end
